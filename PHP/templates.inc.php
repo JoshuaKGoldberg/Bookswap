@@ -48,6 +48,26 @@
   // PrintRequest("function_name", [args])
   // Prints an HTML form that will be picked up by JS on page load
   // JS will then send a public request to function_name with the arguments
+  /* For example, to call a sample function from a template:
+     PHP code
+     --------
+     <?php PrintRequest("PrintUserBooks", [$user_id, 'sell']); ?>
+ 
+     Resultant HTML (line breaks for clarity)
+     --------------
+     <div class="php_request_load loading"
+          request="PrintUserBooks"
+          num_args = "2"
+          arg0="4"
+          arg1="sell">
+       <hr />
+       <div class="loader">loading</div>
+     </div>
+
+     Resultant JS call
+     -----------------
+     sendRequest("PrintUserBlocks", {"4", "sell"}, loadRequestAuto);
+  */
   function PrintRequest($function_name, $args=[], $time=0) {
     $num_args = count($args);
     echo '<div class="php_request_load loading" request="' . $function_name . '" ';

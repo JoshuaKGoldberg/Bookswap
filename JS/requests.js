@@ -5,8 +5,8 @@ a set of arguments (settings), and send the results to a
 callback function (callback).
 
 The callback function must:
+* Have its name in php/requests.php::$allowed_functions
 * Exist in php/public_functions.php
-* Have its name declared in $allowed_functions in settings.php
 
 For example, the following will console.log each given argument:
 
@@ -33,34 +33,6 @@ Argument is first_variable -> my first value
 Argument is second_variable -> hello momma!
 Argument is third_variable -> we're done here.
 "
-
-*/
-/* Auto-loading
-In addition, the PHP function PHP/templates.inc.php::PrintRequest
-prints an HTML div with the details of a sendRequest call. It will
-be detected by loadPrintedRequests, and run.
-
-For example, to call a sample function from a template:
-
-PHP code
---------
-<?php PrintRequest("PrintUserBooks", [$user_id, 'sell']); ?>
-
-Resultant HTML (line breaks for clarity)
---------------
-<div class="php_request_load loading"
-     request="PrintUserBooks"
-     num_args = "2"
-     arg0="4"
-     arg1="sell">
-  <hr />
-  <div class="loader">loading</div>
-</div>
-
-Resultant JS call
------------------
-sendRequest("PrintUserBlocks", {"4", "sell"}, loadRequestAuto);
- 
 */
 
 // sendRequest("func_name", {settings}[, callback])
@@ -123,6 +95,8 @@ function ensureNoBlanks(settings) {
   return true;
 }
 
+
+// See templates.inc.php::PrintRequest
 // Finds each div.php_request_load, and makes them call their printed request
 function loadPrintedRequests() {
   $(".php_request_load").each(loadPrintedRequest);
