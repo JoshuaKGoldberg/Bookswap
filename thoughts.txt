@@ -1,0 +1,7 @@
+* account info
+    after first account section, place contact info
+    have fields such as major, year, email, etc.
+
+    rollover person's name a la facebook
+  
+* separate 'recent rpi listings' into more advanced page?

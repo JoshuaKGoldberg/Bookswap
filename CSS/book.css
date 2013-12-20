@@ -1,0 +1,12 @@
+/* Book styles unique to large displays */
+.book.book_large h1 {
+  text-align: center;
+}
+.book.book_large h2 {
+  font-size: 1.56em;
+  margin-bottom: 7px;
+}
+.book.book_large blockquote {
+  font-size: 1.4em;
+  line-height: 140%;
+}
