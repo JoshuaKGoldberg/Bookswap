@@ -4,7 +4,8 @@
   */
   
   // Know where the site is located
-  function getBase() { return "http://localhost/BooksExchange"; }
+  function getName() { return 'BookSwap'; }
+  function getBase() { return 'http://localhost/' . getName(); }
   function getURL($url) { return getBase() . '/index.php?page=' . $url; }
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);
@@ -17,7 +18,7 @@
   /* Templating & Including
   */
   // function getTemplatesPre() { return 'Templates/'; }
-  function getTemplatesPre() { return 'C:/xampp/htdocs/BooksExchange/Templates/'; }
+  function getTemplatesPre() { return 'C:/xampp/htdocs/' . getName() . '/Templates/'; }
   function getTemplatesExt() { return '.tpl.php'; }
   function getIncludesPre() { return 'PHP/'; }
   function getIncludesExt() { return '.inc.php'; }
@@ -31,7 +32,7 @@
   
   // General Site Info
   function getSchoolName() { return 'RPI'; }
-  function getSiteName() { return getSchoolName() . ' BookSwap'; }
+  function getSiteName() { return getSchoolName() . ' ' . getName(); }
   function getSiteDescription() { return 'A hub for students to buy & sell textbooks on campus.'; }
   function getNumBooks() { return 'dozens of'; }
   
@@ -39,7 +40,7 @@
   function getDBHost() { return 'localhost'; }
   function getDBUser() { return 'root'; }
   function getDBPass() { return ''; }
-  function getDBName() { return 'BooksExchange'; }
+  function getDBName() { return getName(); }
   
   
   /* Book particulars

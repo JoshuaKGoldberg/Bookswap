@@ -3,6 +3,11 @@
 BookSwap is a simple service that keeps track of users, books, and book transactions users would like to do. It will recommend exchanges to users based on others who want to buy or sell the same books as them.
 
 
+<h2>Installation</h2>
+
+This requires PHP and MySQL (generally an <a href='http://www.apachefriends.org/en/xampp.html'>*AMP</a> installation or server). Go to `index.php?page=install` to install the site.
+
+
 <h2>Books</h2>
 
 Books are kept in the `books` database, keyed by their ISBN. They also store Google ID and basic information, such as title, author, and description. 
