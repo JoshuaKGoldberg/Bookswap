@@ -19,7 +19,7 @@
         
         <div id="login_submit_holder">
           <input id="login_submit" type="submit" value="Log Me In!" />
-          <input id="login_forgot" type="button" value="Forgot?" onclick= />
+          <input id="login_forgot" type="button" value="Forgot?" onclick="alert('nope')" />
         </div>
         
         <?php endif; ?>
