@@ -10,3 +10,17 @@
   font-size: 1.4em;
   line-height: 140%;
 }
+
+.book.book_large .authors {
+  font-size: 1.17em;
+}
+
+.viewgoogle, .book .display_book_export {
+  float: right;
+  margin-top: 4px;
+}
+
+.book .book_export {
+  float: right;
+  padding: 1px 7px;
+}

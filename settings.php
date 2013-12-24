@@ -3,6 +3,7 @@
    * General site settings and important utility functions
   */
   
+  
   // Know where the site is located
   function getName() { return 'BookSwap'; }
   function getBase() { return 'http://localhost/' . getName(); }
@@ -14,6 +15,9 @@
     return '<a href="' . $output . '">' . $contents . '</a>';
   }
   function getCurrency() { return '&#36;'; }
+  function getPriceAmount($amount) { 
+    return getCurrency() . number_format($amount, 2, '.', ',');
+  }
   
   /* Templating & Including
   */
@@ -66,7 +70,12 @@
   */
   
   function getGoogleKey() { return "AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw"; }
-  
+  function getGoogleLink($google_id) { return 'http://books.google.com/books?id=' . $google_id; }
+  function getGoogleExport($google_id, $type) {
+    $output = 'http://books.google.com/books/download/';
+    $output .= '?id=' . $google_id . '&output=' . $type;
+    return $output;
+  }
 
   /* Misc. Utilities
   */

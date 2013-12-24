@@ -1,4 +1,3 @@
 <?php 
-  $amount = $_TARGS['price'];
-  echo '$' . round((float)$amount, 2);
+  echo getPriceAmount($_TARGS['price']);
 ?>

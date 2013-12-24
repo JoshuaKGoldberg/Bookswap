@@ -41,7 +41,14 @@ section:nth-of-type(2) h3 {
 a {
   text-decoration: inherit;
   font-style: inherit;
+}
+a, .a-emph, input.a-emph {
   color: #ee6e4c;
+}
+.a-emph {
+  font-weight: normal;
+  /* border: 1px solid #aaa; */
+  cursor: pointer;
 }
 
 /* General fancy items
@@ -103,22 +110,14 @@ header {
 /* Badge
 */
 #badge {
-  width: 259px;
+  width: 182px;
   float: left;
 }
 #badge.logged {
   width: 84px;
 }
-#badge_image {
-  position: absolute;
-  margin-top: 3px;
-}
-#badge_image img {
-  width: 77px;
-  height: 77px;
-}
 #badge_main {
-  margin-left: 77px;
+  margin-left: 0;
   padding-left: 3px;
   padding-top: 1px;
   width: 175px;
@@ -152,15 +151,15 @@ header #login_forgot {
 }
 /* Search
 */
-#badge.logged + #header_search {
-  width: 931px;
-}
 #header_search {
   position: relative;
   display: table;
   right: 0;
-  width: 749px;
+  width: 833px;
   height: 84px;
+}
+#badge.logged + #header_search {
+  width: 1008px;
 }
 #header_search_form {
   display: table-cell;
@@ -182,7 +181,6 @@ header #login_forgot {
 }
 #header_search_submit {
   position: absolute;
-  background: url('/images/Search.png') no-repeat center center;
   width: 35px;
   height: 35px;
   margin-top: 25px;
@@ -211,8 +209,12 @@ header #login_forgot {
   border-width: 0 1px;
   background: #fcfcfc;
 }
-#header_search_results .book:last-of-type {
-  border-bottom-width: 1px;
+#header_search_results .search_end {
+  padding: 0 14px 14px 14px;
+  min-height: initial;
+  border-bottom: 1px solid #988470;
+  text-align: right;
+  font-style: italic;
 }
 
 /* Main Contents
@@ -337,6 +339,13 @@ section:nth-of-type(2n) .loading .loader {
 }
 .book .display_book_after {
   clear: both;
+}
+.book .book_entry {
+  float: right;
+  padding-top: 0;
+  margin-right: .14em;
+  color: #969696;
+  font-style: italic;
 }
 
 /* Entry adder forms

@@ -2,10 +2,6 @@
 
 <div id="badge" class="<?php echo $logged ? "logged" : "anon" ?>">
   
-  <div id="badge_image">
-    <img src="Images/ProfileDefault.jpg" />
-  </div>
-  
   <div id="badge_main">
     
     <div id="badge_main_contents">
@@ -18,8 +14,8 @@
         <input id="password" type="password" placeholder="password" />
         
         <div id="login_submit_holder">
-          <input id="login_submit" type="submit" value="Log Me In!" />
-          <input id="login_forgot" type="button" value="Forgot?" onclick="alert('nope')" />
+          <input id="login_submit" class="a-emph" type="submit" value="Log Me In!" />
+          <input id="login_forgot" class="a-emph" type="button" value="Forgot?" onclick="alert('nope')" />
         </div>
         
         <?php endif; ?>

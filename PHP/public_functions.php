@@ -124,7 +124,8 @@
   // This needs protection against SQL injections
   function publicSearch($arguments, $noverbose=false) {
     $dbConn = getPDOQuick();
-    $value = '%' . ArgLoose($arguments['value']) . '%';
+    $value_raw = ArgLoose($arguments['value']);
+    $value = '%' . str_replace(' ', '%', $value_raw) . '%';
     
     // Prepare the initial query
     $query = ' SELECT * FROM `books` ';
@@ -149,9 +150,15 @@
     
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+    $num = 1;
+    $max = 7;
     foreach($results as $result) {
       TemplatePrint("Books/Medium", 0, $result);
+      if($num++ >= $max) break;
     }
+    echo '<div class="search_end book">search on ';
+    echo getLinkHTML('search', $value_raw, array('value'=>$value_raw));
+    echo ': ' . ($num - 1) . ' of ' . count($results) . ' results shown.';
   }
 
   // publicGetBookEntries({...})
@@ -366,28 +373,16 @@
     // If there were none, stop immediately
     if(!$entries) {
       if(!$noverbose)
-        echo '<aside>No results were found for this user!</aside>';
+        echo '<aside>Nothing going!</aside>';
+        echo '<p>Perhaps you\'d like to <a href="">add more?</a></p>' . PHP_EOL;
       return;
     }
     
-    // For each one, query the book information
-    $results = [];
+    // For each one, query the book information, and print it out
     foreach($entries as $key=>$entry) {
       $results[$key] = dbBooksGet($dbConn, $entry['isbn']);
+      TemplatePrint("Books/" . $format, 0, array_merge($entry, $results[$key]));
     }
-    
-    // If there weren't any results, complain if wanted
-    if(!$results) {
-      if(!$noverbose) {
-        echo 'Nothing going!' . PHP_EOL;
-        echo '<p>Perhaps you\'d like to <a href="">add more?</a></p>' . PHP_EOL;
-      }
-      return;
-    }
-    
-    // For each of those books, print the sized format
-    foreach($results as $result)
-      TemplatePrint("Books/" . $format, 0, $result);
   }
   
   // publicPrintRecentListings({...})
@@ -459,16 +454,17 @@
     
     // Prepare the query
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
+    // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
     $query = '
       SELECT DISTINCT a.*
       FROM `entries` a
       # matching rows in entries against themselves
       INNER JOIN `entries` b
-      # where ISBNs are the same, but users are not
-      ON a.isbn = b.isbn
-      AND b.user_id != a.user_id
-      # and filter for not the given user
-      WHERE a.user_id != :user_id
+      # not from the given user; ISBNs are the same, but users and actions are not
+      ON  a.user_id <> :user_id
+      AND a.isbn = b.isbn
+      AND b.user_id <> a.user_id
+      AND a.action <> b.action
     ';
     
     // Run the query
@@ -501,10 +497,9 @@
       FROM `entries` a
       # matching rows in entries against themselves
       INNER JOIN `entries` b
-      # where ISBNs are the same
+      # where ISBNs are the same, and the two user_ids match
       ON a.isbn = b.isbn
-      # and filter on the users
-      WHERE a.user_id LIKE :user_id_a
+      AND a.user_id LIKE :user_id_a
       AND b.user_id LIKE :user_id_b
     ';
     

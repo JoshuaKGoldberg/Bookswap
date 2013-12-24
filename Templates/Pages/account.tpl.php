@@ -34,7 +34,7 @@
   
 ?>
 <!-- Lists of books the user wants -->
-<section>
+<section id="account">
   <h1 class="standard_main standard_vert giant"><?php echo $username; ?></h1>
   <?php if($descriptor): ?>
   
@@ -70,7 +70,7 @@
 
 <!-- Recommended trades -->
 <?php if(UserLoggedIn()): ?>
-<section>
+<section id="recommendations">
   <h1 class="standard_main standard_vert giant">
   <?php
     echo 'recommendations for you';
@@ -93,12 +93,10 @@
 
 <!-- Display a feed of the most recently placed stuff -->
 <?php if($using_current): ?>
-<section>
+<section id="recent">
   <h1 class="standard_main standard_vert giant">recent <?php echo getSchoolName(); ?> listings</h1>
   <div class="standard_main listings">
-    <?php
-      PrintRequest("publicPrintRecentListings");
-    ?>
+    <?php PrintRequest("publicPrintRecentListings"); ?>
   </div>
 </section>
 <?php endif; ?>

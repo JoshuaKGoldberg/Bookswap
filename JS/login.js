@@ -3,6 +3,7 @@
 
 function loginSubmit() {
   sendRequestForm("publicLogin", ["username", "password"], loginComplete, true);
+  $("#login_submit").val("Thinking...");
 }
 
 function loginComplete(text) {
@@ -20,6 +21,6 @@ function loginComplete(text) {
     $("#login_form_inside input:not([type=submit])")
       .css("background-color", "#fee")
       .css("border", "1px solid #733");
-    $("#logmein").val("try again!");
+    $("#login_submit").val("try again!");
   }
 }
