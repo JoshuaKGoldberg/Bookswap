@@ -5,7 +5,7 @@
   
   // The minimum includes required for pages to run
   $css = [];
-  $js = ['jquery-2.0.3.min', 'requests', 'login', 'search', 'default'];
+  $js = ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default'];
   
   // The requested page to print
   $pageName = isset($_GET['page']) ? $_GET['page'] : "index";

@@ -2,25 +2,7 @@
 .book.book_large h1 {
   text-align: center;
 }
-.book.book_large h2 {
-  font-size: 1.56em;
-  margin-bottom: 7px;
-}
-.book.book_large blockquote {
-  font-size: 1.4em;
-  line-height: 140%;
-}
 
-.book.book_large .authors {
-  font-size: 1.17em;
-}
-
-.viewgoogle, .book .display_book_export {
-  float: right;
+.viewgoogle {
   margin-top: 4px;
-}
-
-.book .book_export {
-  float: right;
-  padding: 1px 7px;
 }

@@ -10,7 +10,7 @@
     return preg_replace("/[^A-Za-z0-9 ]/", '', $arg);
   }
   function ArgLoose($arg) {
-    return $arg;
+    return $arg; // oh boy oh boy security
   }
   
   // publicCheckValidity({...})
@@ -119,46 +119,49 @@
   // publicSearch({...})
   // Runs a search for a given value on a given field
   // Required fields:
-  // * "column"
   // * "value"
-  // This needs protection against SQL injections
+  // Optional fields:
+  // * "column"
+  // * "format"
+  // * "offset"
   function publicSearch($arguments, $noverbose=false) {
     $dbConn = getPDOQuick();
     $value_raw = ArgLoose($arguments['value']);
     $value = '%' . str_replace(' ', '%', $value_raw) . '%';
+    $format = isset($arguments['format']) ? ArgStrict($arguments['format']) : 'Medium';
+    
+    // The user may give a different column to search on
+    if(isset($arguments['column']))
+      $column = strtolower(ArgStrict($arguments['column']));
+    else $column = 'title';
+    
+    // Same witha an offset
+    if(isset($arguments['offset']))
+      $offset = (int) ArgStrict($arguments['column']);
+    else $offset = 0;
     
     // Prepare the initial query
-    $query = ' SELECT * FROM `books` ';
-    
-    // Gather the required columns
-    // $num_cols = (int) ArgStrict($arguments['num_cols']);
-    // // (anything over 14 is ridiculous)
-    // if($num_cols > 14) return;
-    
-    // // Add each of the columns into the search
-    // for($i = 0; $i < $num_cols; ++$i) {
-      // $column = ArgStrict($arguments[$i]);
-      
-      // $query .= ' WHERE ' . $column . ' LIKE :value ';
-    // }
-    
-    $query .= ' WHERE `title` LIKE :value';
+    $query = '
+      SELECT * FROM `books` 
+      WHERE `' . $column . '` LIKE :value
+      LIMIT 7 OFFSET ' . $offset . '
+    ';
     
     // Run the query
     $stmnt = getPDOStatement($dbConn, $query);
-    $durp = $stmnt->execute(array(':value' => $value));
+    $durp = $stmnt->execute(array(':value'  => $value));
     
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-    $num = 1;
-    $max = 7;
     foreach($results as $result) {
-      TemplatePrint("Books/Medium", 0, $result);
-      if($num++ >= $max) break;
+      $result['is_search'] = true;
+      TemplatePrint('Books/' . $format, 0, $result);
     }
     echo '<div class="search_end book">search on ';
     echo getLinkHTML('search', $value_raw, array('value'=>$value_raw));
-    echo ': ' . ($num - 1) . ' of ' . count($results) . ' results shown.';
+    echo ': ' . count($results) . ' results shown';
+    if($offset) echo ' (starting from ' . ($offset + 1) . ')';
+    echo '.';
   }
 
   // publicGetBookEntries({...})
@@ -307,53 +310,6 @@
     }
     return false;
   }
-  
-  // publicSearchFull({...})
-  // Performs a full search of the book database
-  // Required arguments:
-  // * 'title'
-  // * 'authors'
-  // * 'description'
-  // * 'year'
-  // * 'isbn'
-  // * 'publisher'
-  function publicSearchFull($arguments) {
-    $dbConn = getPDOQuick();
-    $terms = array('title', 'authors', 'description', 'year', 'isbn', 'publisher');
-    $parsed = array();
-    
-    $title = check_arg($arguments['search_input_title']);
-    $authors = check_arg($arguments['search_input_authors']);
-    $description = check_arg($arguments['search_input_description']);
-    $year = check_arg($arguments['search_input_year']);
-    $isbn = check_arg($arguments['search_input_isbn']);
-    $publisher = check_arg($arguments['search_input_publisher']);
-    $vals = [$title, $authors, $description, $year, $isbn, $publisher];
-    
-    $query = 'SELECT * ' . PHP_EOL;
-    $query .= ' FROM `books` WHERE' . PHP_EOL;
-    $filters = array();
-    $settings = array();
-    foreach($terms as $key=>$term) {
-      if($vals[$key] != '%') {
-        $filters[] =  ' `' . $term . '` LIKE :' . $term;
-        $settings[$term] = '%' . $vals[$key] . '%';
-      }
-    }
-    $query .= implode(' AND ' . PHP_EOL, $filters);
-    
-    $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute($settings);
-                          
-    $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-    $parsed = json_encode($results);
-    echo $parsed;
-  }
-  function check_arg($value) {
-    if(!$value || $value == '')
-      return '%';
-    return $value;
-  }
 
   // publicPrintUserBooks({...})
   // Prints the formatted displays of the books on a user's list
@@ -412,7 +368,7 @@
   }
 
   // publicEntryAdd({...})
-  // Adds an entry regarding the book for the current user
+  // Adds an entry regarding a book for the current user
   // Required arguments:
   // * "isbn"
   // * "action"
@@ -425,12 +381,11 @@
       echo 'You must be logged in to add an entry.';
       return false;
     }
-    
-    // Fetch the necessary arguments
-    $dbConn = getPDOQuick();
     $username = $_SESSION['username'];
     $user_id = $_SESSION['user_id'];
-    // (many from $arguments)
+    $dbConn = getPDOQuick();
+    
+    // Fetch the necessary arguments
     $isbn = ArgStrict($arguments['isbn']);
     $action = ArgStrict($arguments['action']);
     $dollars = ArgStrict($arguments['dollars']);
@@ -442,6 +397,32 @@
     // Send the query
     if(dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price, $state))
       echo 'Entry added successfully!';
+  }
+  
+  // publicEntryDelete({...})
+  // Removes an entry regarding a book for the current user
+  // Required arguments:
+  // * "isbn"
+  // * "action"
+  function publicEntryDelete($arguments) {
+    // Make sure there's a user, and get that user's info
+    if(!UserLoggedIn()) {
+      echo 'You must be logged in to delete an entry.';
+      return false;
+    }
+    $username = $_SESSION['username'];
+    $user_id = $_SESSION['user_id'];
+    $dbConn = getPDOQuick();
+    
+    // Fetch the necessary argument
+    $isbn = ArgStrict($arguments['isbn']);
+    $action = ArgStrict($arguments['action']);
+    
+    // Send the query and print the results
+    $link = getLinkHTML('book', $isbn, array('isbn'=>$isbn));
+    if(dbEntriesRemove($dbConn, $isbn, $user_id))
+      echo $link . ' removed successfully!';
+    else echo $link . ' removal failed, refresh and try again?';
   }
   
   // publicPrintRecommendationsDatabase({...})
@@ -456,7 +437,7 @@
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
     $query = '
-      SELECT DISTINCT a.*
+      SELECT a.*
       FROM `entries` a
       # matching rows in entries against themselves
       INNER JOIN `entries` b
@@ -493,7 +474,7 @@
     // Prepare the query
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     $query = '
-      SELECT DISTINCT a.*
+      SELECT a.*
       FROM `entries` a
       # matching rows in entries against themselves
       INNER JOIN `entries` b

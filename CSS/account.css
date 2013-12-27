@@ -9,3 +9,43 @@ h1, h2, h3, h4 {
   font-style: italic;
   color: #333;
 }
+
+/* Entries
+*/
+.book .book_entry {
+  float: right;
+  padding-top: 0;
+  margin-right: .14em;
+  color: #969696;
+  font-style: italic;
+}
+.book .book_entry.changes {
+  clear: right;
+}
+.book .entry_changes {
+  margin-left: 11px;
+  margin-right: -3px;
+  float: right;
+  width: 21px;
+  height: 21px;
+  cursor: pointer;
+  opacity: .49;
+}
+.book .entry_changes:hover {
+  opacity: 1;
+}
+.book .entry_edit {
+  background-image: url('../Images/Edit.gif');
+}
+.book .entry_delete {
+  background-image: url('../Images/Delete.gif');
+}
+.book.book-medium {
+  height: 84px;
+  transition: 350ms height;
+}
+.book.book-medium.done {
+  height: 21px;
+  font-size: 21px;
+  text-align: center;
+}

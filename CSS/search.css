@@ -1,0 +1,44 @@
+#search_form {
+  position: relative;
+  margin: 0 auto 35px auto;
+  height: 49px;
+}
+
+#search_form input,
+#search_form select {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  font-size: 24.5px;
+}
+
+#search_input {
+  right: 77px;
+  left: 0;
+}
+
+#search_submit {
+  right: 0;
+  width: 70px;
+}
+
+#search_change {
+  right: 77px;
+}
+#search_change option {
+  text-align: right;
+}
+
+.book_large {
+  padding-bottom: 49px;
+}
+
+.book_large h2 {
+  font-size: 1.75em;
+}
+
+.book_large h1,
+.book_large h2,
+.book_large h2 * {
+  display: inline;
+}

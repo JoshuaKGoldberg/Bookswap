@@ -81,10 +81,12 @@ input {
   border: 1px solid #988470;
   outline: none;
   font-style: italic;
-  font-family: 'Lato';
   font-size: 21px;
   color: #564942;
   text-shadow: 0 0 3px #ccc;
+}
+input, select {
+  font-family: 'Lato';
 }
 input.large {
   border-radius: 28px;
@@ -159,7 +161,7 @@ header #login_forgot {
   height: 84px;
 }
 #badge.logged + #header_search {
-  width: 1008px;
+  width: 1015px;
 }
 #header_search_form {
   display: table-cell;
@@ -167,10 +169,10 @@ header #login_forgot {
 }
 #header_search_form input[type=text] {
   position: absolute;
-  top: 1px;
-  left: 1px;
-  right: 0;
-  bottom: 1px;
+  top: 0;
+  left: -3px;
+  right: -3px;
+  bottom: 2px;
   padding: 3px 11px;
   background-color: #fcfcfc;
   /* border-radius: 14px 21px 14px 14px; */
@@ -198,8 +200,8 @@ header #login_forgot {
 }
 #header_search_results_contents {
   position: absolute;
-  left: 3px;
-  right: 2px;
+  left: -1px;
+  right: -1px;
   height: 7px;
 }
 #header_search_results .book {
@@ -340,12 +342,23 @@ section:nth-of-type(2n) .loading .loader {
 .book .display_book_after {
   clear: both;
 }
-.book .book_entry {
+.book.book_large h2 {
+  font-size: 1.56em;
+  margin-bottom: 7px;
+}
+.book.book_large blockquote {
+  font-size: 1.4em;
+  line-height: 140%;
+}
+.book.book_large .authors {
+  font-size: 1.17em;
+}
+.viewgoogle, .book .display_book_export {
   float: right;
-  padding-top: 0;
-  margin-right: .14em;
-  color: #969696;
-  font-style: italic;
+}
+.book .book_export {
+  float: right;
+  padding: 1px 7px;
 }
 
 /* Entry adder forms
@@ -359,7 +372,6 @@ section:nth-of-type(2n) .loading .loader {
 }
 .entry select {
   font-size: 1em;
-  font-family: Lato;
   margin: 0 .14em 0 .21em;
 }
 .entry select.cents {

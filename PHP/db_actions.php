@@ -58,12 +58,11 @@
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':username' => $username,
-                          ':password' => $salted,
-                          ':email'    => $email,
-                          ':role'     => $role,
-                          ':salt'     => $salt));
-    return true;
+    return $stmnt->execute(array(':username' => $username,
+                                 ':password' => $salted,
+                                 ':email'    => $email,
+                                 ':role'     => $role,
+                                 ':salt'     => $salt));
   }
   
   // dbUsersRemove("identity"[, "type"])
@@ -82,7 +81,7 @@
       WHERE `' . $type . '` = :identity
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':identity'    => $identity));
+    return $stmnt->execute(array(':identity'    => $identity));
   }
   
   
@@ -148,16 +147,14 @@
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn'        => $isbn,
-                          ':google_id'   => $googleID,
-                          ':title'       => $title,
-                          ':authors'     => $authors,
-                          ':description' => $description,
-                          ':publisher'   => $publisher,
-                          ':year'        => $year,
-                          ':pages'       => $pages));
-    
-    return true;
+    return $stmnt->execute(array(':isbn'        => $isbn,
+                                 ':google_id'   => $googleID,
+                                 ':title'       => $title,
+                                 ':authors'     => $authors,
+                                 ':description' => $description,
+                                 ':publisher'   => $publisher,
+                                 ':year'        => $year,
+                                 ':pages'       => $pages));
   }
   
   // (missing Remove)
@@ -196,21 +193,35 @@
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
   }
   
-  // dbEntriesGetRecent([, "identifier", "value"])
+  // dbEntriesGetRecent([, "identifier", "value"][, #limit])
   // Gets the most recent entries, sorted most-recent-first
-  function dbEntriesGetRecent($dbConn, $identifier='', $value) {
+  // Sample usage: 
+  // * dbEntriesGetRecent($dbConn);
+  // * dbEntriesGetRecent($dbConn, "user_id", 7);     // only from user_id 7
+  // * dbEntriesGetRecent($dbConn, 21);               // limit to 21 results
+  // * dbEntriesGetRecent($dbConn, "user_id", 7, 21); // combine the two
+  function dbEntriesGetRecent($dbConn, $identifier=false, $value, $limit = 0) {
     // Prepare the initial query
-    $query = '
-      SELECT * FROM `entries`
-    ';
+    $query = ' SELECT * FROM `entries` ';
+    $args = [];
+    
     // Add in the extra filter, if needed
-    if($identifier != '') {
+    if(is_string($identifier)) {
       $query .= ' WHERE `' . $identifier . '` = :value';
-      $args = array(':value' => $value);
+      $args[':value'] = $value;
     }
-    else $args = array();
-    // Also set the ordering
+    // Else check for a limit given instead of $identifier, if needed
+    else if(!$limit && is_numeric($identifier)) 
+      $limit = (int) $identifier;
+    
+    // Set the ordering as most-recent-first
     $query .= ' ORDER BY `timestamp` DESC';
+    
+    // Set the limit, if it was specified
+    if($limit) {
+      $query .= ' LIMIT :limit';
+      $args[':limit'] = $limit;
+    }
     
     // Run the query
     $stmnt = getPDOStatement($dbConn, $query);
@@ -275,14 +286,13 @@
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn'      => $isbn,
-                          ':user_id'   => $user_id,
-                          ':username'  => $username,
-                          ':bookname'     => $book_title,
-                          ':price'     => $price,
-                          ':state'     => $state,
-                          ':action'    => $action));
-    return true;
+    return $stmnt->execute(array(':isbn'      => $isbn,
+                                 ':user_id'   => $user_id,
+                                 ':username'  => $username,
+                                 ':bookname'     => $book_title,
+                                 ':price'     => $price,
+                                 ':state'     => $state,
+                                 ':action'    => $action));
   }
   
   // dbEntriesRemove(#isbn, #user_id)
@@ -308,8 +318,8 @@
         `user_id` = :user_id
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn'    => $isbn,
-                          ':user_id' => $user_id));
+    return $stmnt->execute(array(':isbn'    => $isbn,
+                                 ':user_id' => $user_id));
   }
   
   

@@ -1,4 +1,5 @@
 <?php
+  // The required arguments
   $isbn = $_TARGS['isbn'];
   $google_id = $_TARGS['google_id'];
   $title = $_TARGS['title'];
@@ -9,11 +10,21 @@
   $pages = $_TARGS['pages'];
 ?>
 <div class="book book-medium">
-  <img src="http://bks2.books.google.com/books?id=<?php echo $google_id; ?>&printsec=frontcover&img=1&zoom=5&source=gbs_api" />
+  <?php
+    echo getLinkHTML('book', '<img src="http://bks2.books.google.com/books?id='. $google_id . '&printsec=frontcover&img=1&zoom=5" />', array('isbn'=>$isbn));
+  ?>
   <div class="holder">
-    <!-- Entry information (if it exists) -->
+    <!-- Entry information (if it's given) -->
     <?php if(isset($_TARGS['price'])): ?>
     <div class="entry book_entry price"><?php echo getPriceAmount($_TARGS['price']); ?></div>
+    <div class="entry book_entry changes">
+      <?php
+        $action = $_TARGS['action'];
+        $js_func = 'makeUpdateEntryDelete(event, "' . $isbn . '", "' . $action . '")';
+      ?>
+      <div class="entry_changes entry_delete" onclick='<?php echo $js_func; ?>'></div>
+      <!-- <div class="entry_changes entry_edit"></div> -->
+    </div>
     <?php endif; ?>
     
     <!-- Book information -->
