@@ -330,7 +330,7 @@
     if(!$entries) {
       if(!$noverbose)
         echo '<aside>Nothing going!</aside>';
-        echo '<p>Perhaps you\'d like to <a href="">add more?</a></p>' . PHP_EOL;
+        echo '<p>Perhaps you\'d like to ' . getLinkHTML('search', 'add more') . '?</p>' . PHP_EOL;
       return;
     }
     
@@ -397,6 +397,35 @@
     // Send the query
     if(dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price, $state))
       echo 'Entry added successfully!';
+  }
+  
+  // publicEntryEditPrice({...})
+  // Edits an entry price regarding a book for the current user
+  // Required arguments:
+  // * "isbn"
+  // * "action"
+  // * "dollars"
+  // * "cents"
+  function publicEntryEditPrice($arguments) {
+    // Make sure there's a user, and get that user's info
+    if(!UserLoggedIn()) {
+      echo 'You must be logged in to add an entry.';
+      return false;
+    }
+    $user_id = $_SESSION['user_id'];
+    $dbConn = getPDOQuick();
+    
+    // Fetch the necessary arguments
+    $isbn = ArgStrict($arguments['isbn']);
+    $action = ArgStrict($arguments['action']);
+    $dollars = ArgStrict($arguments['dollars']);
+    $cents = ArgStrict($arguments['cents']);
+    // (price is dollars + cents)
+    $price = $dollars . '.' . $cents;
+    
+    // Send the query
+    if(dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price))
+      echo 'Entry edited successfully!';
   }
   
   // publicEntryDelete({...})

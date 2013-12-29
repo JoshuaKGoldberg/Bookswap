@@ -51,7 +51,7 @@
   */
   
   function getBookStateDefault() { return 'Good'; }
-  function getBookStates() { return ['Terrible', 'Poor', 'Fair', 'Good', 'Very Good', 'Like New']; }
+  function getBookStates() { return ['Terrible', 'Fair', 'Like New']; }
   function getBookActions() { return ['Buy', 'Sell']; }
   function getBookRatings() { return ['0', '1', '2', '3', '4', '5']; }
   

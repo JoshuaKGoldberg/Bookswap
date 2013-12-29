@@ -243,9 +243,9 @@
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
   }
   
-  // dbEntriesAdd(#isbn, #user_id, #price, "state")
+  // Sample usage: dbEntriesAdd(#isbn, #user_id, "username", "action"[, #price[, "state"]])
   // Adds an entry to `entries`
-  // Sample usage: dbEntriesAdd($dbConn, $isbn, $username, $user_id, 'Buy', 12.34, 'Fair');
+  // Sample usage: dbEntriesAdd($dbConn, $isbn, $username, $user_id, 'Buy', 12.34, 'Good');
   function dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price=0, $state='Good') {
     // Ensure the isbn and user_id both exist in the database
     if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
@@ -295,6 +295,37 @@
                                  ':action'    => $action));
   }
   
+  // Sample usage: dbEntriesEditPrice(#isbn, #user_id, "action", #price)
+  // Edits a pre-existing entry's price in `entries`, selected by isbn, user_id, and action
+  function dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price) {
+    // Ensure the isbn and user_id both exist in the database
+    if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
+      echo 'No such ISBN exists: ' . $isbn;
+      return false;
+    }
+    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
+      echo 'No such user exists: ' . $user_id;
+      return false;
+    }
+    
+    echo "Price is " . $price;
+    
+    // Run the edit query
+    $query = '
+      UPDATE `entries`
+      SET `price` = :price
+      WHERE
+        `isbn` = :isbn 
+          AND
+        `action` = :action
+    ';
+    
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':isbn'   => $isbn,
+                                 ':action' => $action,
+                                 ':price'  => $price));
+  }
+  
   // dbEntriesRemove(#isbn, #user_id)
   // Removes an entry from `entries`
   // Sample usage: dbEntriesRemove($dbConn, $isbn, $user_id);
@@ -321,42 +352,6 @@
     return $stmnt->execute(array(':isbn'    => $isbn,
                                  ':user_id' => $user_id));
   }
-  
-  
-  /* History Functions
-  */
-  
-  // dbHistoryAdd(#isbn, #user_id_a, #user_id_b, #rating_by_a, #rating_by_b, "action")
-  // Creates the two listings in history for a single transaction
-  // Sample usage: dbHistoryAdd($dbConn, $isbn, $user_id_a, $user_id_b, $rating_by_a, $rating_by_b, $action);
-  function dbHistoryAdd($dbConn, $isbn, $user_id_a, $user_id_b, $rating_by_a, $rating_by_b, $action) {
-    // Get the current timestamp, so it isn't marginally different between the two
-    $timestamp = time();
-    
-    // Add the two event markers (one from each perspective)
-    dbHistoryAddSingle($dbConn, $isbn, $timestamp, $user_id_a, $user_id_b, $rating_by_a, $action);
-    dbHistoryAddSingle($dbConn, $isbn, $timestamp, $user_id_b, $user_id_a, $rating_by_b, getActionOpposite($action));
-  }
-  // Helper function for dbHistoryAdd
-  // Creates a single listing in history, which is one of the two representing a single transaction
-  function dbHistoryAddSingle($dbConn, $isbn, $timestamp, $user_rater, $user_rated, $rating, $action) {
-    $query = '
-      INSERT INTO `history` (
-        `isbn`, `timestamp`, `user_rater`, `user_rated`, `rating`, `action`
-      ) VALUES (
-        :isbn, :timestamp, :user_rater, :user_rated, :rating, :action
-      )
-    ';
-    $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn'        => $isbn,
-                          ':timestamp'   => $timestamp,
-                          ':user_rater'  => $user_rater,
-                          ':user_rating' => $user_rating,
-                          ':rating'      => $rating,
-                          ':action'      => $action));
-  }
-  
-  // (missing Get, Remove)
   
   
   

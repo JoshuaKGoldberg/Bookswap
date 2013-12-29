@@ -20,7 +20,7 @@
     'publicAddBook', 'publicSearch', 'publicGetBookEntries',
     'publicGetSIS', 'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',
-    'publicEntryAdd', 'publicEntryDelete',
+    'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',
     'publicPrintRecommendationsUser'
   );

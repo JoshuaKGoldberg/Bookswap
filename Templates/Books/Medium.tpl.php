@@ -8,28 +8,32 @@
   $publisher = $_TARGS['publisher'];
   $year = $_TARGS['year'];
   $pages = $_TARGS['pages'];
+  
+  $price = isset($_TARGS['price']) ? getPriceAmount($_TARGS['price']) : false;
 ?>
-<div class="book book-medium">
+<div class="book book-medium" <?php if($price) echo 'price="' . $price . '"'; ?>>
   <?php
     echo getLinkHTML('book', '<img src="http://bks2.books.google.com/books?id='. $google_id . '&printsec=frontcover&img=1&zoom=5" />', array('isbn'=>$isbn));
   ?>
   <div class="holder">
     <!-- Entry information (if it's given) -->
-    <?php if(isset($_TARGS['price'])): ?>
-    <div class="entry book_entry price"><?php echo getPriceAmount($_TARGS['price']); ?></div>
+    <?php if($price): ?>
+    <div class="entry book_entry price"><?php echo $price; ?></div>
     <div class="entry book_entry changes">
       <?php
         $action = $_TARGS['action'];
-        $js_func = 'makeUpdateEntryDelete(event, "' . $isbn . '", "' . $action . '")';
+        $func_in = 'event, "' . $isbn . '", "' . $action . '"';
+        $func_del = 'makeUpdateEntryDelete(' . $func_in . ')';
+        $func_edit = 'makeUpdateEntryEdit(' . $func_in . ')';
       ?>
-      <div class="entry_changes entry_delete" onclick='<?php echo $js_func; ?>'></div>
-      <!-- <div class="entry_changes entry_edit"></div> -->
+      <div class="entry_changes entry_delete" onclick='<?php echo $func_del; ?>'></div>
+      <div class="entry_changes entry_edit" onclick='<?php echo $func_edit; ?>'></div>
     </div>
     <?php endif; ?>
     
     <!-- Book information -->
     <h3><?php echo getLinkHTML('book', $title, array('isbn'=>$isbn)); ?> <aside>(<?php echo $year; ?>)</h3>
     <div class="extra"><?php echo str_replace('\n', ', ', $authors); ?></div>
-    <aside><?php echo $publisher . ', ' . $pages . ' pages'; ?></aside>
+    <aside><?php echo $publisher . ', ' . $pages . ' pages'; ?></aside><!-- </div> -->
   </div>
 </div> 
