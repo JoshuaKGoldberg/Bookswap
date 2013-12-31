@@ -2,17 +2,23 @@
 */
 
 // Start the searches
-function searchStart() {
+function searchStart(event) {
+  var input = $("#header_search_input");
+  
+  // The escape key means to cancel everything
+  if(event.keyCode == 27) {
+    $("#header_search_input").val("");
+    $("#header_search_results").addClass("hidden");
+  }
+  
+  // All other events timeout a search
   setTimeout(function() {
-    var value = $("#header_search_input").val().trim(),
+    var value = input.val().trim(),
         columns;
-    
-    // Make sure only the most recent request is continued
-    if(!window.search_request_num) window.search_request_num = 1;
-    else ++window.search_request_num;
     
     // If nothing was searched, clear it
     if(!value) {
+      $("header_search_results").addClass("hidden");
       $("#header_search_results_contents").html("");
       return;
     }
@@ -28,22 +34,21 @@ function searchStart() {
     columns.value = value;
     
     // Run a search on each of the columns
-    sendRequest("publicSearch", columns, function() { searchGetResult(arguments[0], window.search_request_num) });
+    sendRequest("publicSearch", columns, function(results) { searchGetResult(results, value); });
   });
 }
 
 // Place search results in #header_search_results_contents
-function searchGetResult(results, count) {
-  // Make sure this is the latest request
-  if(count < window.search_request_num) return;
-  
-  // If there aren't any results, complain
-  if(!results) {
-    $("#header_search_results_contents").html(searchGetNoResultsComplaint());
+function searchGetResult(results, value) {
+  var input = $("#header_search_input");
+  // Make sure this is the current request by seeing if the current input value is the same as the query
+  if(value != input.val().trim())
     return;
-  }
   
-  $("#header_search_results_contents").html(results);
+  $("#header_search_results").removeClass("hidden");
+  
+  // If there aren't any results, complain instead
+  $("#header_search_results_contents").html(results || searchGetNoResultsComplaint())
 }
 
 function searchGetNoResultsComplaint() {

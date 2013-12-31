@@ -41,4 +41,5 @@
 .book_large h2,
 .book_large h2 * {
   display: inline;
+  font-size: 28px;
 }

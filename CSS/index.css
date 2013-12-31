@@ -4,12 +4,10 @@
 }
 
 #user_login_text {
-  position: absolute;
   margin-top: -11px;
   padding-left: 35px;
   width: 350px;
   text-align: left;
-  display: inline;
 }
 
 #user_login_holder {
@@ -29,12 +27,14 @@
   text-shadow: 0 0 3px #ccc;
   text-align: left;
   width: 100%;
+  font-size: 28px;
 }
 #user_login_container input[type=submit] {
-  width: 175px;
+  width: 49%;
   text-align: center;
 }
 
-#user_login_container #submit {
+#user_login_container #j_submit {
   float: right;
+  margin-right: -16px;
 }

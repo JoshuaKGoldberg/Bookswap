@@ -22,8 +22,11 @@
     $dbConn = getPDOQuick();
     $field = $arguments['type'];
     $value = $arguments['value'];
-    if(checkKeyExists($dbConn, 'users', $field, $value))
-      echo "The " . $field . " '" . $value . "' is already taken :(";
+    if(checkKeyExists($dbConn, 'users', $field, $value)) {
+      if(!$noverbose) echo "The " . $field . " '" . $value . "' is already taken :(";
+      return false;
+    }
+    return true;
   }
   
   // publicCreateUser({...})
@@ -39,7 +42,13 @@
     $email = $arguments['j_email'];
     
     // Make sure the arguments aren't blank
-    if(!$username || !$password || !$email) return;
+    if(!$username || !$password || !$email) return false;
+    
+    // Also make sure that email isn't taken
+    if(checkKeyExists($dbConn, 'users', 'email', $email)) {
+      if(!$noverbose) echo 'The email \'' . $email . '\' is already taken :(';
+      return false;
+    }
 
     // If successful, log in
     if(dbUsersAdd($dbConn, $username, $password, $email, 0)) {
@@ -49,7 +58,9 @@
       publicLogin($arguments, true);
       if(!$noverbose)
         echo 'Yes';
+      return true;
     }
+    return false;
   }
   
   // publicLogin({...})
@@ -58,10 +69,13 @@
   // * "username"
   // * "password"
   function publicLogin($arguments, $noverbose=false) {
-    $username = $arguments['username'];
+    $email = $arguments['email'];
     $password = $arguments['password'];
-    if(loginAttempt($username, $password) && !$noverbose)
+    if(loginAttempt($email, $password) && !$noverbose) {
       echo 'Yes';
+      return true;
+    }
+    return false;
   }
 
   // publicAddBook({...})
@@ -159,7 +173,7 @@
     }
     echo '<div class="search_end book">search on ';
     echo getLinkHTML('search', $value_raw, array('value'=>$value_raw));
-    echo ': ' . count($results) . ' results shown';
+    echo ': ' . count($results) . ' results ' . ($results ? 'shown' : 'found');
     if($offset) echo ' (starting from ' . ($offset + 1) . ')';
     echo '.';
   }

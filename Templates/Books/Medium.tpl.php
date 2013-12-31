@@ -9,7 +9,8 @@
   $year = $_TARGS['year'];
   $pages = $_TARGS['pages'];
   
-  $price = isset($_TARGS['price']) ? getPriceAmount($_TARGS['price']) : false;
+  if(!UserLoggedIn() || !isset($_TARGS['user_id'])) $price = false;
+  else $price = getPriceAmount($_TARGS['price']);
 ?>
 <div class="book book-medium" <?php if($price) echo 'price="' . $price . '"'; ?>>
   <?php

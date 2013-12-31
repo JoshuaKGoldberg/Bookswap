@@ -1,5 +1,6 @@
 html, body {
   margin: 0; 
+  min-width: 1064px;
 }
 html, footer {
   background-color: #111;
@@ -77,13 +78,17 @@ a, .a-emph, input.a-emph {
 */
 input {
   padding: 3px 7px;
-  /* border-radius: 14px; */
   border: 1px solid #988470;
   outline: none;
   font-style: italic;
   font-size: 21px;
   color: #564942;
   text-shadow: 0 0 3px #ccc;
+}
+input::-ms-clear {  /* fix for IE10+ */
+  display: none;
+  width: 0;
+  height: 0;
 }
 input, select {
   font-family: 'Lato';
@@ -100,123 +105,76 @@ input[type=submit] {
 /* Header
 */
 header {
+  padding: 3px 0 0 0;
+  height: 84px;
   background-color: #ccc;
 }
-#header_main {
-  position: relative;
-  display: table;
-  margin: auto;
+.headblock {
   height: 84px;
-}
-
-/* Badge
-*/
-#badge {
-  width: 182px;
   float: left;
+}
+/* Badge */
+#badge_main img {
+  margin-top: 0px;
+  border: 1px solid #777;
+}
+#login_information input {
+  height: 17px;
+  width: 100%;
+}
+#badge input[type=password] {
+  height: 16px;
+  display: block;
+  margin: 1px 0;
+}
+#header_search_input {
+  height: 71px; /* 6 for padding */
+  font-size: 49px;
+  color: #999;
+}
+#login_submit {
+  width: 140px;
+  float: left;
+}
+#login_forgot {
+  float: right;
+  margin-right: -16px;
+}
+#header_search_results {
+  position: absolute;
+  margin-top: -1px;
+  padding: 7px;
+  border: 1px solid #aaa;
+  border-width: 0 1px 1px 1px;
+  background: white;
+  z-index: 7;
+}
+#header_search_results.hidden {
+  display: none;
+}
+/* Header with measurements
+*/
+#badge.anonymous {
+  width: 196px;
+  margin-right: 21px;
+}
+#badge.anonymous + #header_search {
+  width: 798px;
+}
+#badge.anonymous + #header_search #header_search_input,
+#badge.anonymous + #header_search #header_search_results {  
+  width: 782px;
 }
 #badge.logged {
-  width: 84px;
-}
-#badge_main {
-  margin-left: 0;
-  padding-left: 3px;
-  padding-top: 1px;
-  width: 175px;
-}
-#badge_main_contents {
-  padding-left: 3px;
-}
-header #badge input {
-  display: block;
-  border-radius: 0;
-  font-size: 14px;
-  width: 152px;
-}
-header #login_submit_holder input {
-  /* display: inline; */
-  /* width: 49%; */
-  margin-right: 0;
-  width: auto;
-  padding: 1px 7px 1px 7px;
-}
-#login_submit_holder {
-  margin-right: 4px;
-}
-header #login_submit {
-  float: right;
-  font-weight: bold;
-}
-header #login_forgot {
-  float: left;
-  margin-left: 0;
-}
-/* Search
-*/
-#header_search {
-  position: relative;
-  display: table;
-  right: 0;
-  width: 833px;
-  height: 84px;
+  width: 77px;
+  margin-right: 7px;
 }
 #badge.logged + #header_search {
-  width: 1015px;
+  width: 931px;
 }
-#header_search_form {
-  display: table-cell;
-  vertical-align: middle;
-}
-#header_search_form input[type=text] {
-  position: absolute;
-  top: 0;
-  left: -3px;
-  right: -3px;
-  bottom: 2px;
-  padding: 3px 11px;
-  background-color: #fcfcfc;
-  /* border-radius: 14px 21px 14px 14px; */
-  box-shadow: none;
-  font-size: 49px;
-  font-style: italic;
-  transition: 140ms border-radius;
-}
-#header_search_submit {
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  margin-top: 25px;
-  margin-left: -38px;
-  cursor: pointer;
-}
-/* Results
-*/
-#header_search_results {
-  background-color: #fcfcfc;
-  position: absolute;
-  top: 77px;
-  width: 100%;
-  z-index: 70;
-}
-#header_search_results_contents {
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  height: 7px;
-}
-#header_search_results .book {
-  padding-left: 14px;
-  min-height: 84px;
-  border: 1px solid #988470;
-  border-width: 0 1px;
-  background: #fcfcfc;
-}
-#header_search_results .search_end {
-  padding: 0 14px 14px 14px;
-  min-height: initial;
-  border-bottom: 1px solid #988470;
-  text-align: right;
-  font-style: italic;
+#badge.logged + #header_search #header_search_input,
+#badge.logged + #header_search #header_search_results {
+  width: 915px;
 }
 
 /* Main Contents
@@ -240,7 +198,7 @@ header #login_forgot {
   background-color: #fafafa;
 }
 
-/* Half-measurements
+/* Half-measures
 */
 .half_holder .half {
   width: 49%;

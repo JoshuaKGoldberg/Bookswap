@@ -4,7 +4,7 @@
   */
   
   // The minimum includes required for pages to run
-  $css = [];
+  $css = ['normalize'];
   $js = ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default'];
   
   // The requested page to print

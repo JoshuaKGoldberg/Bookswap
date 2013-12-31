@@ -11,13 +11,11 @@
 
 <section>
   <div id="user_login_container" class="standard_main pad-v big">
-    <p id="user_login_text">
-      We're free & easy to use, and always will be. No more tears, only books.
-    </p>
-    <div id="user_login_holder">
+    <div class="half_holder">
+    <div id="user_login_holder" class="half left">
       <form onsubmit="event.preventDefault(); joinSubmit();">
         <div id="hold_username" class='input_holder'>
-          <input id="j_username" type='text' name='username' placeholder='Username' />
+          <input id="j_username" type='text' name='username' placeholder='Your Name' />
           <div class="hold_complaint"></div>
         </div>
         <div id="hold_password" class='input_holder'>
@@ -32,9 +30,12 @@
           <input id="j_email" type='email' name='email' placeholder='Email' />
           <div class="hold_complaint"></div>
         </div>
-        <input id="submit" type='submit' value='Sign Me Up!'/>
+        <input id="j_submit" type='submit' value='Sign Me Up!'/>
       </form>
     </div>
+    <p id="user_login_text" class="half right">
+      We're free & easy to use, and always will be. No more tears, only books.
+    </p>
   </div> 
 </section>
 

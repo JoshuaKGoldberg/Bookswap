@@ -7,7 +7,7 @@
   // Know where the site is located
   function getName() { return 'BookSwap'; }
   function getBase() { return 'http://localhost/' . getName(); }
-  function getURL($url) { return getBase() . '/index.php?page=' . $url; }
+  function getURL($url) { return getBase() . '/index.php?' . (is_string($url) ? 'page=' . $url : $url); }
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);
     foreach($args as $key=>$value)

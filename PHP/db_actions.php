@@ -20,6 +20,7 @@
     $query = '
       SELECT * FROM `users`
       WHERE `' . $type . '` = :identity
+      LIMIT 1
     ';
     
     // Run the query
@@ -34,13 +35,9 @@
   // Adds a user to `users`
   // Sample usage: dbUsersAdd($dbConn, $username, $password, $email, $role);
   function dbUsersAdd($dbConn, $username, $password, $email, $role) {
-    // Ensure the username and email and email don't exist in the database
-    if(checkKeyExists($dbConn, 'users', 'username', $username)) {
-      echo 'Such a user already exists: ' . $username;
-      return false;
-    }
-    if(checkKeyExists($dbConn, 'users', 'username', $username)) {
-      echo 'Such an email already exists: ' . $username;
+    // Ensure the email isn't already being used
+    if(checkKeyExists($dbConn, 'users', 'email', $email)) {
+      echo $email . ' is already being used.';
       return false;
     }
     
@@ -54,7 +51,7 @@
         `username`, `password`, `email`, `role`, `salt`
       )
       VALUES (
-        :username,  :password, :email, :role, :salt
+        :username, :password, :email, :role, :salt
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
