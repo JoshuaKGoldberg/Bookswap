@@ -13,22 +13,6 @@
     return $arg; // oh boy oh boy security
   }
   
-  // publicCheckValidity({...})
-  // Checks if a field (username, email) is taken and echos if it's unavailable
-  // Required fields:
-  // * "type"   - "username" or "email" 
-  // * "value"  - the value to see if it's duplicate or not
-  function publicCheckValidity($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick();
-    $field = $arguments['type'];
-    $value = $arguments['value'];
-    if(checkKeyExists($dbConn, 'users', $field, $value)) {
-      if(!$noverbose) echo "The " . $field . " '" . $value . "' is already taken :(";
-      return false;
-    }
-    return true;
-  }
-  
   // publicCreateUser({...})
   // Public pipe to dbUsersAdd("username", "password")
   // Required fields:

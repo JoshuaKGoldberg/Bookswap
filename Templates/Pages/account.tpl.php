@@ -1,6 +1,4 @@
 <?php
-  if(!isset($_SESSION)) session_start();
-  
   // Check if the current page is the user's profile
   if(isset($_GET['user_id']) && isset($_SESSION['user_id']))
     $using_current = $_GET['user_id'] == $_SESSION['user_id'];
@@ -30,7 +28,7 @@
       $descriptor = $username . ' wants to';
     }
   }
-  else header('location: ' . getBase());
+  else return AccessDenied();
   
 ?>
 <!-- Lists of books the user wants -->

@@ -8,15 +8,14 @@
   $function_name = preg_replace("/[^A-Za-z_0-9]/", '', $_GET['Function']);
 
   require_once('../settings.php');
-  require_once('pdo.inc.php');
-  require_once('sql.inc.php');
   require_once('db_actions.php');
   require_once('db_login.php');
   require_once('public_functions.php');
+  EnsureSessionStarted();
   
   // Functions the user may call via JS
   $allowed_functions = array(
-    'publicCheckValidity', 'publicCreateUser', 'publicLogin',
+    'publicLogin', 'publicCreateUser',
     'publicAddBook', 'publicSearch', 'publicGetBookEntries',
     'publicGetSIS', 'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',

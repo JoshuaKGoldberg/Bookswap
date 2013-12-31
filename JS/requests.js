@@ -40,7 +40,7 @@ Argument is third_variable -> we're done here.
 // * Arguments are given by the settings object
 // * Callback is called when it's done
 function sendRequest(func_name, settings, callback) {
-  var url = "PHP/Requests.php?",
+  var url = "PHP/requests.php?",
       args = [],
       s_name;
   

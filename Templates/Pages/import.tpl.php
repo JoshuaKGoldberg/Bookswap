@@ -1,7 +1,4 @@
-<?php
-  if(!UserLoggedIn())
-    header('location: ' . getBase());
-?>
+<?php if(!UserLoggedIn()) return AccessDenied(); ?>
 <section>
   <h1 class="standard_main standard_vert">import by ISBN</h1>
   
@@ -15,7 +12,6 @@
   </div>
 </section>
 
-<?php if(UserLoggedIn()): ?>
 <section>
   <h1 class="standard_main standard_vert">import by Google Books API</h1>
   
@@ -31,4 +27,3 @@
     <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3>
   </div>
 </section>
-<?php endif; ?>

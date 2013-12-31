@@ -3,10 +3,30 @@
    * General site settings and important utility functions
   */
   
-  
-  // Know where the site is located
+  // Important variables of the site location
   function getName() { return 'BookSwap'; }
-  function getBase() { return 'http://localhost/' . getName(); }
+  function getBase() { return false; }
+  function getCDir() { return false; }
+  function getTemplatesPre() { return 'Templates/'; }
+  function getTemplatesExt() { return '.tpl.php'; }
+  function getIncludesPre() { return 'PHP/'; }
+  function getIncludesExt() { return '.inc.php'; }
+  
+  // Include files required for operation
+  chdir(getCDir());
+  $inc_pre = getIncludesPre();
+  $inc_ext = getIncludesExt();
+  require_once($inc_pre . 'templates' . $inc_ext);
+  require_once($inc_pre . 'pdo' . $inc_ext);
+  require_once($inc_pre . 'sql' . $inc_ext);
+  
+  // Database / Server Logins
+  function getDBHost() { return 'localhost'; }
+  function getDBUser() { return 'root'; }
+  function getDBPass() { return ''; }
+  function getDBName() { return 'bookswap'; }
+  
+  // Helpers to print the above URLs
   function getURL($url) { return getBase() . '/index.php?' . (is_string($url) ? 'page=' . $url : $url); }
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);
@@ -14,37 +34,15 @@
       $output .= '&' . $key . '=' . $value;
     return '<a href="' . $output . '">' . $contents . '</a>';
   }
-  function getCurrency() { return '&#36;'; }
-  function getPriceAmount($amount) { 
-    return getCurrency() . number_format($amount, 2, '.', ',');
-  }
   
   /* Templating & Including
   */
-  // function getTemplatesPre() { return 'Templates/'; }
-  function getTemplatesPre() { return 'C:/xampp/htdocs/' . getName() . '/Templates/'; }
-  function getTemplatesExt() { return '.tpl.php'; }
-  function getIncludesPre() { return 'PHP/'; }
-  function getIncludesExt() { return '.inc.php'; }
-  
-  // Make sure required include files are included
-  $inc_pre = getIncludesPre();
-  $inc_ext = getIncludesExt();
-  require_once($inc_pre . 'Templates' . $inc_ext);
-  require_once($inc_pre . 'PDO' . $inc_ext);
-  require_once($inc_pre . 'SQL' . $inc_ext);
   
   // General Site Info
   function getSchoolName() { return 'RPI'; }
   function getSiteName() { return getSchoolName() . ' ' . getName(); }
   function getSiteDescription() { return 'A hub for students to buy & sell textbooks on campus.'; }
   function getNumBooks() { return 'dozens of'; }
-  
-  // Database / Server Logins
-  function getDBHost() { return 'localhost'; }
-  function getDBUser() { return 'root'; }
-  function getDBPass() { return ''; }
-  function getDBName() { return getName(); }
   
   
   /* Book particulars
@@ -80,11 +78,25 @@
   /* Misc. Utilities
   */
   
+  // 'Safe' way to ensure a session has been started
+  function EnsureSessionStarted() {
+    if(session_id() == '' || !isset($_SESSION['Started']) || !$_SESSION['Started'])
+      session_start();
+    $_SESSION['Started'] = true;
+  }
+  
   // Bool function - is the user logged in?
   function UserLoggedIn() {
-    if(!isset($_SESSION)) session_start();
-    return isset($_SESSION) && isset($_SESSION['Logged In']) && $_SESSION['Logged In'];
+    return isset($_SESSION['Logged In']) && $_SESSION['Logged In'];
   }
+  
+  // Complains if the user goes where they shouldn't
+  function AccessDenied() {
+    echo '<section><h1 class="standard_main standard_vert">Sorry, you need to be logged in to go here!</h1></section>';
+  }
+  
+  function getCurrency() { return '&#36;'; }
+  function getPriceAmount($amount) { return getCurrency() . number_format($amount, 2, '.', ','); }
   
   // getHTTPPage("url")
   // Runs a cURL request on a page, returning the result

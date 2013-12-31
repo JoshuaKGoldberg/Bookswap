@@ -7,7 +7,6 @@
   // Otherwise $_SESSION['Fail Counter'] is incremented
   function loginAttempt($email, $password) {
     $dbConn = getPDOQuick();
-    session_start();
     
     // First check if the passwords match
     $user_info = loginCheckPassword($dbConn, $email, $password);

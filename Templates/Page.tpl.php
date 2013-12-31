@@ -8,7 +8,7 @@
   $js = ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default'];
   
   // The requested page to print
-  $pageName = isset($_GET['page']) ? $_GET['page'] : "index";
+  $pageName = isset($_GET['page']) ? $_GET['page'] : (UserLoggedIn() ? 'account' : 'index');
   
   // (that page will also have its own .css and .js)
   $css[] = $pageName;
