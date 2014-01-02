@@ -3,7 +3,7 @@
    * General site settings and important utility functions
   */
   function isInstalled() { return false; }
-  function isSetUp() { return true; }
+  function isSetUp() { return false; }
   function CheckInstallation($page) {
     if(!isInstalled()) {
       header('Location: install.php');
