@@ -18,31 +18,33 @@
   
   // Important variables of the site location
   function getName() { return 'BookSwap'; }
-  function getBase() { return 'http://localhost/BookSwap'; }
-  function getCDir() { return 'C:/xampp/htdocs/BookSwap'; }
+  function getBase() { return ''; }
+  function getCDir() { return ''; }
   function getTemplatesPre() { return 'Templates/'; }
   function getTemplatesExt() { return '.tpl.php'; }
   function getIncludesPre() { return 'PHP/'; }
   function getIncludesExt() { return '.inc.php'; }
   
-  // Include files required for operation
-  chdir(getCDir());
-  $inc_pre = getIncludesPre();
-  $inc_ext = getIncludesExt();
-  require_once($inc_pre . 'templates' . $inc_ext);
-  require_once($inc_pre . 'pdo' . $inc_ext);
-  require_once($inc_pre . 'sql' . $inc_ext);
+  // Include files required for normal operation
+  if(getCDir() != '') {
+    chdir(getCDir()); 
+    $inc_pre = getIncludesPre();
+    $inc_ext = getIncludesExt();
+    require_once($inc_pre . 'templates' . $inc_ext);
+    require_once($inc_pre . 'pdo' . $inc_ext);
+    require_once($inc_pre . 'sql' . $inc_ext);
+  }
   
   // Database / Server Logins
-  function getDBHost() { return 'localhost'; }
-  function getDBUser() { return 'root'; }
+  function getDBHost() { return ''; }
+  function getDBUser() { return ''; }
   function getDBPass() { return ''; }
-  function getDBName() { return 'bookswap'; }
+  function getDBName() { return ''; }
   
   /* Google Books API
   */
   
-  function getGoogleKey() { return "AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw"; }
+  function getGoogleKey() { return ''; }
   function getGoogleLink($google_id) { return 'http://books.google.com/books?id=' . $google_id; }
   function getGoogleExport($google_id, $type) {
     $output = 'http://books.google.com/books/download/';
