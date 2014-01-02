@@ -5,8 +5,10 @@
    * 1. Create the database if it doesn't yet exist
    * 2. Create the `users` table
    * 3. Create the `books` table
-   * 4. Create the `history` table
   */
+  
+  // Just to be sure.
+  if(isSetUp()) return TemplatePrint('Pages/404', $tabs);
   
   // Get a connection to the server (no specific database yet)
   // These variables are already available via settings
@@ -80,5 +82,8 @@
   ');
 ?>
 <section>
-  <h4 class="standard_main standard_vert">The site should be installed, if it wasn't already. You may return to the home page.</h4>
+  <div class="standard_vert">
+  <h1 class="standard_main standard_vert">Whenever you're ready</h1>
+  <div class="standard_main medium">Make <code>settings.php::isSetUp() { return true; }</code> instead of false, then refresh.</div>
+  </div>
 </section>

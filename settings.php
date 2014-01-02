@@ -2,11 +2,24 @@
   /* Settings.php
    * General site settings and important utility functions
   */
+  function isInstalled() { return false; }
+  function isSetUp() { return true; }
+  function CheckInstallation($page) {
+    if(!isInstalled()) {
+      header('Location: install.php');
+      return false;
+    }
+    if(!isSetUp() && $page != 'setup') {
+      header('Location: ' . getURL('setup'));
+      return false;
+    }
+    return true;
+  }
   
   // Important variables of the site location
   function getName() { return 'BookSwap'; }
-  function getBase() { return false; }
-  function getCDir() { return false; }
+  function getBase() { return 'http://localhost/BookSwap'; }
+  function getCDir() { return 'C:/xampp/htdocs/BookSwap'; }
   function getTemplatesPre() { return 'Templates/'; }
   function getTemplatesExt() { return '.tpl.php'; }
   function getIncludesPre() { return 'PHP/'; }
@@ -26,7 +39,23 @@
   function getDBPass() { return ''; }
   function getDBName() { return 'bookswap'; }
   
-  // Helpers to print the above URLs
+  /* Google Books API
+  */
+  
+  function getGoogleKey() { return "AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw"; }
+  function getGoogleLink($google_id) { return 'http://books.google.com/books?id=' . $google_id; }
+  function getGoogleExport($google_id, $type) {
+    $output = 'http://books.google.com/books/download/';
+    $output .= '?id=' . $google_id . '&output=' . $type;
+    return $output;
+  }
+  
+  /* Templating & Including
+  */
+  
+  // Helpers to print URLs and similar
+  function getJS($filename) { return '<script type="text/javascript" src="JS/' . $filename . '.js"></script>'; }
+  function getCSS($filename) { return '<link rel="stylesheet" type="text/css" href="CSS/' . $filename . '.css">'; }
   function getURL($url) { return getBase() . '/index.php?' . (is_string($url) ? 'page=' . $url : $url); }
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);
@@ -35,15 +64,21 @@
     return '<a href="' . $output . '">' . $contents . '</a>';
   }
   
-  /* Templating & Including
-  */
-  
   // General Site Info
   function getSchoolName() { return 'RPI'; }
   function getSiteName() { return getSchoolName() . ' ' . getName(); }
   function getSiteDescription() { return 'A hub for students to buy & sell textbooks on campus.'; }
   function getNumBooks() { return 'dozens of'; }
   
+  // Default include files
+  function getDefaultJS() { return ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default']; }
+  function getDefaultCSS() { return ['normalize']; }
+  function getDefaultFonts() {
+    $output = '';
+    // $output .= '<link href="http://fonts.googleapis.com/css?family=Doppio+One" rel="stylesheet" type="text/css">';
+    $output .= '<link href="http://fonts.googleapis.com/css?family=Lato:300" rel="stylesheet" type="text/css">';
+    return $output;
+  }
   
   /* Book particulars
   */
@@ -63,17 +98,6 @@
     }
   }
   
-  
-  /* Google Books API
-  */
-  
-  function getGoogleKey() { return "AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw"; }
-  function getGoogleLink($google_id) { return 'http://books.google.com/books?id=' . $google_id; }
-  function getGoogleExport($google_id, $type) {
-    $output = 'http://books.google.com/books/download/';
-    $output .= '?id=' . $google_id . '&output=' . $type;
-    return $output;
-  }
 
   /* Misc. Utilities
   */

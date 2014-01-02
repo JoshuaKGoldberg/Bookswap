@@ -4,8 +4,8 @@
   */
   
   // The minimum includes required for pages to run
-  $css = ['normalize'];
-  $js = ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default'];
+  $css = getDefaultCSS();
+  $js = getDefaultJS();
   
   // The requested page to print
   $pageName = isset($_GET['page']) ? $_GET['page'] : (UserLoggedIn() ? 'account' : 'index');
@@ -13,15 +13,14 @@
   // (that page will also have its own .css and .js)
   $css[] = $pageName;
   $js[] = $pageName;
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html>
   
     <head>
       <title><?php echo getSiteName(); ?></title>
       <?php
         // The default CSS file should be printed immediately, so it loads first
-        echo '<link rel="stylesheet" type="text/css" href="CSS/default.css">' . PHP_EOL;
+        echo getCSS('default') . PHP_EOL;
       ?>
     </head>
     
@@ -37,8 +36,8 @@
       <?php TemplatePrint("Footer", $tabs + 6); ?>
       
       <!-- Include Fonts -->
-      <!-- <link href="http://fonts.googleapis.com/css?family=Doppio+One" rel="stylesheet" type="text/css"> -->
-      <link href="http://fonts.googleapis.com/css?family=Lato:300" rel="stylesheet" type="text/css">
+      <?php echo getDefaultFonts(); ?>
+      
       <?php
         // Extra includes
         if(isset($_GET['css']))
@@ -52,13 +51,13 @@
       <?php
         echo '<!-- Include CSS -->' . PHP_EOL;
         foreach($css as $filename)
-          echo str_repeat(' ', $tabs + 6) . '<link rel="stylesheet" type="text/css" href="CSS/' . $filename . '.css">' . PHP_EOL;
+          echo str_repeat(' ', $tabs + 6) . getCSS($filename) . PHP_EOL;
       ?>
       
       <?php
         echo '<!-- Include JS -->' . PHP_EOL;
         foreach($js as $filename)
-          echo str_repeat(' ', $tabs + 6) . '<script type="text/javascript" src="JS/' . $filename . '.js"></script>' . PHP_EOL;
+          echo str_repeat(' ', $tabs + 6) . getJS($filename) . PHP_EOL;
       ?>
     </body>
 </html>

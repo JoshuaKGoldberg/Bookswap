@@ -23,11 +23,11 @@ function searchStart(event) {
       return;
     }
     
-    // If a number is given, just search on ISBN
-    if(!isNaN(value))
-      columns = ["isbn"];
-    // Otherwise search on a few fields
+    // Search on these fields by default
     columns = ["title", "authors", "description"];
+    // If a 10-digit number is given, also search on ISBN
+    if(!isNaN(value) && value.length == 10)
+      columns.push("isbn");
     
     // Let the search function know how many columns, and what the term is
     columns.num_cols = columns.length;
