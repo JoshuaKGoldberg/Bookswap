@@ -33,7 +33,7 @@ h1, h2, h3, h4 {
 }
 .book_entry.price {
   height: 42px;
-  width: 210px;
+  width: 203px;
   text-align: right;
 }
 .book .entry_changes:hover {
@@ -49,12 +49,23 @@ h1, h2, h3, h4 {
   background-image: url('../Images/Delete.gif');
 }
 .book.book-medium {
-  height: 84px;
+  height: 98px;
   transition: 350ms height;
+}
+.book.book-medium .holder {
+  overflow: hidden;
+}
+.book.book-medium .clearer {
+  clear: both;
 }
 .book_entry.price input[type=button] {
   width: 63px;
   cursor: pointer;
+  font-size: 21px;
+}
+.book_entry.price input.go_delete {
+  padding-left: 7px;
+  padding-right: 67px;
 }
 /* Deletes
 */

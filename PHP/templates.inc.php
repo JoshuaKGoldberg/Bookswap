@@ -3,6 +3,22 @@
    * Functions to print out the tpl.php files
   */
   
+  // getTemplatePage("name")
+  // Ensures a name is on a whitelist of allowed 
+  function getTemplatePage($name) {
+    $allowed_pages = array(
+      'Entry', 'Footer', 'Header', 'Money', 'Page',
+      'Books/Export', 'Books/Large', 'Books/Medium',
+      'Forms/AddEntry', 'Forms/Money',
+      'Header/Badge', 'Header/Search',
+      'Pages/404', 'Pages/account', 'Pages/book', 'Pages/import',
+      'Pages/index', 'Pages/logout', 'Pages/search', 'Pages/setup'
+    );
+    // If the user doesn't request one of these pages, print 404 instead
+    if(!in_array($name, $allowed_pages)) $name = '404';
+    return getTemplateWrapping($name);
+  }
+  
   // TemplatePrint("name", #tabs, {_TARGS})
   // Prints out the template file of the given name
   // Template arguments are passed in as $_TARGS
@@ -12,7 +28,7 @@
     // echo PHP_EOL . $prefix . "<!-- " . $name . " -->" . PHP_EOL; 
     
     // Get the actual file name and retrieve the plain-text contents
-    $filename = getTemplatesPre() . $name . getTemplatesExt();
+    $filename = getTemplatePage($name); // getTemplatesPre() . $name . getTemplatesExt();
     $content = trim(file_get_contents($filename));
     
     // Put tabs at the beginning of each line of the file
@@ -36,7 +52,7 @@
   // No extra comments or line breaks are used to surround it
   function TemplatePrintSmall($name, $_TARGS=[]) {
     // Get the actual file name and retrieve the plain-text contents
-    $filename = getTemplatesPre() . $name . getTemplatesExt();
+    $filename = getTemplatePage($name); // getTemplatesPre() . $name . getTemplatesExt();
     $content = trim(file_get_contents($filename));
     
     // Yes, it's eval. In this instance, that's ok:

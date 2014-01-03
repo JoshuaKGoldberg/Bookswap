@@ -88,10 +88,10 @@
   // dbBooksGet(#isbn)
   // Gets information on a book of the given ISBN
   // Sample usage: dbBooksGet($dbConn, $isbn);
-  function dbBooksGet($dbConn, $isbn) {
+  function dbBooksGet($dbConn, $isbn, $noverbose=false) {
     // Ensure the isbn exists in the database
     if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-      echo 'No such isbn exists: ' . $isbn;
+      if(!$noverbose) echo 'No such isbn exists: ' . $isbn;
       return false;
     }
     

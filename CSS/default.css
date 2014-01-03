@@ -26,7 +26,7 @@ body {
 
 /* General items
 */
-h1 {
+body h1 {
   font-size: 49px;
 }
 h1, h2, h3 {

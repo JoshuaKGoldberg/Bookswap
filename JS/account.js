@@ -13,7 +13,7 @@ function makeUpdateEntryDelete(event, isbn, action) {
   // Else set it to being in that process
   else {
     target.addClass("deleting");
-    var input_out = "<input type='button' class='go_delete' value='really' ";
+    var input_out = "<input type='button' class='go_delete' value='really?' ";
     input_out += "onclick='doEntryDelete(event, \"";
     input_out += isbn + "\", \"" + action + "\")' />";
     pricer.html(input_out);

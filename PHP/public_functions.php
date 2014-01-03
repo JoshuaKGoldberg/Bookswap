@@ -471,7 +471,7 @@
       # not from the given user; ISBNs are the same, but users and actions are not
       ON  a.user_id <> :user_id
       AND a.isbn = b.isbn
-      AND b.user_id <> a.user_id
+      AND b.user_id = :user_id
       AND a.action <> b.action
     ';
     

@@ -7,7 +7,7 @@
       
       <div id="login_information">
         
-        <input id="email" type="text" placeholder="email address" />
+        <input id="email" type="email" placeholder="email address" />
         <input id="password" type="password" placeholder="password" />
         
       </div>  
