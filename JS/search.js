@@ -1,9 +1,19 @@
-// Check if a value is given via the URL
+// Starts the page off with any settings from the URL
 $(document).ready(function() {
-  var value = $.QueryString["value"];
-  if(!value) return;
-  $("#search_input").val(value);
-  searchFull(value);
+  var value;
+  
+  // Check if a type of search is given (name, author, etc.)
+  console.log("hi",$.QueryString, $.QueryString["type"]);
+  if(value = $.QueryString["type"]) {
+    console.log("Got type", value);
+    $("#search_change").val(decodeURIComponent(value));
+  }
+  
+  // Check if a search value is given via the URL
+  if(value = $.QueryString["value"]) {
+    $("#search_input").val(decodeURIComponent(value));
+    searchFull(value);
+  }
 });
 
 
