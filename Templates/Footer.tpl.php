@@ -8,6 +8,6 @@
         echo implode('<span>&sdot;</span>', $links);
       }
     ?></div>
-    Josh Goldberg & Acquaintances. A future RCOS project.
+    A fun, friendly RCOS project. Albert Armea, Sebastian Basch, Javier Camino, Josh Goldberg, Harish Lall, Evan MacGregor, and Aaron Sedlack.
   </div>
 </footer>
