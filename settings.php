@@ -25,6 +25,7 @@
   function getIncludesPre() { return 'PHP/'; }
   function getIncludesExt() { return '.inc.php'; }
   function getTemplateWrapping($name) { return getTemplatesPre() . $name . getTemplatesExt(); }
+  function getIncludesWrapping($name) { return getIncludesPre() . $name . getIncludesExt(); }
   
   // Include files required for normal operation
   if(getCDir() != '') {
