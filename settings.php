@@ -3,14 +3,9 @@
    * General site settings and important utility functions
   */
   function isInstalled() { return false; }
-  function isSetUp() { return false; }
   function CheckInstallation($page) {
     if(!isInstalled()) {
       header('Location: install.php');
-      return false;
-    }
-    if(!isSetUp() && $page != 'setup') {
-      header('Location: ' . getURL('setup'));
       return false;
     }
     return true;
@@ -41,7 +36,7 @@
   function getDBHost() { return ''; }
   function getDBUser() { return ''; }
   function getDBPass() { return ''; }
-  function getDBName() { return ''; }
+  function getDBName() { return 'bookswap'; }
   
   /* Google Books API
   */
@@ -66,6 +61,9 @@
     foreach($args as $key=>$value)
       $output .= '&' . $key . '=' . $value;
     return '<a href="' . $output . '">' . $contents . '</a>';
+  }
+  function getLinkExternal($url, $text) {
+    return '<a href="' . $url . '">' . $text . '</a>';
   }
   
   // General Site Info
@@ -140,5 +138,23 @@
       echo curl_error($ch);
     curl_close($ch);
     return $data;
+  }
+  
+  // During installation, let users edit config functions using the web form
+  function performSettingsReplacements($filename, $replacements) {
+    function makeFunctionReplacer($name, $value) {
+      if(is_string($value)) $value = '\'' . $value . '\'';
+      if(is_bool($value)) $value = $value ? 'true' : 'false';
+      return 'function ' . $name . '() { return ' . $value . '; }';
+    }
+    $contents = file_get_contents('settings.php');
+    foreach($replacements as $name=>$value) {
+      if(!function_exists($name)) continue;
+      $name_old = makeFunctionReplacer($name, call_user_func($name));
+      $name_new = makeFunctionReplacer($name, $value);
+      $contents = str_replace($name_old, $name_new, $contents);
+    }
+    file_put_contents($filename, $contents);
+    return $contents;
   }
 ?>

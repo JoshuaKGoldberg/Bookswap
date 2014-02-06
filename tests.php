@@ -1,6 +1,19 @@
 <?php
   /* Runs a series of tests to ensure the site is working properly */
-  include_once('settings.php');
+  include('settings.php');
+  // If the user doesn't have to install the site, go to index.php instead
+  if(isInstalled()) {
+    header('Location: index.php');
+    return;
+  }
+  
+  // If $_GET requires any replacements be made, do them, then start over
+  if(!empty($_GET)) {
+    performSettingsReplacements('settings.php', $_GET);
+    header('Location: tests.php');
+    return;
+  }
+  
   include_once(getIncludesWrapping('pdo'));
   $num_errors = 0;
   
@@ -107,11 +120,12 @@
   }
   
   if($num_errors) {
-    echo '<footer>You have ' . $num_errors . ' errors in your installation. Please fix them, then try again.</footer>';
+    echo '<h3>You have ' . $num_errors . ' errors in your installation. Please fix them, then try again.</h3>';
     return false;
   }
   else {
     echo 'Ok!';
+    performSettingsReplacements('settings.php', array('isInstalled' => true));
     return true;
   }
 ?>
