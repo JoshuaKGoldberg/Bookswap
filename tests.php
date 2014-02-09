@@ -29,12 +29,14 @@
       'description' => 'Does settings.php exist, and is it readable?',
       'tests' => array(
         array(
-          'function' => function() { 
-            if(!is_readable('settings.php')) return false;
-            return true;
-          },
+          'function' => function() { return is_readable('settings.php'); },
           'error' => 'Could not open settings file.',
           'details' => 'The server could not read \'settings.php\'. Does it exist, and is it readable?'
+        ),
+        array(
+          'function' => function() { return is_writable('settings.php'); },
+          'error' => 'Could not write to settings file.',
+          'details' => 'The server could not write to \'settings.php\'. This installation script needs to have write access to it, though you may return it to read-only when this is done.'
         ),
         array(
           'function' => function() { return is_dir(getIncludesPre()); },
