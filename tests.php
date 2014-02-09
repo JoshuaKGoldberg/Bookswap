@@ -1,4 +1,8 @@
 <?php
+  /* Tests.php
+   * This is a set of tests used on installation of the site to ensure a minimum of working settings.
+   * If all settings are set correctly, it also ensures the database has been created.
+  */
   /* Runs a series of tests to ensure the site is working properly */
   include('settings.php');
   // If the user doesn't have to install the site, go to index.php instead
@@ -86,11 +90,6 @@
           'function' => function() { return getDBUser(); },
           'error' => 'You have a blank database user.',
           'details' => ''
-        ),
-        array(
-          'function' => function() { return getPDO(getDBHost(), getDBName(), getDBUser(), getDBPass()); },
-          'error' => 'Unable to connect to the database',
-          'details' => 'Your database credentials aren\'t working, so there must be a problem connecting to the database.'
         )
       )
     ),
@@ -133,75 +132,81 @@
    * 2. Create the `users` table
    * 3. Create the `books` table
   */
-  
-  $dbHost = getDBHost();
-  $dbName = getDBName();
-  $dbPass = getDBPass();
-  $dbUser = getDBUser();
-  $dbConn = getPDO($dbHost, '', $dbUser, $dbPass);
-  
-  // 1. Create the database if it doesn't yet exist
-  $dbConn->prepare('
-    CREATE DATABASE IF NOT EXISTS ' . $dbName
-  )->execute();
-  // From now on, everything will be in that database
-  $dbConn->exec('USE ' . $dbName);
-  
-  // 2. Create the `users` table
-  // * These are identified by the user_id int
-  // (this should also be extended for Facebook integration)
-  $dbConn->exec('
-    CREATE TABLE IF NOT EXISTS `users` (
-      `user_id` INT(10) NOT NULL AUTO_INCREMENT,
-      `username` VARCHAR(127) NOT NULL,
-      `password` VARCHAR(127) NOT NULL,
-      `email` VARCHAR(127) NOT NULL,
-      `salt` VARCHAR(127) NOT NULL,
-      `role` INT(1),
-      PRIMARY KEY (`user_id`)
-    )
-  ');
-  
-  // 3. Create the `books` table
-  // This refers to the known information on a book
-  // * These are identified by their 13-digit ISBN number
-  // * Google Book IDs are also kept for book.php
-  // * The authors list is split by endline characters
-  $dbConn->exec('
-    CREATE TABLE IF NOT EXISTS `books` (
-      `isbn` VARCHAR(15) NOT NULL,
-      `google_id` VARCHAR(127),
-      `title` VARCHAR(127),
-      `authors` VARCHAR(255),
-      `description` TEXT,
-      `publisher` VARCHAR(127),
-      `year` VARCHAR(15),
-      `pages` VARCHAR(7),
-      PRIMARY KEY (`isbn`)
-    )
-  ');
-  
-  // 4. Create the `entries` table
-  // This contains the entries of books by users
-  // * These are also identified by their 13-digit ISBN number
-  // * Prices are decimels, as dollars
-  // * State may be one of the $bookStates
-  // * Action may be one of the $bookActions
-  // (this should use `isbn` and `user_id` as foreign keys)
-  $dbConn->exec('
-    CREATE TABLE IF NOT EXISTS `entries` (
-      `entry_id` INT(10) NOT NULL AUTO_INCREMENT,
-      `isbn` VARCHAR(15) NOT NULL,
-      `user_id` INT(10) NOT NULL,
-      `username` VARCHAR(127) NOT NULL,
-      `bookname` VARCHAR(127) NOT NULL,
-      `price` DECIMAL(19,4),
-      `state` ENUM(' . makeSQLEnum(getBookStates()) . '),
-      `action` ENUM(' . makeSQLEnum(getBookActions()) . '),
-      `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (`entry_id`)
-    )
-  ');
+  try {
+    $dbHost = getDBHost();
+    $dbName = getDBName();
+    $dbPass = getDBPass();
+    $dbUser = getDBUser();
+    $dbConn = getPDO($dbHost, '', $dbUser, $dbPass);
+    
+    // 1. Create the database if it doesn't yet exist
+    $dbConn->prepare('
+      CREATE DATABASE IF NOT EXISTS ' . $dbName
+    )->execute();
+    // From now on, everything will be in that database
+    $dbConn->exec('USE ' . $dbName);
+    
+    // 2. Create the `users` table
+    // * These are identified by the user_id int
+    // (this should also be extended for Facebook integration)
+    $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `users` (
+        `user_id` INT(10) NOT NULL AUTO_INCREMENT,
+        `username` VARCHAR(127) NOT NULL,
+        `password` VARCHAR(127) NOT NULL,
+        `email` VARCHAR(127) NOT NULL,
+        `salt` VARCHAR(127) NOT NULL,
+        `role` INT(1),
+        PRIMARY KEY (`user_id`)
+      )
+    ');
+    
+    // 3. Create the `books` table
+    // This refers to the known information on a book
+    // * These are identified by their 13-digit ISBN number
+    // * Google Book IDs are also kept for book.php
+    // * The authors list is split by endline characters
+    $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `books` (
+        `isbn` VARCHAR(15) NOT NULL,
+        `google_id` VARCHAR(127),
+        `title` VARCHAR(127),
+        `authors` VARCHAR(255),
+        `description` TEXT,
+        `publisher` VARCHAR(127),
+        `year` VARCHAR(15),
+        `pages` VARCHAR(7),
+        PRIMARY KEY (`isbn`)
+      )
+    ');
+    
+    // 4. Create the `entries` table
+    // This contains the entries of books by users
+    // * These are also identified by their 13-digit ISBN number
+    // * Prices are decimels, as dollars
+    // * State may be one of the $bookStates
+    // * Action may be one of the $bookActions
+    // (this should use `isbn` and `user_id` as foreign keys)
+    $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `entries` (
+        `entry_id` INT(10) NOT NULL AUTO_INCREMENT,
+        `isbn` VARCHAR(15) NOT NULL,
+        `user_id` INT(10) NOT NULL,
+        `username` VARCHAR(127) NOT NULL,
+        `bookname` VARCHAR(127) NOT NULL,
+        `price` DECIMAL(19,4),
+        `state` ENUM(' . makeSQLEnum(getBookStates()) . '),
+        `action` ENUM(' . makeSQLEnum(getBookActions()) . '),
+        `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`entry_id`)
+      )
+    ');
+  }
+  catch(Exception $err) {
+    echo 'There was an error creating the database. Please try again.<br>' . PHP_EOL;
+    print_r($err->getMessage());
+    return false;
+  }
   
   echo 'Ok!';
   performSettingsReplacements('settings.php', array('isInstalled' => true));
