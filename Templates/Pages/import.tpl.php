@@ -24,6 +24,9 @@
     </div>
     <div id="import_full_thinking" class="thinker"></div>
     <div id="import_full_results"></div>
-    <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3>
+    <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3><?php
+      if(!getGoogleKey())
+        echo '<h2 class="standard_main standard_vert">Your site does not have a Google key in settings.php, so this feature will not work.</h2>' . PHP_EOL;
+    ?>
   </div>
 </section>
