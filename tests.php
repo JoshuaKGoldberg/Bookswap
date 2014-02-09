@@ -53,6 +53,27 @@
         )
       )
     ),
+    'Location configurations' => array(
+      'description' => 'Are the environment-specific settings correctly set?',
+      'tests' => array(
+        array(
+          'function' => function() { return !!getBase(); },
+          'error' => 'No base URL ("getBase()") provided for site.'
+        ),
+        array(
+          'function' => function() { return !!getCDir(); },
+          'error' => 'No directory ("getCDir()") provided for site.'
+        ),
+        array(
+          'function' => function() { return substr(getBase(), -1) != '/'; },
+          'error' => 'Your "getBase()" URL ends with a trailing slash. Please remove it.'
+        ),
+        array(
+          'function' => function() { return substr(getCDir(), -1) != '/'; },
+          'error' => 'Your "getCDir()" directory ends with a trailing slash. Please remove it.'
+        ),
+      )
+    ),
     'Media files' => array(
       'description' => 'Do the CSS and JS directories exist, and are they readable?',
       'tests' => array(
@@ -111,8 +132,8 @@
     foreach($test_group['tests'] as $test) {
       $status = $test['function']();
       if(!$status) {
-        error($test_group_num, $test_num, $test['error']);
-        details($test['details']);
+        if(isset($test['error'])) error($test_group_num, $test_num, $test['error']);
+        if(isset($test['details'])) details($test['details']);
         ++$num_errors;
       }
       ++$test_num;
