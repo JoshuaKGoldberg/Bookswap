@@ -45,7 +45,7 @@ function sendRequest(func_name, settings, callback) {
       s_name;
   
   // Generate the list of arguments
-  settings["Function"] = func_name;
+  settings["function"] = func_name;
   for(s_name in settings)
     args.push(s_name + "=" + settings[s_name]);
   

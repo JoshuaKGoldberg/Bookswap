@@ -4,8 +4,8 @@
    * The JS::sendRequest function goes to this page and specifies a function to run
   */
   // This has to be used with a requested function
-  if(isset($_GET['Function'])) $function_name = $_GET['Function'];
-  else if(isset($_GET['function'])) $function_name = $_GET['function'];
+  if(isset($_GET['function'])) $function_name = $_GET['function'];
+  else if(isset($_GET['Function'])) $function_name = $_GET['Function'];
   else return;
   $function_name = preg_replace("/[^A-Za-z_0-9]/", '', $function_name);
 
