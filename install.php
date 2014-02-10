@@ -75,7 +75,8 @@
         'information' => 'This user must have general READ & WRITE priviliges to the database for installation and normal use. You may use root for testing, but it is not advisable on production servers.'
       ),
       'getDBPass' => array(
-        'description' => 'The MySQL user\'s password'
+        'description' => 'The MySQL user\'s password',
+        'type' => 'password'
       ),
       'getDBName' => array(
         'description' => 'The name of the MySQL database you\'d like to use',
@@ -112,7 +113,7 @@
             echo str_repeat(' ', 16) . '<div class="more">' . $info['description'] . '</div>' . PHP_EOL;
           
           // if(!$suggestion) $suggestion = (isset($info['suggestion']) && $info['suggestion']) ? $info['suggestion'] : '';
-          echo str_repeat(' ', 16) . '<input id="' . $name . '" type="text" value="' . ((string) call_user_func($name)) . '" />' . PHP_EOL;
+          echo str_repeat(' ', 16) . '<input id="' . $name . '" type="' . (isset($info['type']) ? $info['type'] : 'text') . '" value="' . ((string) call_user_func($name)) . '" />' . PHP_EOL;
           
           if(isset($info['information']))
             echo str_repeat(' ', 16) . '<div class="info">' . $info['information'] . '</div>' . PHP_EOL;
