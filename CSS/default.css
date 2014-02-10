@@ -80,6 +80,18 @@ section:nth-of-type(2n) .unemph {
   font-size: 49px;
 }
 
+.warning {
+  background: #ffc;
+  border: solid #cca;
+  border-width: 3px 0;
+}
+.error {
+  background: #fcc;
+  font-weight: bold;
+  border: solid #caa;
+  border-width: 3px 0;
+}
+
 /* Inputs
 */
 input {

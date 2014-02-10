@@ -142,7 +142,7 @@
   }
   
   if($num_errors) {
-    echo '<h3>You have ' . $num_errors . ' errors in your installation. Please fix them, then try again.</h3>';
+    echo '<h3>You have ' . $num_errors . ' error' . ($num_errors == 1 ? '' : 's') . ' in your installation. Please fix them, then try again.</h3>';
     return false;
   }
   

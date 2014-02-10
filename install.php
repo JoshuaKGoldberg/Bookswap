@@ -7,7 +7,15 @@
   }
   
   // The new text is saved to the file, and split by lines
-  $contents = performSettingsReplacements('settings.php', $_GET);
+  // If the settings aren't writeable, this complains
+  if(is_writable('settings.php'))
+    $contents = performSettingsReplacements('settings.php', $_GET);
+  else {
+    echo '<header class="error">' . PHP_EOL;
+    echo '<div class="standard_main standard_vert medium">settings.php is not writable - settings won\'t be saved and installation will fail.</div>' . PHP_EOL;
+    echo '</header>' . PHP_EOL;
+    $contents = file_get_contents('settings.php');
+  }
   $settings_arr = preg_split('/$\R?^/m', $contents);
   
   // Get the basic CSS and fonts for styling this page
