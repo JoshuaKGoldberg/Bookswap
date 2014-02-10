@@ -67,15 +67,15 @@
   /* For example, to call a sample function from a template:
      PHP code
      --------
-     <?php PrintRequest("PrintUserBooks", [$user_id, 'sell']); ?>
+     <?php PrintRequest("PrintUserBooks", array('user_id' => $user_id, 'action' => 'sell')]); ?>
  
      Resultant HTML (line breaks for clarity)
      --------------
      <div class="php_request_load loading"
           request="PrintUserBooks"
-          num_args = "2"
-          arg0="4"
-          arg1="sell">
+          num_args="2"
+          arg0="user_id,4"
+          arg1="action,sell">
        <hr />
        <div class="loader">loading</div>
      </div>
@@ -87,7 +87,7 @@
   function PrintRequest($function_name, $args=[], $time=0) {
     $num_args = count($args);
     echo '<div class="php_request_load loading" request="' . $function_name . '" ';
-    echo 'num_args = "' . $num_args . '"';
+    echo 'num_args="' . $num_args . '"';
     $i = 0;
     // Print each argument in order, as key,value
     foreach($args as $key=>$value) {
