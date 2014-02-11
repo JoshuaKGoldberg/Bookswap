@@ -1,7 +1,10 @@
 <h1>BookSwap</h1>
 
-BookSwap is a simple service that keeps track of users, books, and book transactions users would like to do. It will recommend exchanges to users based on others who want to buy or sell the same books as them.
+BookSwap is a simple, elegant service that keeps track of users, books, and book transactions users would like to do. Key innovations of the project are:
+* Exchanges recommended to users based on others who want to buy or sell the same books as them.
+* Secure integration with the Google Books API to allow users to import books to the local database if they don't yet exist.
 
+The goal of this project is to create a user-friendly exchange that non-technical college students will feel comfortable placing entries and searching within for their new and used textbooks. 
 
 <h2>Installation</h2>
 
