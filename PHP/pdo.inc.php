@@ -3,10 +3,12 @@
    * Contains common functions for making and using PDOs
   */
   
-  // getPDOQuick()
-  // Gets a new PDO object with the default settings
+  // getPDOQuick($arguments)
+  // Gets $arguments['dbConn'] if it exists, or a new PDO object with the default settings otherwise
   // Sample usage: $dbConn = getPDOQuick();
-  function getPDOQuick() {
+  function getPDOQuick($arguments=false) {
+    if($arguments && isset($arguments['dbConn']) && $arguments['dbConn'] instanceof PDO)
+      return $arguments['dbConn'];
     return getPDO(getDBHost(), getDBName(), getDBUser(), getDBPass());
   } 
   
