@@ -28,6 +28,16 @@
     // Make sure the arguments aren't blank
     if(!$username || !$password || !$email) return false;
     
+    // The email must be an academic email
+    if(!isStringEmail($email)) {
+      if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
+      return false;
+    }
+    if(!isEmailAcademic($email)) {
+      if(!$noverbose) echo 'Sorry, right now we\'re only allowing school emails. Please use a .edu email address.';
+      return false;
+    }
+    
     // Also make sure that email isn't taken
     if(checkKeyExists($dbConn, 'users', 'email', $email)) {
       if(!$noverbose) echo 'The email \'' . $email . '\' is already taken :(';
