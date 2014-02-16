@@ -127,3 +127,50 @@ function loadPrintedRequest(i, div) {
 function loadPrintedRequestResults(result, div) {
   div.outerHTML = result;
 }
+
+/* Editable Components */
+/*
+  This is the front-end counterpart to PHP/templates.inc.php::PrintEditable.
+  
+  When an 'editable' element is clicked, it turns into a user-editable form.
+  Upon submission of that form, sendRequest() is used with a provided PHP function.
+  
+  This is notably missing some optional features, such as:
+  * multiple forms
+  * custom forms (e.g. <select> w/<option>s)
+  * result validation
+  
+*/
+function editClick(func_name, type, index) {
+  var target = event.target,
+      value_old = target.innerText,
+      click_old = target.onclick,
+      output = '';
+
+  target.className += " editing";
+  
+  output += "<form>";
+  output += "  <input class='" + target.className + "' type='" + type + "' value='" + value_old + "' />";
+  output += "</form>";
+  target.innerHTML = output;
+  
+  target.onclick = false;
+  target.onsubmit = function(event) {
+    event.preventDefault();
+    editSubmit(event.target, func_name, index, value_old, click_old);
+  };
+}
+
+function editSubmit(form, func_name, index, value_old, click_old) {
+  var input = form.getElementsByTagName("input")[0],
+      settings = {},
+      value = input.value;
+  
+  settings[index] = value;
+  settings[index + "_old"] = value_old;
+  
+  sendRequest(func_name, settings, function(results) {
+    form.parentNode.onclick = click_old;
+    form.outerHTML = value;
+  });
+}

@@ -99,4 +99,33 @@
     echo '  <div class="loader">loading</div>' . PHP_EOL;
     echo '</div>';
   }
+  
+  
+  // PrintEditable("value", "function_name"[, "type"[, "index"]])
+  // Prints an HTML span that, when clicked, turns into a JS-calling form
+  // Form submission sends a public request to function_name with the arguments
+  /* For example, to print a username-editing span:
+     PHP code
+     --------
+     <?php PrintEditable("User Sample", "publicEditUsername"); ?>
+     
+     Resultant HTML (line breaks for clarity)
+     --------------
+     <span class="editable"
+           onclick="editClick('publicEditUsername', 'text', 'value');">
+      Josh Goldberg
+     </span>
+     
+     Resultant JS call (when submitted with "User Changed")
+     -----------------
+     sendRequest("publicEditUsername", {
+      value: "User Changed",
+      value_old: "User Sample"
+     });
+  */
+  function PrintEditable($value, $function_name, $type='text', $index='value') {
+    echo '<span class="editable" ';
+    echo 'onclick="editClick(\'' . $function_name . '\', \'' . $type . '\', \'' . $index . '\');"';
+    echo '>' . $value . '</span>';
+  }
 ?>

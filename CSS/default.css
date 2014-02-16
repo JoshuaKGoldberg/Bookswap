@@ -383,3 +383,19 @@ footer hr {
   width: 350px;
   border: 1px dashed #ccc;
 }
+
+
+/* Editable Components
+*/
+.editable {
+  text-align: center;
+}
+.editable:not(.editing) {
+  padding: 3px 7px;
+}
+.editable:not(input) {
+  cursor: pointer;
+}
+.editable:hover:not(.editing) {
+  border: 1px solid #aaa;
+}
