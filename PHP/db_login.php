@@ -45,4 +45,12 @@
   function isStringEmail($string) {
     return filter_var($string, FILTER_VALIDATE_EMAIL);
   }
+  
+  // isEmailAcademic("string")
+  // Determines if the given string is from a .edu email
+  // Does not check for EU or other styles of school emails
+  function isEmailAcademic($string) {
+    $test = '.edu';
+    return substr_compare($string, $test, -strlen($test), strlen($test)) === 0;
+  }
 ?>
