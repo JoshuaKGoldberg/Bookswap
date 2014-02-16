@@ -20,7 +20,7 @@
   // * "password"
   // * "email"
   function publicCreateUser($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $username = $arguments['j_username'];
     $password = $arguments['j_password'];
     $email = $arguments['j_email'];
@@ -69,7 +69,7 @@
   // https://developers.google.com/books/docs/v1/using
   // https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
   function publicAddBook($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $isbn = $arguments['isbn'];
     
     // Make sure the arguments aren't blank
@@ -123,7 +123,7 @@
   // * "format"
   // * "offset"
   function publicSearch($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $value_raw = ArgLoose($arguments['value']);
     $value = '%' . str_replace(' ', '%', $value_raw) . '%';
     $format = isset($arguments['format']) ? ArgStrict($arguments['format']) : 'Medium';
@@ -168,7 +168,7 @@
   // * #isbn
   // * "action"
   function publicGetBookEntries($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $isbn = $arguments['isbn'];
     $action = $arguments['action'];
     
@@ -221,7 +221,7 @@
     }
     
     // Does the ISBN exist?
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     if(doesBookAlreadyExist($dbConn, $isbn))
       return;
     
@@ -263,7 +263,7 @@
     }
     
     // Since there are items, get their identifiers
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     foreach($items as $item) {
       $identifiers = followPath($item, ['volumeInfo', 'industryIdentifiers']);
       if(!$identifiers) continue;
@@ -319,7 +319,7 @@
     $user_id = ArgStrict($arguments['user_id']);
     $format = ArgStrict($arguments['format']);
     $action = ArgStrict($arguments['action']);
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     
     // Get each of the entries of that type
     $entries = dbEntriesGet($dbConn, $user_id, $action);
@@ -354,7 +354,7 @@
     else $identifier = $isbn = false;
     
     // Get each of the recent entries
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $entries = dbEntriesGetRecent($dbConn, $identifier, $isbn);
     
     // If there are any, for each of those entries, print them out
@@ -381,7 +381,7 @@
     }
     $username = $_SESSION['username'];
     $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     
     // Fetch the necessary arguments
     $isbn = ArgStrict($arguments['isbn']);
@@ -411,7 +411,7 @@
       return false;
     }
     $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     
     // Fetch the necessary arguments
     $isbn = ArgStrict($arguments['isbn']);
@@ -439,7 +439,7 @@
     }
     $username = $_SESSION['username'];
     $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     
     // Fetch the necessary argument
     $isbn = ArgStrict($arguments['isbn']);
@@ -457,7 +457,7 @@
   // Required arguments:
   // * #user_id
   function publicPrintRecommendationsDatabase($arguments) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $user_id = ArgStrict($arguments['user_id']);
     
     // Prepare the query
@@ -494,7 +494,7 @@
   // * #user_id_a
   // * #user_id_b
   function publicPrintRecommendationsUser($arguments) {
-    $dbConn = getPDOQuick();
+    $dbConn = getPDOQuick($arguments);
     $user_id_a = ArgStrict($arguments['user_id_a']);
     $user_id_b = ArgStrict($arguments['user_id_b']);
     
