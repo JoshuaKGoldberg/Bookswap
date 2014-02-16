@@ -7,10 +7,10 @@
   /* Helper functions to ensure argument safety
   */
   function ArgStrict($arg) {
-    return preg_replace("/[^A-Za-z0-9 ]/", '', $arg);
+    return preg_replace("/[^A-Za-z0-9 ]/", '', ArgLoose($arg));
   }
   function ArgLoose($arg) {
-    return $arg; // oh boy oh boy security
+    return strip_tags($arg);
   }
   
   // publicCreateUser({...})
