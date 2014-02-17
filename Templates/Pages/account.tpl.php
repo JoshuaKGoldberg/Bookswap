@@ -33,7 +33,7 @@
 ?>
 <!-- Lists of books the user wants -->
 <section id="account">
-  <h1 class="standard_main standard_vert giant"><?php echo $username; ?></h1>
+  <h1 class="standard_main standard_vert giant"><?php if($using_current) PrintEditable($username, 'publicEditUsername'); else echo $username; ?></h1>
   <?php if($descriptor): ?>
   
   <div id="user_books" class="standard_main half_holder">
