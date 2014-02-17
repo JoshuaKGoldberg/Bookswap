@@ -78,7 +78,28 @@
       WHERE `' . $type . '` = :identity
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':identity'    => $identity));
+    return $stmnt->execute(array(':identity' => $identity));
+  }
+  
+  // dbUsersRemove("identity", "username_new"[, "type"])
+  // Renames a user from `users` of the given identity (by default, user_id)
+  // Sample usage: dbUsersRename($dbConn, $user_id, $username_new, "user_id");
+  function dbUsersRename($dbConn, $identity, $username_new, $type='user_id') {
+    // Ensure the identity exists in the database
+    if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
+      echo 'No such ' . $type . ' exists: ' . $identity;
+      return false;
+    }
+    
+    // Run the rename query
+    $query = '
+      UPDATE `users` SET
+      `username` =  :username_new
+      WHERE `' . $type . '` = :identity
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':username_new' => $username_new,
+                                 ':identity'     => $identity));
   }
   
   
