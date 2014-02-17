@@ -72,6 +72,38 @@
     return false;
   }
 
+  // publicEditUsername({...})
+  // Edits the current user's username, and updates all related entries
+  // Required fields:
+  // * "username" (new value)
+  function publicEditUsername($arguments, $noverbose=false) {
+    print_r($arguments);
+    // Make sure you're logged in
+    if(!UserLoggedIn()) {
+      if(!$noverbose) echo 'You must be logged in to edit a username.';
+      return false;
+    }
+    $user_id = $_SESSION['user_id'];
+    $username_old = $_SESSION['username'];
+    $username_new = $arguments['value'];
+    
+    // Don't do anything if it's the same as before
+    if($username_new == $username_old) {
+      echo "same :(\n";
+      return true;
+    }
+    
+    // Replace the user's actual username
+    $dbConn = getPDOQuick($arguments);
+    dbUsersRename($dbConn, $user_id, $username_new, 'user_id');
+    
+    // Also replace all matching entry usernames
+    dbEntriesEditUsername($dbConn, $user_id, $username_new);
+    
+    // Reset the $_SESSION username to be that of the database's
+    $_SESSION['username'] = getRowValue($dbConn, 'users', 'username', 'user_id', $user_id);
+  }
+  
   // publicAddBook({...})
   // Gets the info on a book from the Google API, then pipes it to dbBooksAdd
   // Required fields:
