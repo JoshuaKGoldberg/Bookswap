@@ -313,8 +313,9 @@
                                  ':action'    => $action));
   }
   
-  // Sample usage: dbEntriesEditPrice(#isbn, #user_id, "action", #price)
+  // dbEntriesEditPrice(#isbn, #user_id, "action", #price)
   // Edits a pre-existing entry's price in `entries`, selected by isbn, user_id, and action
+  // Sample usage: dbEntriesEditPrice($dbConn, $isbn, $user_id, 'buy', 14);
   function dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price) {
     // Ensure the isbn and user_id both exist in the database
     if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
@@ -342,6 +343,29 @@
     return $stmnt->execute(array(':isbn'   => $isbn,
                                  ':action' => $action,
                                  ':price'  => $price));
+  }
+  
+  // dbEntriesEditUsername(#user_id, "username_new");
+  // Edits all pre-existing entries with the given user_id to have the new username
+  // Sample usage: dbEntriesEditUsername($dbConn, $user_id, "My New Name");
+  function dbEntriesEditUsername($dbConn, $user_id, $username_new) {
+    // Ensure the user_id exists in the database
+    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
+      echo 'No such user exists: ' . $user_id;
+      return false;
+    }
+    
+    // Run the edit query
+    $query = '
+      UPDATE `entries`
+      SET `username` = :username_new
+      WHERE
+      `user_id` = :user_id
+    ';
+    
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':user_id'       => $user_id,
+                                 ':username_new'  => $username_new));
   }
   
   // dbEntriesRemove(#isbn, #user_id)
