@@ -199,13 +199,6 @@
     echo json_encode($result);
   }
   
-  // publicGetSIS
-  // Simply outputs the HTTP page of the specified SIS page
-  // No required fields!
-  function publicGetSIS($arguments=false, $noverbose=false) {
-    echo getHTTPPage(getSISAPI());
-  }
-  
   // publicBookImport({...})
   // Handler to go to ISBN or Full
   // Required fields:

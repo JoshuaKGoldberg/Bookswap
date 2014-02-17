@@ -19,7 +19,7 @@
   $allowed_functions = array(
     'publicLogin', 'publicCreateUser',
     'publicAddBook', 'publicSearch', 'publicGetBookEntries',
-    'publicGetSIS', 'publicBookImport',
+    'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',
     'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',
