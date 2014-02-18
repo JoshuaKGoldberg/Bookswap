@@ -3,7 +3,7 @@
 ?>
 <div class="entry">
   <!-- Form to submit entry -->
-  <form class="add_entry" onsubmit="event.preventDefault(); entryAddSubmit(event, <?php echo $_TARGS['isbn']; ?>);">
+  <form class="add_entry" onsubmit="event.preventDefault(); entryAddSubmit(event, '<?php echo $_TARGS['isbn']; ?>');">
     <span class="display_entry_before">I would like to</span>
     <select class="entry_action">
       <?php
