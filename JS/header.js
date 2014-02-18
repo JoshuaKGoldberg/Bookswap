@@ -18,7 +18,7 @@ function searchStart(event) {
     
     // If nothing was searched, clear it
     if(!value) {
-      $("header_search_results").addClass("hidden");
+      $("#header_search_results").addClass("hidden");
       $("#header_search_results_contents").html("");
       return;
     }
