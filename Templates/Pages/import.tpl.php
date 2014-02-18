@@ -1,4 +1,8 @@
-<?php if(!UserLoggedIn()) return AccessDenied(); ?>
+<?php 
+  if(!UserLoggedIn()) return AccessDenied();
+  if(!getGoogleKey())
+    echo '<div class="error"><div class="standard_main">You do not have a Google key supplied in your settings file. None of this will work.</div></div>';
+?>
 <section>
   <h1 class="standard_main standard_vert">import by ISBN</h1>
   
@@ -24,9 +28,6 @@
     </div>
     <div id="import_full_thinking" class="thinker"></div>
     <div id="import_full_results"></div>
-    <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3><?php
-      if(!getGoogleKey())
-        echo '<h2 class="standard_main standard_vert">Your site does not have a Google key in settings.php, so this feature will not work.</h2>' . PHP_EOL;
-    ?>
+    <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3>
   </div>
 </section>
