@@ -80,6 +80,11 @@ section:nth-of-type(2n) .unemph {
   font-size: 49px;
 }
 
+.notice {
+  background: #cfc;
+  border: solid #aca;
+  border-width: 3px 0;
+}
 .warning {
   background: #ffc;
   border: solid #cca;

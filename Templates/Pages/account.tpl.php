@@ -33,7 +33,8 @@
 ?>
 <!-- Lists of books the user wants -->
 <section id="account">
-  <h1 class="standard_main standard_vert giant"><?php if($using_current) PrintEditable($username, 'publicEditUsername'); else echo $username; ?></h1>
+  <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your name to change it.</div></section>' . PHP_EOL; ?>
+  <h1 class="standard_main standard_vert giant"><?php PrintEditable($username, 'publicEditUsername'); ?></h1>
   <?php if($descriptor): ?>
   
   <div id="user_books" class="standard_main half_holder">
