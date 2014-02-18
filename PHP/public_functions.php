@@ -26,7 +26,17 @@
     $email = $arguments['j_email'];
     
     // Make sure the arguments aren't blank
-    if(!$username || !$password || !$email) return false;
+    if(!$username || !$password || !$email) {
+      echo 'Make sure to fill out all the fields!';
+      return false;
+    }
+    
+    // The password must be secure
+    if(!isPasswordSecure($password)) {
+      echo 'Your password isn\'t secure enough.';
+      return false;
+    }
+    
     
     // The email must be an academic email
     if(!isStringEmail($email)) {

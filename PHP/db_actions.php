@@ -97,6 +97,7 @@
       `username` =  :username_new
       WHERE `' . $type . '` = :identity
     ';
+    echo "\nquery is $query\nwith $username_new, $identity";
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':username_new' => $username_new,
                                  ':identity'     => $identity));

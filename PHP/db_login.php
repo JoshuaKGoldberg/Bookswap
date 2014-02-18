@@ -53,4 +53,13 @@
     $test = '.edu';
     return substr_compare($string, $test, -strlen($test), strlen($test)) === 0;
   }
+  
+  // isPasswordSecure("string")
+  // Checks if the password is 7+ characters, has upper&lowercase, symbol(s), and digit(s)
+  function isPasswordSecure($string) {
+    return (count($string) >= 7)
+        && (preg_match('/[A-Z]/', $string))
+        && (preg_match('/[a-z]/', $string))
+        && (preg_match('/[&a-zA-Z]/', $string));
+  }
 ?>

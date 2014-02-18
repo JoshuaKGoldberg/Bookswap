@@ -43,7 +43,7 @@
     return !empty($results);
   }
   
-  // getRowValue($dbConn, "table"", "valCol", "keyCol", "keyVal")
+  // getRowValue($dbConn, "table", "valCol", "keyCol", "keyVal")
   // Returns the single value at a specified column of a specified row
   function getRowValue($dbConn, $table, $valCol, $keyCol, $keyVal) {
     $query = '
