@@ -147,14 +147,15 @@ function editClick(func_name, type, index) {
       click_old = target.onclick,
       output = '';
 
-  target.className += " editing";
-  
   output += "<form>";
-  output += "  <input class='" + target.className + "' type='" + type + "' value='" + value_old + "' />";
+  output += "  <input class='" + target.className + "' type='" + type + "' />";
   output += "</form>";
   target.innerHTML = output;
   
+  target.className += " editing";
   target.onclick = false;
+  target.getElementsByTagName("input")[0].setAttribute("value", value_old);
+  
   target.onsubmit = function(event) {
     event.preventDefault();
     editSubmit(event.target, func_name, index, value_old, click_old);
