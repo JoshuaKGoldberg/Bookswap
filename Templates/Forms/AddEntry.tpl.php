@@ -1,6 +1,3 @@
-<?php
-  $isbn = $_TARGS['isbn'];
-?>
 <div class="entry">
   <!-- Form to submit entry -->
   <form class="add_entry" onsubmit="event.preventDefault(); entryAddSubmit(event, '<?php echo $_TARGS['isbn']; ?>');">
