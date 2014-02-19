@@ -140,15 +140,32 @@ function loadPrintedRequestResults(result, div) {
   * custom forms (e.g. <select> w/<option>s)
   * result validation
   
+  Default values are:
+  * 'type' => 'text'
+  * 'index' => 'value'
 */
-function editClick(func_name, type, index) {
+function editClick(func_name, settings) {
   var target = event.target,
       value_old = target.innerText,
       click_old = target.onclick,
+      settings = settings || {},
+      type = settings.type || 'text',
+      index = settings.index || 'value',
       output = '';
 
   output += "<form>";
-  output += "  <input class='" + target.className + "' type='" + type + "' />";
+  // Having multiple input types means printing them all
+  if(settings.hasOwnProperty("types")) {
+    output += "<div class='" + target.className + "'>";
+    for(var i = 0, types = settings.types, len = types.length; i < len; ++i) {
+      output += "  <input type='" + (types[i] || 'text') + "' />";
+    }
+    output += "</div>";
+  }
+  // Otherwise, only having one input is easy
+  else {
+    output += "  <input class='" + target.className + "' type='" + (settings.type || 'text') + "' />";
+  }
   output += "</form>";
   target.innerHTML = output;
   
@@ -158,7 +175,7 @@ function editClick(func_name, type, index) {
   
   target.onsubmit = function(event) {
     event.preventDefault();
-    editSubmit(event.target, func_name, index, value_old, click_old);
+    editSubmit(event.target, func_name, settings.index || 'value', value_old, click_old);
   };
 }
 

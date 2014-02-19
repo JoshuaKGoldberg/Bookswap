@@ -101,7 +101,7 @@
   }
   
   
-  // PrintEditable("value", "function_name"[, "type"[, "index"]])
+  // PrintEditable("value", "function_name"[, {settings}])
   // Prints an HTML span that, when clicked, turns into a JS-calling form
   // Form submission sends a public request to function_name with the arguments
   /* For example, to print a username-editing span:
@@ -112,7 +112,7 @@
      Resultant HTML (line breaks for clarity)
      --------------
      <span class="editable"
-           onclick="editClick('publicEditUsername', 'text', 'value');">
+           onclick="editClick('publicEditUsername');">
       Josh Goldberg
      </span>
      
@@ -123,9 +123,9 @@
       value_old: "User Sample"
      });
   */
-  function PrintEditable($value, $function_name, $type='text', $index='value') {
+  function PrintEditable($value, $function_name, $settings=false) {
     echo '<span class="editable" ';
-    echo 'onclick="editClick(\'' . $function_name . '\', \'' . $type . '\', \'' . $index . '\');"';
+    echo 'onclick="editClick(\'' . $function_name . '\', ' . ($settings ? str_replace('"', '\'', json_encode($settings)) : '{}') . ');"';
     echo '>' . $value . '</span>';
   }
 ?>
