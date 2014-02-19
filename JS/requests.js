@@ -146,8 +146,8 @@ function loadPrintedRequestResults(result, div) {
 */
 function editClick(func_name, settings) {
   var target = event.target,
-      value_old = target.innerText,
-      click_old = target.onclick,
+      value_old = settings.value_old = target.innerText,
+      click_old = settings.click_old = target.onclick,
       settings = settings || {},
       type = settings.type || 'text',
       index = settings.index || 'value',
@@ -175,13 +175,17 @@ function editClick(func_name, settings) {
   
   target.onsubmit = function(event) {
     event.preventDefault();
-    editSubmit(event.target, func_name, settings.index || 'value', value_old, click_old);
+    editSubmit(event.target, func_name, settings);
   };
 }
 
-function editSubmit(form, func_name, index, value_old, click_old) {
+// When an editable component is submitted, collect the difference in values
+// A request is sent to the desired func_name, and if given, the callback is provided
+function editSubmit(form, func_name, settings) {
   var input = form.getElementsByTagName("input")[0],
-      settings = {},
+      index = settings.index || 'value',
+      value_old = settings.value_old,
+      click_old = settings.click_old,
       value = input.value;
   
   settings[index] = value;
@@ -190,5 +194,10 @@ function editSubmit(form, func_name, index, value_old, click_old) {
   sendRequest(func_name, settings, function(results) {
     form.parentNode.onclick = click_old;
     form.outerHTML = value;
+    if(settings.callback) {
+      if(!window[settings.callback] || !(window[settings.callback] instanceof Function))
+        console.warn(settings.callback + " is not a valid function.");
+      else window[settings.callback](results, settings);
+    }
   });
 }

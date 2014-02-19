@@ -87,3 +87,13 @@ function doEntryEdit(event, isbn, action) {
     parent.attr("price", price);
   });
 }
+
+// Updates the search bar after the username is edited
+// This should have been passed as the callback in account.tpl.php
+function updateSearchUsername(results, settings) {
+  var input = $("#header_search_input"),
+      blurb = input.attr('placeholder'),
+      last = blurb.lastIndexOf(settings.value_old);
+  input.attr('placeholder', blurb.slice(0, last) + settings.value);
+  console.log("settings are", settings);
+}
