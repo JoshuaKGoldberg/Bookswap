@@ -57,9 +57,10 @@
   // isPasswordSecure("string")
   // Checks if the password is 7+ characters, has upper&lowercase, symbol(s), and digit(s)
   function isPasswordSecure($string) {
-    return (count($string) >= 7)
+    return (strlen($string) >= 7)
         && (preg_match('/[A-Z]/', $string))
         && (preg_match('/[a-z]/', $string))
-        && (preg_match('/[&a-zA-Z]/', $string));
+        && (preg_match('/[\!@#\$%\^&\*]/', $string))
+        && (preg_match('/[0-9]/', $string));
   }
 ?>
