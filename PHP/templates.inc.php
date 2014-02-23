@@ -125,7 +125,7 @@
   */
   function PrintEditable($value, $function_name, $settings=false) {
     echo '<span class="editable" ';
-    echo 'onclick="editClick(\'' . $function_name . '\', ' . ($settings ? str_replace('"', '\'', json_encode($settings)) : '{}') . ');"';
+    echo 'onclick="editClick(\'' . $function_name . '\', ' . ($settings ? str_replace('"', '\'', json_encode($settings)) : '{}') . ', event);"';
     echo '>' . $value . '</span>';
   }
 ?>

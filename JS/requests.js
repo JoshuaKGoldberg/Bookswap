@@ -144,9 +144,9 @@ function loadPrintedRequestResults(result, div) {
   * 'type' => 'text'
   * 'index' => 'value'
 */
-function editClick(func_name, settings) {
+function editClick(func_name, settings, event) {
   var target = event.target,
-      value_old = settings.value_old = target.innerText,
+      value_old = settings.value_old = target.innerText || target.innerHTML,
       click_old = settings.click_old = target.onclick,
       settings = settings || {},
       type = settings.type || 'text',
