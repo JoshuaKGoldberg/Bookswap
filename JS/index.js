@@ -77,7 +77,7 @@ function endsWith(str, suffix) { return str.indexOf(suffix, str.length - suffix.
 function hasLowerCase(str) { return (/[a-z]/.test(str)); }
 function hasUpperCase(str) { return (/[A-Z]/.test(str)); }
 function hasNumber(str) { return (/[0-9]/.test(str)); }
-function hasSymbol(str) { return (/[^a-zA-Z]/.test(str)); }
+function hasSymbol(str) { return (/[^a-zA-Z0-9]/.test(str)); }
 
 function joinComplete(result) {
   // If the login attempt was successful, refresh
