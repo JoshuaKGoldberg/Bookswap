@@ -82,8 +82,8 @@ function hasSymbol(str) { return (/[^a-zA-Z0-9]/.test(str)); }
 function joinComplete(result) {
   // If the login attempt was successful, refresh
   if(result == "Yes") {
-    window.scrollTo(0)
     location.reload();
+    window.scrollTo(0);
   }
   // Otherwise complain
   $("#user_login_text").text(result);
