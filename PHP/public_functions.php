@@ -107,9 +107,6 @@
     $dbConn = getPDOQuick($arguments);
     dbUsersRename($dbConn, $user_id, $username_new, 'user_id');
     
-    // Also replace all matching entry usernames
-    dbEntriesEditUsername($dbConn, $user_id, $username_new);
-    
     // Reset the $_SESSION username to be that of the database's
     $_SESSION['username'] = getRowValue($dbConn, 'users', 'username', 'user_id', $user_id);
   }
