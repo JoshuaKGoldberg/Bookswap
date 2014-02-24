@@ -221,7 +221,7 @@
   // * dbEntriesGetRecent($dbConn, "user_id", 7, 21); // combine the two
   function dbEntriesGetRecent($dbConn, $identifier=false, $value, $limit = 0) {
     // Prepare the initial query
-    $query = ' SELECT * FROM `entries` ';
+    $query = ' SELECT * FROM `entries` NATURAL JOIN `users` NATURAL JOIN `books`';
     $args = [];
     
     // Add in the extra filter, if needed
