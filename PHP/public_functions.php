@@ -506,15 +506,20 @@
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
     $query = '
-      SELECT a.*
-      FROM `entries` a
-      # matching rows in entries against themselves
-      INNER JOIN `entries` b
-      # not from the given user; ISBNs are the same, but users and actions are not
-      ON  a.user_id <> :user_id
-      AND a.isbn = b.isbn
-      AND b.user_id = :user_id
-      AND a.action <> b.action
+      SELECT * FROM (
+        SELECT a.* FROM
+        `entries` a
+        # matching rows in entries against themselves
+        INNER JOIN `entries` b
+        # not from the given user; ISBNs are the same, but users and actions are not
+        ON  a.user_id <> :user_id
+        AND a.isbn = b.isbn
+        AND b.user_id = :user_id
+        AND a.action <> b.action
+      ) AS matchingEntries
+      # while the above alias is not used, MySQL requires all derived tables to
+      # have an alias
+      NATURAL JOIN `books` NATURAL JOIN `users`
     ';
     
     // Run the query
