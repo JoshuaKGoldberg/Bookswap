@@ -21,7 +21,7 @@
   // * "email"
   function publicCreateUser($arguments, $noverbose=false) {
     $dbConn = getPDOQuick($arguments);
-    $username = $arguments['j_username'];
+    $username = ArgLoose($arguments['j_username']);
     $password = $arguments['j_password'];
     $email = $arguments['j_email'];
     
@@ -95,12 +95,17 @@
     }
     $user_id = $_SESSION['user_id'];
     $username_old = $_SESSION['username'];
-    $username_new = $arguments['value'];
+    $username_new = ArgLoose($arguments['value']);
+    
+    if(!$username_new || strlen($username_new) < 1) {
+      echo "Invalid username... :(\n";
+      return false;
+    }
     
     // Don't do anything if it's the same as before
     if($username_new == $username_old) {
-      echo "same :(\n";
-      return true;
+      echo "Same username as before... :(\n";
+      return false;
     }
     
     // Replace the user's actual username
