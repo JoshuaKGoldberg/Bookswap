@@ -264,8 +264,8 @@
   
   // Sample usage: dbEntriesAdd(#isbn, #user_id, "username", "action"[, #price[, "state"]])
   // Adds an entry to `entries`
-  // Sample usage: dbEntriesAdd($dbConn, $isbn, $username, $user_id, 'Buy', 12.34, 'Good');
-  function dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price=0, $state='Good') {
+  // Sample usage: dbEntriesAdd($dbConn, $isbn, $user_id, 'Buy', 12.34, 'Good');
+  function dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price=0, $state='Good') {
     // Ensure the isbn and user_id both exist in the database
     if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
       echo 'No such ISBN exists: ' . $isbn;
@@ -299,16 +299,14 @@
     // Run the insertion query
     $query = '
       INSERT INTO `entries` (
-        `isbn`, `user_id`, `username`, `bookname`, `price`, `state`, `action`
+        `isbn`, `user_id`, `price`, `state`, `action`
       ) VALUES (
-        :isbn, :user_id, :username, :bookname, :price, :state, :action
+        :isbn, :user_id, :price, :state, :action
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':isbn'      => $isbn,
                                  ':user_id'   => $user_id,
-                                 ':username'  => $username,
-                                 ':bookname'     => $book_title,
                                  ':price'     => $price,
                                  ':state'     => $state,
                                  ':action'    => $action));

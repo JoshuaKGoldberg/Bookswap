@@ -435,7 +435,7 @@
     $price = $dollars . '.' . $cents;
     
     // Send the query
-    if(dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price, $state))
+    if(dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state))
       echo 'Entry added successfully!';
   }
   
