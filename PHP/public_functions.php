@@ -107,9 +107,6 @@
     $dbConn = getPDOQuick($arguments);
     dbUsersRename($dbConn, $user_id, $username_new, 'user_id');
     
-    // Also replace all matching entry usernames
-    dbEntriesEditUsername($dbConn, $user_id, $username_new);
-    
     // Reset the $_SESSION username to be that of the database's
     $_SESSION['username'] = getRowValue($dbConn, 'users', 'username', 'user_id', $user_id);
   }
@@ -438,7 +435,7 @@
     $price = $dollars . '.' . $cents;
     
     // Send the query
-    if(dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price, $state))
+    if(dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state))
       echo 'Entry added successfully!';
   }
   
@@ -509,15 +506,20 @@
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
     $query = '
-      SELECT a.*
-      FROM `entries` a
-      # matching rows in entries against themselves
-      INNER JOIN `entries` b
-      # not from the given user; ISBNs are the same, but users and actions are not
-      ON  a.user_id <> :user_id
-      AND a.isbn = b.isbn
-      AND b.user_id = :user_id
-      AND a.action <> b.action
+      SELECT * FROM (
+        SELECT a.* FROM
+        `entries` a
+        # matching rows in entries against themselves
+        INNER JOIN `entries` b
+        # not from the given user; ISBNs are the same, but users and actions are not
+        ON  a.user_id <> :user_id
+        AND a.isbn = b.isbn
+        AND b.user_id = :user_id
+        AND a.action <> b.action
+      ) AS matchingEntries
+      # while the above alias is not used, MySQL requires all derived tables to
+      # have an alias
+      NATURAL JOIN `books` NATURAL JOIN `users`
     ';
     
     // Run the query
@@ -546,14 +548,19 @@
     // Prepare the query
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     $query = '
-      SELECT a.*
-      FROM `entries` a
-      # matching rows in entries against themselves
-      INNER JOIN `entries` b
-      # where ISBNs are the same, and the two user_ids match
-      ON a.isbn = b.isbn
-      AND a.user_id LIKE :user_id_a
-      AND b.user_id LIKE :user_id_b
+      SELECT * FROM (
+        SELECT a.*
+        FROM `entries` a
+        # matching rows in entries against themselves
+        INNER JOIN `entries` b
+        # where ISBNs are the same, and the two user_ids match
+        ON a.isbn = b.isbn
+        AND a.user_id LIKE :user_id_a
+        AND b.user_id LIKE :user_id_b
+      ) AS matchingEntries
+      # while the above alias is not used, MySQL requires all derived tables to
+      # have an alias
+      NATURAL JOIN `books` NATURAL JOIN `users`
     ';
     
     // Run the query

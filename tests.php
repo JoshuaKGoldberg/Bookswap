@@ -213,13 +213,15 @@
         `entry_id` INT(10) NOT NULL AUTO_INCREMENT,
         `isbn` VARCHAR(15) NOT NULL,
         `user_id` INT(10) NOT NULL,
-        `username` VARCHAR(127) NOT NULL,
-        `bookname` VARCHAR(127) NOT NULL,
         `price` DECIMAL(19,4),
         `state` ENUM(' . makeSQLEnum(getBookStates()) . '),
         `action` ENUM(' . makeSQLEnum(getBookActions()) . '),
         `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (`entry_id`)
+        PRIMARY KEY (`entry_id`),
+        FOREIGN KEY (`isbn`) REFERENCES `books`(`isbn`)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+        FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+        ON UPDATE CASCADE ON DELETE CASCADE
       )
     ');
   }

@@ -221,7 +221,7 @@
   // * dbEntriesGetRecent($dbConn, "user_id", 7, 21); // combine the two
   function dbEntriesGetRecent($dbConn, $identifier=false, $value, $limit = 0) {
     // Prepare the initial query
-    $query = ' SELECT * FROM `entries` ';
+    $query = ' SELECT * FROM `entries` NATURAL JOIN `users` NATURAL JOIN `books`';
     $args = [];
     
     // Add in the extra filter, if needed
@@ -264,8 +264,8 @@
   
   // Sample usage: dbEntriesAdd(#isbn, #user_id, "username", "action"[, #price[, "state"]])
   // Adds an entry to `entries`
-  // Sample usage: dbEntriesAdd($dbConn, $isbn, $username, $user_id, 'Buy', 12.34, 'Good');
-  function dbEntriesAdd($dbConn, $isbn, $user_id, $username, $action, $price=0, $state='Good') {
+  // Sample usage: dbEntriesAdd($dbConn, $isbn, $user_id, 'Buy', 12.34, 'Good');
+  function dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price=0, $state='Good') {
     // Ensure the isbn and user_id both exist in the database
     if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
       echo 'No such ISBN exists: ' . $isbn;
@@ -299,16 +299,14 @@
     // Run the insertion query
     $query = '
       INSERT INTO `entries` (
-        `isbn`, `user_id`, `username`, `bookname`, `price`, `state`, `action`
+        `isbn`, `user_id`, `price`, `state`, `action`
       ) VALUES (
-        :isbn, :user_id, :username, :bookname, :price, :state, :action
+        :isbn, :user_id, :price, :state, :action
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':isbn'      => $isbn,
                                  ':user_id'   => $user_id,
-                                 ':username'  => $username,
-                                 ':bookname'     => $book_title,
                                  ':price'     => $price,
                                  ':state'     => $state,
                                  ':action'    => $action));
@@ -344,29 +342,6 @@
     return $stmnt->execute(array(':isbn'   => $isbn,
                                  ':action' => $action,
                                  ':price'  => $price));
-  }
-  
-  // dbEntriesEditUsername(#user_id, "username_new");
-  // Edits all pre-existing entries with the given user_id to have the new username
-  // Sample usage: dbEntriesEditUsername($dbConn, $user_id, "My New Name");
-  function dbEntriesEditUsername($dbConn, $user_id, $username_new) {
-    // Ensure the user_id exists in the database
-    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
-      echo 'No such user exists: ' . $user_id;
-      return false;
-    }
-    
-    // Run the edit query
-    $query = '
-      UPDATE `entries`
-      SET `username` = :username_new
-      WHERE
-      `user_id` = :user_id
-    ';
-    
-    $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':user_id'       => $user_id,
-                                 ':username_new'  => $username_new));
   }
   
   // dbEntriesRemove(#isbn, #user_id)

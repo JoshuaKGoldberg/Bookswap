@@ -10,7 +10,7 @@
   echo getLinkHTML('account', $username, array('user_id'=>$user_id));
   echo ' want' . $plurals . ' to ' . strtolower($_TARGS['action']) . ' a ';
   echo strtolower($_TARGS['state']) . ' ';
-  echo getLinkHTML('book', $_TARGS['bookname'], array('isbn'=>$_TARGS['isbn'])) . ' for ';
+  echo getLinkHTML('book', $_TARGS['title'], array('isbn'=>$_TARGS['isbn'])) . ' for ';
   TemplatePrintSmall("Money", $_TARGS);
 ?>
 </div>
