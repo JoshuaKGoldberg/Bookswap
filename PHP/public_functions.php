@@ -548,14 +548,19 @@
     // Prepare the query
     // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
     $query = '
-      SELECT a.*
-      FROM `entries` a
-      # matching rows in entries against themselves
-      INNER JOIN `entries` b
-      # where ISBNs are the same, and the two user_ids match
-      ON a.isbn = b.isbn
-      AND a.user_id LIKE :user_id_a
-      AND b.user_id LIKE :user_id_b
+      SELECT * FROM (
+        SELECT a.*
+        FROM `entries` a
+        # matching rows in entries against themselves
+        INNER JOIN `entries` b
+        # where ISBNs are the same, and the two user_ids match
+        ON a.isbn = b.isbn
+        AND a.user_id LIKE :user_id_a
+        AND b.user_id LIKE :user_id_b
+      ) AS matchingEntries
+      # while the above alias is not used, MySQL requires all derived tables to
+      # have an alias
+      NATURAL JOIN `books` NATURAL JOIN `users`
     ';
     
     // Run the query
