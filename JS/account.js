@@ -92,8 +92,18 @@ function doEntryEdit(event, isbn, action) {
 // This should have been passed as the callback in account.tpl.php
 function updateSearchUsername(results, settings) {
   var input = $("#header_search_input"),
+      is_ok = !results.length,
       blurb = input.attr('placeholder'),
       last = blurb.lastIndexOf(settings.value_old);
-  input.attr('placeholder', blurb.slice(0, last) + settings.value);
-  console.log("settings are", settings);
+  
+  // If the results aren't blank, something happened. Complain.
+  if(!is_ok) {
+    $("#username")
+      .after( $("<div><section class='standard_main error'><em>" + results + "</em></section></div></br>"))
+      .find("span")
+        .text(settings.value_old);
+    console.log("Setting to", settings.value_old);
+  }
+  
+  input.attr('placeholder', blurb.slice(0, last) + settings[is_ok ? "value" : "value_old"]);
 }

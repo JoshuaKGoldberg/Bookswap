@@ -97,13 +97,13 @@
     $username_new = ArgLoose($arguments['value']);
     
     if(!$username_new || strlen($username_new) < 1) {
-      echo "Invalid username (" . $username_new . ")... :(\n";
+      echo "Invalid username given... :(\n";
       return false;
     }
     
     // Don't do anything if it's the same as before
     if($username_new == $username_old) {
-      echo "Same username as before (" . $username_new . ")... :(\n";
+      echo "Same username as before... :(\n";
       return false;
     }
     
