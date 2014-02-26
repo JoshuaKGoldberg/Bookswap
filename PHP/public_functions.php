@@ -87,7 +87,6 @@
   // Required fields:
   // * "username" (new value)
   function publicEditUsername($arguments, $noverbose=false) {
-    print_r($arguments);
     // Make sure you're logged in
     if(!UserLoggedIn()) {
       if(!$noverbose) echo 'You must be logged in to edit a username.';
@@ -98,13 +97,13 @@
     $username_new = ArgLoose($arguments['value']);
     
     if(!$username_new || strlen($username_new) < 1) {
-      echo "Invalid username... :(\n";
+      echo "Invalid username (" . $username_new . ")... :(\n";
       return false;
     }
     
     // Don't do anything if it's the same as before
     if($username_new == $username_old) {
-      echo "Same username as before... :(\n";
+      echo "Same username as before (" . $username_new . ")... :(\n";
       return false;
     }
     
