@@ -186,7 +186,7 @@ function editSubmit(form, func_name, settings) {
       index = settings.index || 'value',
       value_old = settings.value_old,
       click_old = settings.click_old,
-      value = input.value;
+      value = $(input.value).text();
   
   settings[index] = value;
   settings[index + "_old"] = value_old;
