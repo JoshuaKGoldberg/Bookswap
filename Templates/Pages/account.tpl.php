@@ -34,7 +34,7 @@
 <!-- Lists of books the user wants -->
 <section id="account">
   <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your name to change it.</div></section>' . PHP_EOL; ?>
-  <h1 class="standard_main standard_vert giant"><?php
+  <h1 id="username" class="standard_main standard_vert giant"><?php
     if($using_current) PrintEditable($username, 'publicEditUsername', array('callback' => 'updateSearchUsername'));
     else echo $username;
   ?></h1>
