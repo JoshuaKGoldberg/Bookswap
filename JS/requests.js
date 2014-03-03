@@ -47,7 +47,7 @@ function sendRequest(func_name, settings, callback) {
   // Generate the list of arguments
   settings["function"] = func_name;
   for(s_name in settings)
-    args.push(s_name + "=" + settings[s_name]);
+    args.push(encodeURIComponent(s_name) + "=" + encodeURIComponent(settings[s_name]));
   
   // Add those arguments to the url
   url += args.join("&");
