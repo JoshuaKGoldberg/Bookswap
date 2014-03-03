@@ -1,6 +1,5 @@
 html, body {
   margin: 0; 
-  min-width: 1064px;
 }
 html, footer {
   background-color: #111;
@@ -18,7 +17,12 @@ body {
 }
 .standard_width,
 .standard_main {
-  width: 1015px;
+  max-width: 1015px;
+}
+@media(max-width: 1015px){
+    .standard_main{
+        padding:0px 14px 14px 0px;
+    }
 }
 .standard_vert {
   padding: 21px 0 35px 0;
@@ -84,6 +88,7 @@ section:nth-of-type(2n) .unemph {
   background: #cfc;
   border: solid #aca;
   border-width: 3px 0;
+  clear:both;
 }
 .warning {
   background: #ffc;
