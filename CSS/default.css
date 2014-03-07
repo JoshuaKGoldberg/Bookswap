@@ -137,6 +137,10 @@ header {
   height: 84px;
   background-color: #ccc;
 }
+#header_main {
+  position: relative;
+  height: 84px;
+}
 .headblock {
   height: 84px;
   float: left;
@@ -155,11 +159,6 @@ header {
   display: block;
   margin: 1px 0;
 }
-#header_search_input {
-  height: 71px; /* 6 for padding */
-  font-size: 49px;
-  color: #999;
-}
 #login_submit {
   width: 140px;
   float: left;
@@ -167,6 +166,18 @@ header {
 #login_forgot {
   float: right;
   margin-right: -16px;
+}
+/* Search */
+#header_search {
+  position: absolute;
+  right: 14px;
+  left: 217px; /* lel */
+}
+#header_search_input {
+  height: 71px; /* 6 for padding */
+  width: 99%;
+  font-size: 49px;
+  color: #999;
 }
 #header_search_results {
   position: absolute;
@@ -186,23 +197,12 @@ header {
   width: 196px;
   margin-right: 21px;
 }
-#badge.anonymous + #header_search {
-  width: 798px;
-}
-#badge.anonymous + #header_search #header_search_input,
-#badge.anonymous + #header_search #header_search_results {  
-  width: 782px;
-}
 #badge.logged {
   width: 77px;
   margin-right: 7px;
 }
 #badge.logged + #header_search {
-  width: 931px;
-}
-#badge.logged + #header_search #header_search_input,
-#badge.logged + #header_search #header_search_results {
-  width: 915px;
+  left: 84px;
 }
 
 /* Main Contents

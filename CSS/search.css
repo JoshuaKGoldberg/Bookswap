@@ -7,7 +7,9 @@
 
 #search_form_wrapper {
   position: relative;
+  padding: 0 !important;
   height: 49px;
+  width: 100%;
   display: inline-block;
 }
 
