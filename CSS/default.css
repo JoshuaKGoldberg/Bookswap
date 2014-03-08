@@ -137,15 +137,15 @@ header {
   height: 84px;
   background-color: #ccc;
 }
+header img {
+  margin-top: 0px;
+  border: 1px solid #777;
+}
 .headblock {
   height: 84px;
   float: left;
 }
 /* Badge */
-#badge_main img {
-  margin-top: 0px;
-  border: 1px solid #777;
-}
 #login_information input {
   height: 17px;
   width: 100%;
@@ -197,12 +197,18 @@ header {
   width: 77px;
   margin-right: 7px;
 }
-#badge.logged + #header_search {
-  width: 931px;
+#header_notifications {
+  margin-right: 7px;
 }
-#badge.logged + #header_search #header_search_input,
-#badge.logged + #header_search #header_search_results {
-  width: 915px;
+#badge.logged + #header_notifications + #header_search {
+  width: 847px;
+}
+#badge.logged + #header_notifications + #header_search #header_search_input,
+#badge.logged + #header_notifications + #header_search #header_search_results {
+  width: 831px;
+}
+#header_notifications {
+  width: 77px;
 }
 
 /* Main Contents
