@@ -232,6 +232,7 @@
         `notification_id` INT NOT NULL AUTO_INCREMENT,
         `user_id` INT(10) NOT NULL,
         `message` TEXT NOT NULL,
+        `type` ENUM("simple", "entry") NOT NULL DEFAULT "simple",
         `time_sent` DATETIME NOT NULL,
         `time_seen` DATETIME,
         PRIMARY KEY (`notification_id`),
