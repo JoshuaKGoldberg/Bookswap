@@ -106,6 +106,7 @@ section:nth-of-type(2n) .unemph {
 */
 input {
   padding: 3px 7px;
+  max-width: 100%;
   border: 1px solid #988470;
   outline: none;
   font-style: italic;
