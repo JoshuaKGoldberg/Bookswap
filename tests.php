@@ -18,6 +18,9 @@
     return;
   }
   
+  // Make a copy of settings.php for later
+  copy('settings.php', 'settings_backup.php');
+  
   include_once(getIncludesWrapping('pdo'));
   $num_errors = 0;
   
@@ -233,4 +236,7 @@
   
   echo 'Ok!';
   performSettingsReplacements('settings.php', array('isInstalled' => true));
+  
+  // With everything done, make a new copy of settings.php for later
+  copy('settings.php', 'settings_backup.php');
 ?>
