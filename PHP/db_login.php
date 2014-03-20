@@ -60,7 +60,7 @@
     return (strlen($string) >= 7)
         && (preg_match('/[A-Z]/', $string))
         && (preg_match('/[a-z]/', $string))
-        && (preg_match('/[\!@#\$%\^&\*]/', $string))
+        && (preg_match('/[^A-Z^a-z^0-9]/', $string))
         && (preg_match('/[0-9]/', $string));
   }
 ?>
