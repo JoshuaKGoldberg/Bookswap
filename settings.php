@@ -74,7 +74,7 @@
   
   // Default include files
   function getDefaultJS() { return ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default']; }
-  function getDefaultCSS() { return ['normalize','bootstrap.min','bootstrap-responsive.min']; }
+  function getDefaultCSS() { return ['normalize']; }
   function getDefaultFonts() {
     $output = '';
     // $output .= '<link href="http://fonts.googleapis.com/css?family=Doppio+One" rel="stylesheet" type="text/css">';
