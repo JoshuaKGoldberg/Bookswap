@@ -19,8 +19,17 @@
       
     </form>
     <?php else: ?>
-    <div id="badge_main">
+    <div id="badge_second">
       <?php echo getLinkHTML(false, '<img src="' . getBase() . '/Images/Home.gif" />'); ?>
+      <?php 
+        if($logged) {
+          include('public_functions.php');
+          $num = publicGetNumNotifications();
+          if($num > 0) {
+            echo '<div id="notif_icon">' . getLinkHTML('account#notifications', $num) . '</div>';
+          }
+        }
+      ?>
     </div>
     <?php endif; ?>
     

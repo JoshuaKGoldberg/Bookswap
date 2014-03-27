@@ -192,6 +192,20 @@ header {
 #header_search_results.hidden {
   display: none;
 }
+/* Notifications icon
+*/
+#notif_icon {
+  position: absolute;
+  margin-top: -34px;
+  background: white;
+  border: 1px solid #777;
+  box-shadow: 1px -1px 7px rgba(140,140,140,.7);
+  width: 28px;
+  height: 28px;
+  font-weight: bold;
+  font-size: 1.4em;
+  cursor: pointer;
+}
 /* Header with measurements
 */
 #badge.anonymous {

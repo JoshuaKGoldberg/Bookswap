@@ -580,4 +580,14 @@
       foreach($results as $result)
         TemplatePrint("Entry", 0, $result);
   }
+  
+  // publicGetNumNotifications()
+  // Returns the number of notifications the current user has, or -1 if the user is logged out
+  function publicGetNumNotifications() {
+    if(!UserLoggedIn()) {
+      return -1;
+    }
+    // For now, just return 0: Albert's work will be put in soon.
+    return 0;
+  }
 ?>
