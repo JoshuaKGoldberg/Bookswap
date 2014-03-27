@@ -89,6 +89,7 @@
   <?php else: ?>
   <aside class='user_id_no'>(ID <?php echo $user_id; ?>)</aside>
   <?php endif; ?>
+  <br>
 </section>
 
 <!-- Recommended trades -->

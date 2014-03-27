@@ -21,7 +21,7 @@ body {
 }
 @media(max-width: 1015px){
     .standard_main{
-        padding:0px 14px 14px 0px;
+        padding:0 14px 0 0;
     }
 }
 .standard_vert {
@@ -254,6 +254,13 @@ header {
 }
 .half_after {
   clear: both;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .half {
+    width: 100% !important;
+    float: none !important;
+  }
 }
 
 /* Big Sections
