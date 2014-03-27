@@ -1,40 +1,25 @@
-#user_login_container {
-  width: 700px;
-  height: 175px;
+
+
+#user_login_holder .left {
+  text-align: right;
 }
 
-#user_login_text {
-  margin-top: -11px;
-  padding-left: 35px;
-  width: 350px;
+#user_login_holder .left input {
   text-align: left;
 }
 
-#user_login_holder {
-  position: absolute;
-  right: 50%;
-  padding-right: 35px;
-  width: 350px;
+@media (min-aspect-ratio: 1/1) {
+  #user_login_holder {
+    padding-right: 35px;
+  }
 }
-
-#user_login_holder * {
-  display: inline;
-  text-align: center;
+ 
+@media (max-aspect-ratio: 1/1) { 
+  #user_login_container {
+    padding-bottom: 70px !important;
+  }
 }
-
-#user_login_container input {
-  display: block;
-  text-shadow: 0 0 3px #ccc;
-  text-align: left;
-  width: 100%;
-  font-size: 28px;
-}
-#user_login_container input[type=submit] {
-  width: 49%;
-  text-align: center;
-}
-
-#user_login_container #j_submit {
-  float: right;
-  margin-right: -16px;
+  
+#user_login_text span {
+  padding: 0 14px;
 }
