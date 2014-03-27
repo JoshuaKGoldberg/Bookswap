@@ -31,8 +31,8 @@
   else return AccessDenied();
   
 ?>
-<!-- Lists of books the user wants -->
 <section id="account">
+  <!-- Title / Username -->
   <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your name to change it.</div></section>' . PHP_EOL; ?>
   <h1 id="username" class="standard_main standard_vert giant"><?php
     if($using_current) PrintEditable($username, 'publicEditUsername', array('callback' => 'updateSearchUsername'));
@@ -40,6 +40,27 @@
   ?></h1>
   <?php if($descriptor): ?>
   
+  <!-- Psuedo-menu -->
+  <div id="links_menu" class="standard_main">
+    <?php
+      $out = '';
+      $items = array(
+        'top' => 'account',
+        'books' => 'user_books',
+        'reccomendations' => 'user_books',
+        'notifications' => 'notifications',
+        'activity' => 'recent_activity'
+      );
+      
+      foreach($items as $display=>$link) {
+        $out .= '<a href="#' .  $link . '">' . $display . '</a> &sdot; ';
+      }
+      $out = substr($out, 0, -7);
+      echo $out;
+    ?>
+  </div>
+  
+  <!-- Lists of books the user wants -->
   <div id="user_books" class="standard_main half_holder">
     <div id="user_books_buy" class="half left">
       <h2>Books <?php echo $descriptor; ?> buy</h2>
@@ -74,10 +95,11 @@
 <?php if(UserLoggedIn()): ?>
 <section id="recommendations">
   <h1 class="standard_main standard_vert giant">
-  <?php
-    echo 'recommendations for you';
-    if(!$using_current) echo ' and ' . $username;
-  ?></h1>
+    <?php
+      echo 'recommendations for you';
+      if(!$using_current) echo ' and ' . $username;
+    ?>
+  </h1>
   <div class="standard_main standard_vert">
     <?php
       // If you're the current user, find all matching entries in the entire database
@@ -93,9 +115,17 @@
 </section>
 <?php endif; ?>
 
+<!-- Notifications (thank you, Albert!) -->
+<section id="notifications">
+  <h1 class="standard_main standard_vert giant">notifications</h1>
+  <div class="standard_main standard_vert">
+    nothing going!
+  </div>
+</section>
+
 <!-- Display a feed of the most recently placed stuff -->
 <?php if($using_current): ?>
-<section id="recent">
+<section id="recent_activity">
   <h1 class="standard_main standard_vert giant">recent <?php echo getSchoolName(); ?> listings</h1>
   <div class="standard_main listings">
     <?php PrintRequest("publicPrintRecentListings"); ?>
