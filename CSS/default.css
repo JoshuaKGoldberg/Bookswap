@@ -35,12 +35,12 @@ body h1 {
 }
 h1, h2, h3 {
   /* font-family: 'Doppio One'; */
-  text-shadow: 0 0 3px #eee;
+  text-shadow: 0 0 3px #aaa;
 }
-section:nth-of-type(2) h1,
-section:nth-of-type(2) h2,
-section:nth-of-type(2) h3 {
-  text-shadow: 0 0 3px #333;
+section:nth-of-type(2n+1) h1,
+section:nth-of-type(2n+1) h2,
+section:nth-of-type(2n+1) h3 {
+  text-shadow: 0 0 3px #ccc;
 }
 
 a {
