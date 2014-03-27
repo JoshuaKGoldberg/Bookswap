@@ -10,6 +10,11 @@ h1, h2, h3, h4 {
   color: #333;
 }
 
+#links_menu {
+  margin: -14px auto 35px;
+  font-size: 1.4em;
+}
+
 /* Entries
 */
 .book .book_entry {
