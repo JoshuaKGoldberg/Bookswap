@@ -10,7 +10,7 @@
       'Entry', 'Footer', 'Header', 'Money', 'Page',
       'Books/Export', 'Books/Large', 'Books/Medium',
       'Forms/AddEntry', 'Forms/Money',
-      'Header/Badge', 'Header/Search', 'Header/Notifications',
+      'Header/Badge', 'Header/Search',
       'Pages/404', 'Pages/account', 'Pages/book', 'Pages/import',
       'Pages/index', 'Pages/logout', 'Pages/search'
     );
