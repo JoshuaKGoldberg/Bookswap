@@ -11,7 +11,7 @@ $(document).ready(function() {
   $("#j_password, #j_password_confirm, #j_email").keyup(function() {
     setTimeout(function() {
       // Set the text display to complain if need be, or the original if there's no complaint
-      text_display.text(sayPasswordSecurity(j_password.val()) || sayEmailSecurity(j_email.val()) || text_original);
+      text_display.html(sayPasswordSecurity(j_password.val()) || sayEmailSecurity(j_email.val()) || text_original);
     });
   });
 });
@@ -56,16 +56,34 @@ function joinEnsure(settings) {
 }
 
 function sayPasswordSecurity(str) {
-  if(str.length < 7)
-    return "The password must be at least 7 characters long.";
-  if(!hasLowerCase(str) || !hasUpperCase(str))
-    return "You must have both uppercase and lowercase characters.";
-  if(!hasNumber(str))
-    return "You must have at least one number.";
-  if(!hasSymbol(str))
-    return "You must have at least one symbol.";
-  if(str != $("#j_password_confirm").val())
-    return "The passwords don't match...";
+  var output = "";
+  
+  output += getPasswordSecurityResult(
+    function() { return str.length >= 7; },
+    "The password must be at least 7 characters long."
+  );
+  output += getPasswordSecurityResult(
+    function() { return hasLowerCase(str) && hasUpperCase(str); },
+    "You must have both uppercase and lowercase characters."
+  );  
+  output += getPasswordSecurityResult(
+    function() { return hasNumber(str); },
+    "You must have at least one number."
+  );
+  output += getPasswordSecurityResult(
+    function() { return hasSymbol(str); },
+    "You must have at least one symbol."
+  );
+  output += getPasswordSecurityResult(
+    function() { return str == $("#j_password_confirm").val(); },
+    "The passwords don't match..."
+  );
+    
+  return output ? ("<ul id='password_security_results'>" + output + "</ul>") : false;
+}
+function getPasswordSecurityResult(test, line) {
+  if(!test()) return "<li class='failure'>" + line + "</li>";
+  return '';
 }
 
 function sayEmailSecurity(str) {
