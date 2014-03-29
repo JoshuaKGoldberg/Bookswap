@@ -263,6 +263,7 @@
   
   // Sample usage: dbEntriesAdd(#isbn, #user_id, "username", "action"[, #price[, "state"]])
   // Adds an entry to `entries`
+  // Returns the id of the entry on success, `false` on failure
   // Sample usage: dbEntriesAdd($dbConn, $isbn, $user_id, 'Buy', 12.34, 'Good');
   function dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price=0, $state='Good') {
     // Ensure the isbn and user_id both exist in the database
@@ -304,11 +305,17 @@
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':isbn'      => $isbn,
-                                 ':user_id'   => $user_id,
-                                 ':price'     => $price,
-                                 ':state'     => $state,
-                                 ':action'    => $action));
+    if ($stmnt->execute(array(
+      ':isbn'      => $isbn,
+      ':user_id'   => $user_id,
+      ':price'     => $price,
+      ':state'     => $state,
+      ':action'    => $action
+    ))) {
+      return $dbConn->lastInsertId();
+    } else {
+      return false;
+    }
   }
   
   // dbEntriesEditPrice(#isbn, #user_id, "action", #price)

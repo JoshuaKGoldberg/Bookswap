@@ -3,6 +3,7 @@
   */
   require_once('pdo.inc.php');
   require_once('sql.inc.php');
+  require_once('notifications.php');
   
   /* Helper functions to ensure argument safety
   */
@@ -439,8 +440,11 @@
     $price = $dollars . '.' . $cents;
     
     // Send the query
-    if(dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state))
+    $entry_id = dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state);
+    if($entry_id !== false) {
+      sendAllEntryNotifications($dbConn, $entry_id);
       echo 'Entry added successfully!';
+    }
   }
   
   // publicEntryEditPrice({...})
