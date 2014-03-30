@@ -388,6 +388,7 @@
     $query = '
       SELECT 
         `entries`.*,
+        `notifications_entry`.`notification_id`,
         `users`.`username`,
         `books`.`title`
       FROM `entries`
@@ -430,6 +431,25 @@
     $stmnt->execute(array('user_id' => $user_id));
     $rows = $stmnt->fetch(PDO::FETCH_ASSOC);
     return $rows['COUNT(*)'];
+  }
+  
+  // dbNotificationsRemove(#notification_id)
+  // Removes a notification from `notifications` of the given id
+  // Sample usage: dbUsersRemove($dbConn, $notification_id)
+  function dbNotificationsRemove($dbConn, $notification_id) {
+    // Ensure the notification exists in the database
+    if(!checkKeyExists($dbConn, 'notifications_entry', 'notification_id', $notification_id)) {
+      echo 'No such notification exists: ' . $notification_id;
+      return false;
+    }
+    
+    // Run the deletion query
+    $query = '
+      DELETE FROM `notifications`
+      WHERE `notification_id` = :notification_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':notification_id' => $notification_id));
   }
   
   

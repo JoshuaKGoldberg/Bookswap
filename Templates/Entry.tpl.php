@@ -6,8 +6,13 @@
   $username = $using_current ? 'you' : $_TARGS['username'];
   $plurals = $using_current ? '' : 's';
   
+  // User arguments are typically just user_id, but also notification_id if needed
+  $user_args = array('user_id'=>$user_id);
+  if(isset($_TARGS['notification_id']))
+    $user_args['notification_id'] = $_TARGS['notification_id'];
+  
   echo '  ';
-  echo getLinkHTML('account', $username, array('user_id'=>$user_id));
+  echo getLinkHTML('account', $username, $user_args);
   echo ' want' . $plurals . ' to ' . strtolower($_TARGS['action']) . ' a ';
   echo strtolower($_TARGS['state']) . ' ';
   echo getLinkHTML('book', $_TARGS['title'], array('isbn'=>$_TARGS['isbn'])) . ' for ';

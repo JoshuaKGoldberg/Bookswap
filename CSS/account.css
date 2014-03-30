@@ -102,3 +102,10 @@ h1, h2, h3, h4 {
 .book_entry.price .go_edit {
   margin-left: 7px;
 }
+
+/* Notifications
+*/
+
+.notification {
+  padding-bottom: 21px;
+}

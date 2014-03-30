@@ -94,6 +94,7 @@
 
 <?php if(UserLoggedIn()): ?>
 
+<?php if($using_current): ?>
 <!-- Notifications -->
 <section id="notifications">
   <h1 class="standard_main standard_vert giant">notifications</h1>
@@ -103,6 +104,7 @@
     ?>
   </div>
 </section>
+<?php endif; ?>
 
 <!-- Recommended trades -->
 <section id="recommendations">

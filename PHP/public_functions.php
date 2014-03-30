@@ -597,7 +597,7 @@
     return $count;
   }
   
-  // publicPrintNotifications($arguments=[]) {
+  // publicPrintNotifications() {
   // Finds and prints all notifications of the current user
   function publicPrintNotifications($arguments=[]) {
     $dbConn = getPDOQuick($arguments);
@@ -607,5 +607,13 @@
     else
       foreach($result as $notification)
         TemplatePrint('Notification', 0, $notification);
+  }
+  
+  // publicDeleteNotification
+  // Deletes a notification of the given id, if it belongs to the current user
+  function publicDeleteNotification($arguments=[]) {
+    if(!UserLoggedIn()) return;
+    $dbConn = getPDOQuick($arguments);
+    dbNotificationsRemove($dbConn, $arguments['notification_id']);
   }
 ?>

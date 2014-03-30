@@ -1,3 +1,17 @@
+// When ready, if there's a "notification_id" parameter, set that notification as visited
+$(document).ready(function() {
+  setNotificationVisited($.QueryString.notification_id);
+});
+
+// On visiting page=account with &notification_id=XYZ, delete it in the database
+function setNotificationVisited(notification_id) {
+  if(!notification_id) return;
+  sendRequest("publicDeleteNotification", {
+    "notification_id": notification_id
+  });
+}
+
+
 // Entry delete function
 function makeUpdateEntryDelete(event, isbn, action) {
   var target = $(event.target),
@@ -102,7 +116,6 @@ function updateSearchUsername(results, settings) {
       .after( $("<div><section class='standard_main error'><em>" + results + "</em></section></div></br>"))
       .find("span")
         .text(settings.value_old);
-    console.log("Setting to", settings.value_old);
   }
   
   input.attr('placeholder', blurb.slice(0, last) + settings[is_ok ? "value" : "value_old"]);

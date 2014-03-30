@@ -24,7 +24,8 @@
     'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',
     'publicPrintRecommendationsUser',
-    'publicGetNumNotifications', 'publicPrintNotifications'
+    'publicGetNumNotifications', 'publicPrintNotifications', 
+    'publicDeleteNotification'
   );
   
   // If the user doesn't request one of these functions, quit
