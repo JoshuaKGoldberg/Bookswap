@@ -23,7 +23,8 @@
     'publicPrintUserBooks', 'publicPrintRecentListings',
     'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',
-    'publicPrintRecommendationsUser'
+    'publicPrintRecommendationsUser',
+    'publicGetNumNotifications', 'publicPrintNotifications'
   );
   
   // If the user doesn't request one of these functions, quit

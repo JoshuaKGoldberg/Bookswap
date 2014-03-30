@@ -3,6 +3,7 @@
   */
   require_once('pdo.inc.php');
   require_once('sql.inc.php');
+  require_once('db_actions.php');
   require_once('notifications.php');
   
   /* Helper functions to ensure argument safety
@@ -587,11 +588,12 @@
   
   // publicGetNumNotifications()
   // Returns the number of notifications the current user has, or -1 if the user is logged out
-  function publicGetNumNotifications() {
-    if(!UserLoggedIn()) {
-      return -1;
+  function publicGetNumNotifications($arguments=[]) {
+    $count = -1;
+    if(UserLoggedIn()){
+      $dbConn = getPDOQuick($arguments);
+      $count = dbNotificationsCount($dbConn, $_SESSION['user_id']);
     }
-    // For now, just return 0: Albert's work will be put in soon.
-    return 0;
+    return $count;
   }
 ?>

@@ -384,7 +384,7 @@
   // dbNotificationsGet(PDO, #userID)
   // Gets all notifications of a given user
   // Sample usage: dbNotificationsGet($dbConn, $user_id);
-  function dbNotificationsGet($dbConn, $userID) {
+  function dbNotificationsGet($dbConn, $user_id) {
     $query = '
       SELECT `entries`.* FROM `entries` 
       INNER JOIN `notifications_entry`
@@ -396,6 +396,20 @@
     $stmnt->execute(array(':user_id' => $user_id));
     
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
+  }
+  
+  // dbNotificationsCount(PDO, #userID)
+  // Counts the number of notifications for a given user
+  // Sample usage: dbNotificationsCount($dbConn, $user_id);
+  function dbNotificationsCount($dbConn, $user_id) {
+    $query = '
+      SELECT COUNT(*) FROM `notifications`
+      WHERE `user_id` = :user_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array('user_id' => $user_id));
+    $rows = $stmnt->fetch(PDO::FETCH_ASSOC);
+    return $rows['COUNT(*)'];
   }
   
   
