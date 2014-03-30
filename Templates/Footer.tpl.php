@@ -17,7 +17,7 @@
           'n aspiring, active',
           ' fun, friendly'
         );
-        echo 'A ' . $choices[array_rand($choices)] . ' RCOS project.';
+        echo 'A' . $choices[array_rand($choices)] . ' RCOS project.';
       ?>
     <br>
     Albert Armea, Javier Camino, Josh Goldberg, Harish Lall, Evan MacGregor, and Aaron Sedlacek.

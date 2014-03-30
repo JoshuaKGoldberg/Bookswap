@@ -182,7 +182,7 @@
   */
   
   // dbEntriesGet(#user_id[, "action"])
-  // Gets all entries of a given user (optionally, of a given action
+  // Gets all entries of a given user (optionally, of a given action)
   // Sample usage: dbEntriesGet($dbConn, $user_id);
   function dbEntriesGet($dbConn, $user_id, $action='') {
     // Ensure the user_id exists in the database
@@ -377,6 +377,26 @@
                                  ':user_id' => $user_id));
   }
   
+  
+  /* Notifications functions
+  */
+  
+  // dbNotificationsGet(PDO, #userID)
+  // Gets all notifications of a given user
+  // Sample usage: dbNotificationsGet($dbConn, $user_id);
+  function dbNotificationsGet($dbConn, $userID) {
+    $query = '
+      SELECT `entries`.* FROM `entries` 
+      INNER JOIN `notifications_entry`
+      ON `entries`.`entry_id` = `notifications_entry`.`entry_id`
+      INNER JOIN `notifications`
+      ON `notifications_entry`.`notification_id` = `notifications`.`notification_id`
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id));
+    
+    return $stmnt->fetchAll(PDO::FETCH_ASSOC);
+  }
   
   
   /* Common SQL Gets (misc)
