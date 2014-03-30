@@ -92,12 +92,23 @@
   <br>
 </section>
 
-<!-- Recommended trades -->
 <?php if(UserLoggedIn()): ?>
+
+<!-- Notifications -->
+<section id="notifications">
+  <h1 class="standard_main standard_vert giant">notifications</h1>
+  <div class="standard_main standard_vert">
+    <?php
+      PrintRequest('publicPrintNotifications');
+    ?>
+  </div>
+</section>
+
+<!-- Recommended trades -->
 <section id="recommendations">
   <h1 class="standard_main standard_vert giant">
     <?php
-      echo 'recommendations for you';
+      echo 'all recommendations for you';
       if(!$using_current) echo ' and ' . $username;
     ?>
   </h1>
@@ -114,15 +125,8 @@
     ?>
   </div>
 </section>
-<?php endif; ?>
 
-<!-- Notifications (thank you, Albert!) -->
-<section id="notifications">
-  <h1 class="standard_main standard_vert giant">notifications</h1>
-  <div class="standard_main standard_vert">
-    nothing going!
-  </div>
-</section>
+<?php endif; ?>
 
 <!-- Display a feed of the most recently placed stuff -->
 <?php if($using_current): ?>

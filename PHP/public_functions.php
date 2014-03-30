@@ -583,7 +583,7 @@
       echo 'Nothing going!';
     else
       foreach($results as $result)
-        TemplatePrint("Entry", 0, $result);
+        TemplatePrint('Entry', 0, $result);
   }
   
   // publicGetNumNotifications()
@@ -595,5 +595,17 @@
       $count = dbNotificationsCount($dbConn, $_SESSION['user_id']);
     }
     return $count;
+  }
+  
+  // publicPrintNotifications($arguments=[]) {
+  // Finds and prints all notifications of the current user
+  function publicPrintNotifications($arguments=[]) {
+    $dbConn = getPDOQuick($arguments);
+    $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
+    if(empty($result))
+      echo 'Nothing going!';
+    else
+      foreach($result as $notification)
+        TemplatePrint('Notification', 0, $notification);
   }
 ?>

@@ -386,14 +386,34 @@
   // Sample usage: dbNotificationsGet($dbConn, $user_id);
   function dbNotificationsGet($dbConn, $user_id) {
     $query = '
-      SELECT `entries`.* FROM `entries` 
+      SELECT 
+        `entries`.*,
+        `users`.`username`,
+        `books`.`title`
+      FROM `entries`
+
+      # Get the `notification_id`
       INNER JOIN `notifications_entry`
       ON `entries`.`entry_id` = `notifications_entry`.`entry_id`
+
+      # Get the `entry_id`
       INNER JOIN `notifications`
       ON `notifications_entry`.`notification_id` = `notifications`.`notification_id`
+      
+      # Get the `username`
+      INNER JOIN `users`
+      ON `entries`.`user_id` = `users`.`user_id`
+      
+      # Get the `title`
+      INNER JOIN `books`
+      ON `entries`.`isbn` = `books`.`isbn`
+      
+      # Filter on user_id
+      WHERE `notifications`.`user_id` = :user_id
     ';
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':user_id' => $user_id));
+    // $stmnt->execute();
     
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
   }
