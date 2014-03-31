@@ -192,7 +192,6 @@
     $dbConn->exec('
       CREATE TABLE IF NOT EXISTS `user_verifications` (
         `user_id` INT(10) NOT NULL UNIQUE,
-        `email` VARCHAR(127) NOT NULL,
         `code` VARCHAR(127) NOT NULL,
         `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`user_id`),
