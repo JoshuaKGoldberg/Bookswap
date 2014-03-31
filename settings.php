@@ -89,7 +89,7 @@
   /* User particulars
   */
   
-  function getUserRoles() { return ['Unregistered', 'User', 'Administrator']; }
+  function getUserRoles() { return ['Unverified', 'User', 'Administrator']; }
   
   /* Book particulars
   */
@@ -123,6 +123,11 @@
   // Bool function - is the user logged in?
   function UserLoggedIn() {
     return isset($_SESSION['Logged In']) && $_SESSION['Logged In'];
+  }
+  
+  // Bool function - is the user verified?
+  function UserVerified() {
+    return isset($_SESSION['Role']) && $_SESSION['Role'] != 'Unverified';
   }
   
   // Complains if the user goes where they shouldn't

@@ -68,6 +68,49 @@
     return false;
   }
   
+  // publicResendVerificationEmail({...})
+  // Sends an email 
+  function publicResendVerificationEmail($arguments, $noverbose = false) {
+    // Anonymous users don't need this
+    if(!UserLoggedIn()) {
+      if(!$noverbose) 
+        echo 'You must be logged in.';
+      return false;
+    }
+    // Neither do fully verified users
+    if(UserVerified()) {
+      if(!$noverbose)
+        echo 'You\'re already verified!';
+      return false;
+    }
+    
+    // Get the user's verification code from the arguments, or failing that the database
+    $dbConn = getPDOQuick($arguments);
+    if(isset($arguments['code']))
+      $code = $arguments['code'];
+    else
+      $code = getRowValue($dbConn, 'user_verifications', 'code', 'user_id', $_SESSION['user_id']);
+    
+    // If it doesn't exist, complain
+    if(!$code) {
+      if(!$noverbose)
+        echo 'Couldn\'t find an entry for your verification...';
+      return false;
+    }
+    
+    // Send out the code as an email
+    $subject = 'BookSwap Verification Time!';
+    $recipient = $_SESSION['email'];
+    $message  = 'Hi there, ' . $_SESSION['username'] . '!' . PHP_EOL . PHP_EOL;
+    $message .= 'Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great! ';
+    $message .= 'Visit this link to verify your account: ' . getURL('verification') . '&code=' . $code . PHP_EOL;
+    $message .= 'If this wasn\'t you, don\'t worry about it.' . PHP_EOL . PHP_EOL;
+    $message .= 'Cheers,' . PHP_EOL;
+    $message .= '   -The BookSwap team';
+    
+    return $message;
+  }
+  
   // publicLogin({...})
   // Public pipe to loginAttempt("username", "password")
   // Required fields:

@@ -9,6 +9,9 @@
   
   // The requested page to print
   $pageName = isset($_GET['page']) ? $_GET['page'] : (UserLoggedIn() ? 'account' : 'index');
+  // (for unverified users, account should redirect to verification)
+  if($pageName === 'account' && !UserVerified())
+    $pageName = 'verification';
   
   // (that page will also have its own .css and .js)
   $css[] = $pageName;

@@ -53,7 +53,7 @@
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':myval' => $keyVal));
     $result = $stmnt->fetch(PDO::FETCH_OBJ);
-    return $result->$valCol;
+    return $result ? $result->$valCol : $result;
   }
 
 

@@ -53,7 +53,7 @@
   // dbUsersAdd("username", "password", "email", #role)
   // Adds a user to `users`
   // Sample usage: dbUsersAdd($dbConn, $username, $password, $email, $role);
-  function dbUsersAdd($dbConn, $username, $password, $email, $role='Unregistered') {
+  function dbUsersAdd($dbConn, $username, $password, $email, $role='Unverified') {
     // Ensure the email isn't already being used
     if(checkKeyExists($dbConn, 'users', 'email', $email)) {
       echo $email . ' is already being used.';
@@ -87,23 +87,31 @@
                           ':role'     => $role,
                           ':salt'     => $salt));
     
-    // If unregistered, also add an entry to `user_verifications`
-    if(empty($role) || !$role || strcasecmp($role, 'unregistered') == 0) {
-      // // First get the user_id 
-      // $user_id = getRowValue($dbConn, 'users', 'user_id', 'email', $email);
+    // If unverified, also add an entry to `user_verifications`
+    if(empty($role) || !$role || strcasecmp($role, 'unverified') == 0) {
+      // First get the user_id 
+      $user_id = getRowValue($dbConn, 'users', 'user_id', 'email', $email);
       
-      // // Run the query
-      // $query = '
-        // INSERT INTO `user_verifications` (
-          // `user_id`, `code`
-          // )
-          // VALUES (
-            // :user_id,  :code
-          // );
-      // ';
-      // $stmnt = getPDOStatement($dbConn, $query);
-      // $stmnt->execute(array(':user_id' => $user_id,
-                            // ':code'    => hash('sha256', uniqid(mt_rand(), true))));
+      // Run the query
+      $query = '
+        INSERT INTO `user_verifications` (
+          `user_id`, `code`
+          )
+          VALUES (
+            :user_id,  :code
+          );
+      ';
+      $code = hash('sha256', uniqid(mt_rand(), true));
+      $stmnt = getPDOStatement($dbConn, $query);
+      $stmnt->execute(array(':user_id' => $user_id,
+                            ':code'    => $code));
+      
+      // With this done, send a verification email 
+      $arguments = array(
+        'dbConn' => $dbConn,
+        'code'   => $code,
+      );
+      publicResendVerificationEmail($arguments, true);
     }
     
     return true;
