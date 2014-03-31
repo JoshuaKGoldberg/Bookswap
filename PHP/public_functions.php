@@ -39,7 +39,6 @@
       return false;
     }
     
-    
     // The email must be an academic email
     if(!isStringEmail($email)) {
       if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
@@ -57,7 +56,7 @@
     }
 
     // If successful, log in
-    if(dbUsersAdd($dbConn, $username, $password, $email, 0)) {
+    if(dbUsersAdd($dbConn, $username, $password, $email)) {
       $arguments['username'] = $arguments['j_username'];
       $arguments['password'] = $arguments['j_password'];
       $arguments['email'] = $arguments['j_email'];
@@ -75,9 +74,10 @@
   // * "username"
   // * "password"
   function publicLogin($arguments, $noverbose=false) {
+    $dbConn = getPDOQuick($arguments);
     $email = $arguments['email'];
     $password = $arguments['password'];
-    if(loginAttempt($email, $password) && !$noverbose) {
+    if(loginAttempt($dbConn, $email, $password) && !$noverbose) {
       echo 'Yes';
       return true;
     }
