@@ -234,7 +234,7 @@
     // to users who have chosen to login with Facebook
     $dbConn->exec('
 		CREATE TABLE IF NOT EXISTS `FacebookUsers` (
-			`fb_id` INT(10) NOT NULL,
+			`fb_id` VARCHAR(30) NOT NULL,
 			`user_id` INT(10) NOT NULL, 
 			PRIMARY KEY (`fb_id`),
 			FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
