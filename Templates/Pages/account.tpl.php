@@ -47,7 +47,7 @@
       $items = array(
         'top' => 'account',
         'books' => 'user_books',
-        'recomendations' => 'user_books',
+        'recommendations' => 'user_books',
         'notifications' => 'notifications',
         'activity' => 'recent_activity'
       );

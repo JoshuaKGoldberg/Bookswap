@@ -5,9 +5,7 @@
   // Runs through all the motions of attempting to log in with the given credentials
   // If successfull, the timetamp and users info are copied to $_SESSION
   // Otherwise $_SESSION['Fail Counter'] is incremented
-  function loginAttempt($email, $password) {
-    $dbConn = getPDOQuick();
-    
+  function loginAttempt($dbConn, $email, $password) {
     // First check if the passwords match
     $user_info = loginCheckPassword($dbConn, $email, $password);
     if(!$user_info) {
@@ -20,7 +18,7 @@
     
     // Since they did, copy the user info over
     foreach($user_info as $key => $value)
-      if(!is_numeric($key)) # Skip '0', '1', etc.
+      if(!is_numeric($key)) // Skip '0', '1', etc.
         $_SESSION[$key] = $value;
     $_SESSION['Logged In'] = time();
     
@@ -30,9 +28,7 @@
   // facebookLoginAttempt("Facebook ID")
   // Attempts to login with a given Facebook ID
   // If successful, the timestamp and users info are copied to $_SESSION
-  function facebookLoginAttempt($fb_id){
-	  $dbConn = getPDOQuick();
-	  
+  function facebookLoginAttempt($dbConn, $fb_id){
 	  // Check if Facebook ID exists in database
 	  $user_info = dbFacebookUsersGet($dbConn, $fb_id);
 	  if(!$user_info){
@@ -40,7 +36,7 @@
 	  }
 	  // It does, copy the user info over
 	  foreach($user_info as $key=>$value)
-		if(!is_numeric($key))
+		if(!is_numeric($key)) // Skip '0', '1', etc.
 			$_SESSION[$key] = $value;
 	  $_SESSION['Logged In'] = time();
 	  

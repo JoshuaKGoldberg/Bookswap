@@ -91,29 +91,31 @@
   //  * "name"
   //  * "fb_id" 
   function publicFacebookLogin($arguments, $noverbose=false) {
-	  $dbConn = getPDOQuick();
-	  
+	  $dbConn = getPDOQuick($arguments);
 	  $email = $arguments['email'];
 	  $username = $arguments['name'];
 	  $fb_id = $arguments['fb_id'];
 	  
-	  
-	  // Log user in
-	  
-	  $user_info = facebookLoginAttempt($fb_id);
-	  
+	  // Attempt to log in with Facebook normally
+	  $user_info = facebookLoginAttempt($dbConn, $fb_id);
+    
+    // If it didn't work, try to add the user, then log in again
 	  if(!$user_info){
 		  dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, 0);
-		  $user_info = facebookLoginAttempt($fb_id);
+		  $user_info = facebookLoginAttempt($dbConn, $fb_id);
 	  }
 	  
-	  if(!$user_info)
-		  return false; //Couldn't login or register
+    // If it didn't work (couldn't login or register), complain
+	  if(!$user_info) {
+      echo 'Could not log in...';
+		  return false;
+    }
 
-	  if(!$noverbose) 
+    // Otherwise it's good
+	  if(!$noverbose) {
 		  echo 'Yes';
-      return true;
-	  
+    }
+    return true;
   }
 
 
