@@ -37,8 +37,8 @@
   </div>
     
   <?php if(getFacebookKey()): ?>
-  <div id="fb_holder">
-    <fb:login-button id="fb_button" onmouseover="fbHoverOn()" onmouseout="fbHoverOff()" data-size="large" scope="email" data-auto-logout-link="true">Log in with Facebook</fb:login-button>
+  <div id="fb_holder" class="<?php echo UserLoggedIn() ? "user" : "anon" ?>">
+    <fb:login-button id="fb_button" onmouseover="fbHoverOn()" onmouseout="fbHoverOff()" data-size="large" scope="email" data-auto-logout-link="true">Log in</fb:login-button>
   </div>
   <?php endif; ?>
   
