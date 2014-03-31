@@ -240,6 +240,33 @@
 			FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 			)
 	');
+	
+	 // 6. Create the `notifications` tables
+     // Create the general notifications table
+     $dbConn->exec('
+       CREATE TABLE IF NOT EXISTS `notifications` (
+         `notification_id` INT NOT NULL AUTO_INCREMENT,
+         `user_id` INT(10) NOT NULL,
+         `message` TEXT,
+         `type` ENUM("simple", "entry") NOT NULL DEFAULT "simple",
+         `time_sent` DATETIME NOT NULL,
+         `time_seen` DATETIME,
+         PRIMARY KEY (`notification_id`),
+         FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+         ON UPDATE CASCADE ON DELETE CASCADE
+       );
+     ');
+     // Create the entry notifications table
+      $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `notifications_entry` (
+         `notification_id` INT NOT NULL,
+         `entry_id` INT(10) NOT NULL,
+         FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`notification_id`)
+         ON UPDATE CASCADE ON DELETE CASCADE,
+         FOREIGN KEY (`entry_id`) REFERENCES `entries`(`entry_id`)
+         ON UPDATE CASCADE ON DELETE CASCADE
+       );
+     ');
     
   }
   catch(Exception $err) {
