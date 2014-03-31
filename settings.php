@@ -127,12 +127,13 @@
   
   // Bool function - is the user verified?
   function UserVerified() {
-    return isset($_SESSION['Role']) && $_SESSION['Role'] != 'Unverified';
+    return isset($_SESSION['role']) && $_SESSION['role'] != 'Unverified';
   }
   
   // Complains if the user goes where they shouldn't
+  // Normally for anonymous users; $for_verification=true indicates for non-verified accounts
   function AccessDenied() {
-    echo '<section><h1 class="standard_main standard_vert">Sorry, you need to be logged in to go here!</h1></section>';
+    echo '<section><h1 class="standard_main standard_vert">Sorry, you need to be ' . (UserLoggedIn() ? 'verified' : 'logged in') . ' to go here!</h1></section>';
   }
   
   function getCurrency() { return '&#36;'; }

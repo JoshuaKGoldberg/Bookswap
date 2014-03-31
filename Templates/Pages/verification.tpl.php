@@ -6,7 +6,6 @@
   $email = $_SESSION['email'];
   // $email = 'goldbj5@rpi.edu';
   $email_is_edu = isEmailAcademic($email);
-  
 ?>
 <section>
   <div class="standard_main standard_width">
@@ -17,7 +16,6 @@
       We've sent an email to <?php echo $email; ?>. Click the link there to verify it.
     </p><?php endif; ?>
     
-    <aside>(click your email to change it)</aside>
     <p class="standard_main standard_vert">Verifying your email as from your institute helps keep our site safe and your recommendations relevant.</p>
   </div>
 </section>
