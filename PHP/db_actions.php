@@ -30,6 +30,30 @@
     // Get the results
     return $stmnt->fetch();
   }
+  
+  // dbFacebookUsersGet("facebook ID", ...)
+  // Gets the user info of a Facebook account
+  // Sample usage: dbFacebookUsersGet($dbConn, $identity)
+  function dbFacebookUsersGet($dbConn, $identity, $noverbose=false) {
+	  
+	  // Prepare the query
+	  $query = '
+		SELECT * FROM `users`
+	    INNER JOIN `FacebookUsers`
+		ON `FacebookUsers`.`user_id` = `users`.`user_id`
+		WHERE `FacebookUsers`.`fb_id` = :identity
+		LIMIT 1
+	  ';
+	  
+	  //Run the query
+	  $stmnt = getPDOStatement($dbConn, $query);
+	  $stmnt->execute(array(':identity' => $identity));
+	  	  
+	  return $stmnt->fetch();
+	  
+	  
+  }
+
 
   // dbUsersAdd("username", "password", "email", #role)
   // Adds a user to `users`
@@ -42,8 +66,16 @@
     }
     
     // Create the password, salt and all
-    $salt = hash('sha256', uniqid(mt_rand(), true));
-    $salted = hash('sha256', $salt . $password);
+    if(!empty($password)){
+		$salt = hash('sha256', uniqid(mt_rand(), true));
+		$salted = hash('sha256', $salt . $password);
+	}
+	else{
+		//Empty password sent to dbUsersAdd
+		//Probably using another authentication method
+		$salt = "";
+		$salted = "";
+	}
     
     // Run the insertion query
     $query = '
@@ -60,6 +92,37 @@
                                  ':email'    => $email,
                                  ':role'     => $role,
                                  ':salt'     => $salt));
+  }
+  
+    // dbFacebookUsersAdd("username", "facebook ID", "email", #role);
+  // Adds a user to `users` and `FacebookUsers` using dbUsersAdd
+  //	* Will not work if a user is in `users` with the same email
+  //	* Will not work if a user is in `FacebookUsers` with
+  //      the same user id or facebook ID
+  function dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, $role){
+	  if(!dbUsersAdd($dbConn, $username, "", $email, $role)){
+		  // email already exists in database
+		  // have to handle merging of accounts
+		  return false;
+	  }
+	  
+	  $user_info = dbUsersGet($dbConn, $email, "email");
+	  if(!$user_info) 
+		return false; // dbUsersAdd didn't work?
+		
+	  $query = '
+		INSERT INTO `FacebookUsers` (
+			`fb_id`, `user_id`
+		)
+		VALUES (
+			:fb_id, :user_id
+		);
+		';
+	  $stmnt = getPDOStatement($dbConn, $query);
+	  return $stmnt->execute(array(':fb_id' => $fb_id,
+								   ':user_id' => $user_info['user_id']));
+		
+	  
   }
   
   // dbUsersRemove("identity"[, "type"])

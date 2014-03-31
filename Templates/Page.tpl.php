@@ -25,6 +25,20 @@
     </head>
     
     <body onload="loadPrintedRequests()">
+		<?php 
+			if(getFacebookKey()):
+		?>
+		<!-- Facebook API -->
+
+		<div id="fb-root"></div>
+		<script>
+			var fbKey = '<?php echo getFacebookKey(); ?>';
+			var UserLoggedIn = <?php echo UserLoggedIn() ? "true" : "false"; ?>;
+		</script>
+		<?php echo getJS('fb'); ?>
+		<?php
+			endif;
+		?>
       <?php TemplatePrint("Header", $tabs + 6); ?>
         
       <!-- <div id="body_grad_top"></div> -->

@@ -27,6 +27,26 @@
     return true;
   }
   
+  // facebookLoginAttempt("Facebook ID")
+  // Attempts to login with a given Facebook ID
+  // If successful, the timestamp and users info are copied to $_SESSION
+  function facebookLoginAttempt($fb_id){
+	  $dbConn = getPDOQuick();
+	  
+	  // Check if Facebook ID exists in database
+	  $user_info = dbFacebookUsersGet($dbConn, $fb_id);
+	  if(!$user_info){
+		   return false;
+	  }
+	  // It does, copy the user info over
+	  foreach($user_info as $key=>$value)
+		if(!is_numeric($key))
+			$_SESSION[$key] = $value;
+	  $_SESSION['Logged In'] = time();
+	  
+	  return true;
+  }
+  
   // loginCheckPassword("email", "password")
   // Returns whether the password matches
   // false is returned on failure
@@ -34,6 +54,10 @@
   function loginCheckPassword($dbConn, $email, $password) {
     // Grab all relevant information about the user from the database
     $user_info = dbUsersGet($dbConn, $email, 'email');
+    
+    // Check if the user has a password in the database
+    // (If they don't, they're probably using another authentication method)
+    if(empty($user_info['salt']) || empty($user_info['password'])) return false;
     
     // Get the salt to hash the password, making sure they match
     $salted = hash('sha256', $user_info['salt'] . $password);

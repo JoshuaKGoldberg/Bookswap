@@ -18,6 +18,11 @@
       </div>
       
     </form>
+    
+    <?php if(getFacebookKey()): ?>
+	<fb:login-button width="200" scope="email" data-auto-logout-link="true"></fb:login-button>
+	<?php endif; ?>
+	
     <?php else: ?>
     <div id="badge_second">
       <?php echo getLinkHTML(false, '<img src="' . getBase() . '/Images/Home.gif" />'); ?>

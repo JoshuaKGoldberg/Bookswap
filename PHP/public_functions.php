@@ -83,6 +83,39 @@
     }
     return false;
   }
+  
+  // publicFacebookLogin({...})
+  // 
+  // Required fields:
+  //  * "email"
+  //  * "name"
+  //  * "fb_id" 
+  function publicFacebookLogin($arguments, $noverbose=false) {
+	  $dbConn = getPDOQuick();
+	  
+	  $email = $arguments['email'];
+	  $username = $arguments['name'];
+	  $fb_id = $arguments['fb_id'];
+	  
+	  
+	  // Log user in
+	  
+	  $user_info = facebookLoginAttempt($fb_id);
+	  
+	  if(!$user_info){
+		  dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, 0);
+		  $user_info = facebookLoginAttempt($fb_id);
+	  }
+	  
+	  if(!$user_info)
+		  return false; //Couldn't login or register
+
+	  if(!$noverbose) 
+		  echo 'Yes';
+      return true;
+	  
+  }
+
 
   // publicEditUsername({...})
   // Edits the current user's username, and updates all related entries

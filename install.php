@@ -87,9 +87,13 @@
     'Optional Requirements' => array(
       'getGoogleKey' => array(
         'description' => 'A Google Books API key',
-        'information' => 'In order to use the Import page, you must have a registred Google account and API key. Information on API keys is located on <a href="https://developers.google.com/books/docs/v1/using#APIKey">this page</a>.'
-      )
-    )
+        'information' => 'In order to use the Import page, you must have a registered Google account and API key. Information on API keys is located on <a href="https://developers.google.com/books/docs/v1/using#APIKey">this page</a>.'
+      ),
+      'getFacebookKey' => array(
+		'description' => 'A Facebook API key',
+		'information' => 'In order to allow users to login with their Facebook account, you must have a Facebook Developer account and API key.'
+	  )
+    )    
   );
   
   // Helper to count $function_groups

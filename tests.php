@@ -172,14 +172,15 @@
     
     // 2. Create the `users` table
     // * These are identified by the user_id int
-    // (this should also be extended for Facebook integration)
+    // * Password and salt will be empty for users with
+    //   external accounts
     $dbConn->exec('
       CREATE TABLE IF NOT EXISTS `users` (
-        `user_id` INT(10) NOT NULL AUTO_INCREMENT,
+        `user_id` INT(10) NOT NULL AUTO_INCREMENT UNIQUE,
         `username` VARCHAR(127) NOT NULL,
-        `password` VARCHAR(127) NOT NULL,
+        `password` VARCHAR(127),
         `email` VARCHAR(127) NOT NULL,
-        `salt` VARCHAR(127) NOT NULL,
+        `salt` VARCHAR(127),
         `role` INT(1),
         PRIMARY KEY (`user_id`)
       )
@@ -227,33 +228,19 @@
         ON UPDATE CASCADE ON DELETE CASCADE
       )
     ');
-
-    // 5. Create the `notifications` tables
-    // Create the general notifications table
+    
+    // 5. Create the `FacebookUsers` table
+    // This contains the corresponding Facebook IDs
+    // to users who have chosen to login with Facebook
     $dbConn->exec('
-      CREATE TABLE IF NOT EXISTS `notifications` (
-        `notification_id` INT NOT NULL AUTO_INCREMENT,
-        `user_id` INT(10) NOT NULL,
-        `message` TEXT,
-        `type` ENUM("simple", "entry") NOT NULL DEFAULT "simple",
-        `time_sent` DATETIME NOT NULL,
-        `time_seen` DATETIME,
-        PRIMARY KEY (`notification_id`),
-        FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-        ON UPDATE CASCADE ON DELETE CASCADE
-      );
-    ');
-    // Create the entry notifications table
-    $dbConn->exec('
-      CREATE TABLE IF NOT EXISTS `notifications_entry` (
-        `notification_id` INT NOT NULL,
-        `entry_id` INT(10) NOT NULL,
-        FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`notification_id`)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-        FOREIGN KEY (`entry_id`) REFERENCES `entries`(`entry_id`)
-        ON UPDATE CASCADE ON DELETE CASCADE
-      );
-    ');
+		CREATE TABLE IF NOT EXISTS `FacebookUsers` (
+			`fb_id` INT(10) NOT NULL,
+			`user_id` INT(10) NOT NULL, 
+			PRIMARY KEY (`fb_id`),
+			FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+			)
+	');
+    
   }
   catch(Exception $err) {
     echo 'There was an error creating the database. Please try again.<br>' . PHP_EOL;

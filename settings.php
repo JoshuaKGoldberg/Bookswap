@@ -49,6 +49,10 @@
     return $output;
   }
   
+  /* Facebook API 
+   */
+  function getFacebookKey() { return ''; }
+  
   /* Templating & Including
   */
   
