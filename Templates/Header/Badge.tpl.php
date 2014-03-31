@@ -18,10 +18,6 @@
       </div>
       
     </form>
-    
-    <?php if(getFacebookKey()): ?>
-	<fb:login-button width="200" scope="email" data-auto-logout-link="true"></fb:login-button>
-	<?php endif; ?>
 	
     <?php else: ?>
     <div id="badge_second">
@@ -39,5 +35,12 @@
     <?php endif; ?>
     
   </div>
+    
+  <?php if(getFacebookKey()): ?>
+  <div id="fb_holder">
+    <fb:login-button id="fb_button" onmouseover="fbHoverOn()" onmouseout="fbHoverOff()" data-size="large" scope="email" data-auto-logout-link="true">Log in with Facebook</fb:login-button>
+  </div>
+  <?php endif; ?>
   
 </div>
+

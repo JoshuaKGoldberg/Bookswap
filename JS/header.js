@@ -59,3 +59,11 @@ function searchGetNoResultsComplaint() {
 function searchStartFull() {
   window.location = "index.php?page=search&value=" + $("#header_search_input").val().trim();
 }
+
+
+/* Facebook interactions
+*/
+
+// Called when the #fb_button element is being hovered (onmouseover)
+function fbHoverOn() { $("#fb_holder").addClass("hover"); }
+function fbHoverOff() { $("#fb_holder").removeClass("hover"); }
