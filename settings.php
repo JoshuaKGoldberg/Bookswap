@@ -86,6 +86,11 @@
     return $output;
   }
   
+  /* User particulars
+  */
+  
+  function getUserRoles() { return ['Unregistered', 'User', 'Administrator']; }
+  
   /* Book particulars
   */
   
