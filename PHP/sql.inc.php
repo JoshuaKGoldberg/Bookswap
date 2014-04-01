@@ -48,7 +48,7 @@
   // (SELECT `table`.`valCol` WHERE `keyCol` = :keyVal)
   function getRowValue($dbConn, $table, $valCol, $keyCol, $keyVal) {
     $query = '
-      SELECT `' . $table . '`.`' . $valCol . '`
+      SELECT `' . $valCol . '` FROM `' . $table . '`
       WHERE `' . $keyCol . '` = :myval
     ';
     $stmnt = getPDOStatement($dbConn, $query);
