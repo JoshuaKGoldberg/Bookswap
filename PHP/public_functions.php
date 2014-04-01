@@ -99,16 +99,85 @@
     }
     
     // Send out the code as an email
+    $username = $_SESSION['username'];
+    $email = $_SESSION['email'];
+    $recipient = '<' . $username . '> ' . $email;
     $subject = 'BookSwap Verification Time!';
-    $recipient = $_SESSION['email'];
-    $message  = 'Hi there, ' . $_SESSION['username'] . '!' . PHP_EOL . PHP_EOL;
+    $message  = 'Hi there, ' . $username . '!' . PHP_EOL . PHP_EOL;
     $message .= 'Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great! ';
-    $message .= 'Visit this link to verify your account: ' . getURL('verification') . '&code=' . $code . PHP_EOL;
+    $message .= 'Visit this link to verify your account: ';
+    $message .= getURL('verification') . '&user_id=' . $_SESSION['user_id'] . '&code=' . $code . PHP_EOL;
     $message .= 'If this wasn\'t you, don\'t worry about it.' . PHP_EOL . PHP_EOL;
     $message .= 'Cheers,' . PHP_EOL;
     $message .= '   -The BookSwap team';
+    $status = mail($recipient, $subject, $message); 
     
-    return $message;
+    if(!$noverbose)
+      echo $status ? 'Yes' : 'Could not send verification email! Please try again.';
+    return $status;
+  }
+  
+  // publicSendWelcomeEmail({...})
+  // Also sends an email...
+  function publicSendWelcomeEmail($arguments, $noverbose=false) {
+    $username = $_SESSION['username'];
+    $email = $_SESSION['email'];
+    $recipient = '<' . $username . '> ' . $email;
+    $subject = 'BookSwap Verification Time!';
+    $message  = 'Congratulations are in order, ' . $username . '!' . PHP_EOL . PHP_EOL;
+    $message .= 'Your account on ' . getSiteName() . ' is now active. Go on and swap some books!' . PHP_EOL;
+    $message .= '   -The BookSwap team';
+    $status = mail($recipient, $subject, $message); 
+    
+    if(!$noverbose)
+      echo $status ? 'Yes' : 'Could not send welcome email! Please try again.';
+    return $status;
+  }
+  
+  // publicVerifyUser({...})
+  // 
+  // Required Arguments:
+  // * nope
+  function publicVerifyUser($arguments, $noverbose=false) {
+    // The user must be authenticated, and logging into their own thing
+    if(!UserLoggedIn()) {
+      if(!$noverbose)
+        echo 'You must be logged in to do this';
+      return false;
+    }
+    $user_id = $arguments['user_id'];
+    $code = $arguments['code'];
+
+    // For security's sake, make sure the given user_id matches $_SESSION
+    if($_SESSION['user_id'] != $user_id) {
+      if(!$noverbose)
+        echo 'The given user ID doesn\'t match the current user\'s';
+      return false;
+    }
+    
+    // Get the corresponding user's code from the database
+    $dbConn = getPDOQuick($arguments);
+    $code_actual = getRowValue($dbConn, 'user_verifications', 'code', 'user_id', $user_id);
+    
+    // If it doesn't match, complain
+    if($code != $code_actual) {
+      if(!$noverbose)
+        echo 'Invalid code provided! Please try again.';
+      print_r($arguments);
+      echo PHP_EOL . '<br>' . PHP_EOL;
+      echo PHP_EOL . '<br>' . PHP_EOL;
+      print_r($_SESSION);
+      return false;
+    }
+    
+    // Otherwise, clear the verification and set the user role to normal
+    setRowValue($dbConn, 'users', 'role', 'User', 'user_id', $user_id);
+    $_SESSION['role'] = 'User';
+    dbUserVerificationDeleteCode($dbConn, $user_id, true);
+    
+    if(!$noverbose)
+      echo 'Yes';
+    return true;
   }
   
   // publicLogin({...})
