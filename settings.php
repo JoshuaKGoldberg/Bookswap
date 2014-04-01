@@ -104,6 +104,18 @@
     }
   }
   
+  // Returns search weights for weighted search algorithm
+  function getSearchWeights() { 
+    return array( 
+      'title' => 42, 
+      'authors' => 21, 
+      'description' => 14, 
+      'publisher' => 7, 
+      'year' => 14, 
+      'isbn' => 35 
+    );
+  }
+  
 
   /* Misc. Utilities
   */

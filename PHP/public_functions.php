@@ -215,41 +215,145 @@
   function publicSearch($arguments, $noverbose=false) {
     $dbConn = getPDOQuick($arguments);
     $value_raw = ArgLoose($arguments['value']);
-    $value = '%' . str_replace(' ', '%', $value_raw) . '%';
+    $value = str_replace(' ', '%', $value_raw);
+    $value_stricter = $value . '%';
+    $value_perc = '%' . $value . '%';
     $format = isset($arguments['format']) ? ArgStrict($arguments['format']) : 'Medium';
-    
+   
     // The user may give a different column to search on
     if(isset($arguments['column']))
       $column = strtolower(ArgStrict($arguments['column']));
-    else $column = 'title';
-    
-    // Same witha an offset
+    else $column = 'all';
+ 
+    // Same with the limit per page
+    if(isset($arguments['limit']))
+      $limit = (int) ArgStrict($arguments['limit']);
+    else $limit = 7;
+   
+    // The offset is determined per page
     if(isset($arguments['offset']))
       $offset = (int) ArgStrict($arguments['column']);
     else $offset = 0;
+
+    //echo('<script>alert("'.$column.'");</script>');
     
-    // Prepare the initial query
-    $query = '
-      SELECT * FROM `books` 
-      WHERE `' . $column . '` LIKE :value
-      LIMIT 7 OFFSET ' . $offset . '
-    ';
-    
+    /* 
+
+    **Removing initial query for now... need to find another way to calculate total results.**
+
+    // Prepare query to return the number of results for individual column
+    if ( $column != "all" ) {
+      $all_query = '
+       SELECT * FROM `books`
+       WHERE `' . $column . '` LIKE :value
+     ';
+    }
+    // Prepare query to return the number of results in the entire table
+    else {
+      $all_query = '
+       SELECT * FROM `books`
+       WHERE
+            `title`       LIKE :value
+         OR `authors`     LIKE :value
+         OR `description` LIKE :value
+         OR `publisher`   LIKE :value
+         OR `year`        LIKE :value
+         OR `isbn`        LIKE :value
+     ';
+    }
+          // OR `.....CONCAT(title,authors,description,publisher,year) LIKE :value
+ 
+    // Run the query
+    $_stmnt = getPDOStatement($dbConn, $all_query);
+    $_durp = $_stmnt->execute(array(':value'  => $value_perc));
+ 
+ 
+    $total = count($_stmnt->fetchAll(PDO::FETCH_ASSOC)); 
+
+    */
+ 
+    // Prepare the actual search query for individual column
+    if ( $column != "all" ) {
+      $query = '
+       SELECT * FROM `books`
+       WHERE `' . $column . '` LIKE :value
+       LIMIT ' . $limit . ' OFFSET ' . $offset . '
+     ';
+    }
+    // Prepare the actual search query for the entire table
+    else {
+      $weights = getSearchWeights();
+ 
+      $TITLE_WEIGHT = $weights['title'];
+      $AUTHOR_WEIGHT = $weights['authors'];
+      $DESC_WEIGHT = $weights['description'];
+      $PUB_WEIGHT = $weights['publisher'];
+      $YEAR_WEIGHT = $weights['year'];
+      $ISBN_WEIGHT = $weights['isbn'];
+ 
+      $query = '
+       SELECT *,
+         IF(
+              `title`        LIKE :value_stricter,  ' . $TITLE_WEIGHT . ',
+           IF(`title`        LIKE :value_perc, ' . $TITLE_WEIGHT/2 . ', 0)
+         )
+         + IF(`authors`      LIKE :value_perc, ' . $AUTHOR_WEIGHT . ', 0)
+         + IF(`description`  LIKE :value_perc, ' . $DESC_WEIGHT . ', 0)
+         + IF(`publisher`    LIKE :value_perc, ' . $PUB_WEIGHT . ', 0)
+         + IF(`year`         LIKE :value_perc, ' . $YEAR_WEIGHT . ', 0)
+         + IF(`isbn`         LIKE :value_perc, ' . $ISBN_WEIGHT . ', 0)
+         AS `weight`
+       FROM `books`
+       WHERE (
+             `title`         LIKE :value_perc
+         OR  `authors`       LIKE :value_perc
+         OR  `description`   LIKE :value_perc
+         OR  `publisher`     LIKE :value_perc
+         OR  `year`          LIKE :value_perc
+         OR  `isbn`          LIKE :value_perc
+       )
+       ORDER BY `weight` DESC
+       LIMIT ' . $limit . ' OFFSET ' . $offset . '
+     ';
+    }
+   
     // Run the query
     $stmnt = getPDOStatement($dbConn, $query);
-    $durp = $stmnt->execute(array(':value'  => $value));
-    
+    $durp = $stmnt->execute(array(
+      ':value_perc'  => '%' . $value . '%',
+      ':value_stricter'  => $value . '%',
+      ));
+   
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+ 
     foreach($results as $result) {
       $result['is_search'] = true;
       TemplatePrint('Books/' . $format, 0, $result);
     }
     echo '<div class="search_end book">search on ';
-    echo getLinkHTML('search', $value_raw, array('value'=>$value_raw));
-    echo ': ' . count($results) . ' results ' . ($results ? 'shown' : 'found');
+    echo getLinkHTML('search', $value_raw, array('value' => $value_raw));
+    echo ': ' . count($results) . ' results ' . ($results ? 'shown' . ($total > $limit + $offset ? '; ' . $total . ' found' : '') : 'found') . '';
     if($offset) echo ' (starting from ' . ($offset + 1) . ')';
     echo '.';
+ 
+    // If < 5 results are returned, link to import page
+    if ( count($results) < 5 ) {
+      echo '<div class="message">Looks like there aren\'t many results... Try <a href="index.php?page=import">importing</a> more results from Google Books.</div>';
+    }
+    /* 
+
+    **Removed until a non-intensive way to calculate total results is implemented.**
+
+    **Need to add user defined limit later.**
+
+    // if > $limit results are returned, have an option to load more
+    if ( $total > $limit + $offset ) {
+      $offset .= $limit;
+      echo '<div class="message"><a href="index.php?page=search&value=' . $value . '&column=' . $column . '&limit=' . $limit . '&offset=' . $offset . '">Load more results...</a></div>';
+    }
+
+    */
   }
 
   // publicGetBookEntries({...})

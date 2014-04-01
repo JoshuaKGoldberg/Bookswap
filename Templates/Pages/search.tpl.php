@@ -8,7 +8,7 @@
       </div>
       <select id="search_change">
         <?php
-          $options = ['Title', 'Author(s)', 'Description', 'Publisher', 'Year', 'ISBN'];
+          $options = ['All', 'Title', 'Author(s)', 'Description', 'Publisher', 'Year', 'ISBN'];
           echo '<option>' . implode('</option><option>', $options) . '</option>';
         ?>
       </select>

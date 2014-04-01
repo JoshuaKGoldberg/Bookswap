@@ -21,11 +21,15 @@ function searchFull(value) {
   if(!value)
     if(!(value = $("#search_input").val()))
       return;
-  
+
+  var column_value = $("#search_change").val();
+  if ( !column_value )
+    column_value = "Title";
+
   sendRequest("publicSearch", {
     value: value,
     format: 'Large',
-    column: $("#search_change").val()
+    column: column_value
   }, searchFullResults);
 }
 
