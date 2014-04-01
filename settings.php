@@ -90,6 +90,7 @@
   */
   
   function getUserRoles() { return ['Unverified', 'User', 'Administrator']; }
+  function getUserRoleDefault() { return 'Unverified'; }
   
   /* Book particulars
   */
@@ -109,7 +110,6 @@
     }
   }
   
-
   /* Misc. Utilities
   */
   
