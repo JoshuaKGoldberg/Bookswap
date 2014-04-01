@@ -9,13 +9,13 @@
 ?>
 <section>
   <div class="standard_main standard_width">
-    <h1 class="standard_main standard_vert">You'll need to <?php echo $email_is_edu ? 'verify your email' : 'change to a .edu address'; ?>.</h1>
-    <h2><?php echo $email; ?></h2>
-    
-    <?php if($email_is_edu): ?><p class="standard_main standard_vert">
-      We've sent an email to <?php echo $email; ?>. Click the link there to verify it.
-    </p><?php endif; ?>
-    
-    <p class="standard_main standard_vert">Verifying your email as from your institute helps keep our site safe and your recommendations relevant.</p>
+    <h1 class="standard_main standard_vert">
+      You'll need to <?php echo $email_is_edu ? 'verify your email' : 'change to a .edu address'; ?>.
+      <div id="verif_loader" class="small"></div>
+    </h1>
+    <p class="standard_main standard_vert medium">
+      <?php if($email_is_edu): ?>We've sent an email to <strong><?php echo $email; ?></strong>. Click the link there to verify it.<br><?php endif; ?>
+      Verifying your email as yours and from your institute helps keep our site safe and your recommendations relevant.
+    </p>
   </div>
 </section>
