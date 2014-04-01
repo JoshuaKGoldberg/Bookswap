@@ -110,7 +110,7 @@
     $message .= 'If this wasn\'t you, don\'t worry about it.' . PHP_EOL . PHP_EOL;
     $message .= 'Cheers,' . PHP_EOL;
     $message .= '   -The BookSwap team';
-    $status = mail($recipient, $subject, $message); 
+    $status = mailFancy($recipient, $subject, $message); 
     
     if(!$noverbose)
       echo $status ? 'Yes' : 'Could not send verification email! Please try again.';
@@ -127,7 +127,7 @@
     $message  = 'Congratulations are in order, ' . $username . '!' . PHP_EOL . PHP_EOL;
     $message .= 'Your account on ' . getSiteName() . ' is now active. Go on and swap some books!' . PHP_EOL;
     $message .= '   -The BookSwap team';
-    $status = mail($recipient, $subject, $message); 
+    $status = mailFancy($recipient, $subject, $message); 
     
     if(!$noverbose)
       echo $status ? 'Yes' : 'Could not send welcome email! Please try again.';

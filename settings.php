@@ -155,6 +155,18 @@
     return $data;
   }
   
+  // mailFancy("to", "subject", "message"[, "headers"])
+  // Adds the From, Reply-To, and X-Mailer headers to a standard PHP mail() call
+  function mailFancy($to, $subject, $message, $headers='') {
+    // Set the BookSwap webmaster as the sender
+    $headers .= 'From: <BookSwap> webmaster@rpibookswap.com' . PHP_EOL;
+    $headers .= 'Reply-To: webmaster@rpibookswap.com' . PHP_EOL;
+    $headers .= 'X-Mailer: PHP/' . phpversion();
+    
+    // The regular PHP mail will return the result's status bool
+    return mail($to, $subject, $message, $headers);
+  }
+  
   // During installation, let users edit config functions using the web form
   function performSettingsReplacements($filename, $replacements) {
     function makeFunctionReplacer($name, $value) {
