@@ -39,7 +39,6 @@
       return false;
     }
     
-    
     // The email must be an academic email
     if(!isStringEmail($email)) {
       if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
@@ -56,17 +55,81 @@
       return false;
     }
 
-    // If successful, log in
-    if(dbUsersAdd($dbConn, $username, $password, $email, 0)) {
+    // If successful, log in and send the verification email
+    if(dbUsersAdd($dbConn, $username, $password, $email)) {
       $arguments['username'] = $arguments['j_username'];
       $arguments['password'] = $arguments['j_password'];
       $arguments['email'] = $arguments['j_email'];
       publicLogin($arguments, true);
+      
       if(!$noverbose)
         echo 'Yes';
       return true;
     }
     return false;
+  }
+  
+  // publicSendWelcomeEmail({...})
+  // Also sends an email...
+  function publicSendWelcomeEmail($arguments, $noverbose=false) {
+    $username = $_SESSION['username'];
+    $email = $_SESSION['email'];
+    $recipient = '<' . $username . '> ' . $email;
+    $subject = 'BookSwap Verification Time!';
+    $message  = '<h2>Congratulations are in order, ' . $username . '!</h2>' . PHP_EOL;
+    $message .= '<p>Your account on ' . getSiteName() . ' is now active. Go on and swap some books!</p>' . PHP_EOL;
+    $message .= '<p><em>   -The BookSwap team</em></p>';
+    $status = mailFancy($recipient, $subject, $message); 
+    
+    if(!$noverbose)
+      echo $status ? 'Yes' : 'Could not send welcome email! Please try again.';
+    return $status;
+  }
+  
+  // publicVerifyUser({...})
+  // 
+  // Required Arguments:
+  // * nope
+  function publicVerifyUser($arguments, $noverbose=false) {
+    // The user must be authenticated, and logging into their own thing
+    if(!UserLoggedIn()) {
+      if(!$noverbose)
+        echo 'You must be logged in to do this';
+      return false;
+    }
+    $user_id = $arguments['user_id'];
+    $code = $arguments['code'];
+
+    // For security's sake, make sure the given user_id matches $_SESSION
+    if($_SESSION['user_id'] != $user_id) {
+      if(!$noverbose)
+        echo 'The given user ID doesn\'t match the current user\'s';
+      return false;
+    }
+    
+    // Get the corresponding user's code from the database
+    $dbConn = getPDOQuick($arguments);
+    $code_actual = getRowValue($dbConn, 'user_verifications', 'code', 'user_id', $user_id);
+    
+    // If it doesn't match, complain
+    if($code != $code_actual) {
+      if(!$noverbose)
+        echo 'Invalid code provided! Please try again.';
+      print_r($arguments);
+      echo PHP_EOL . '<br>' . PHP_EOL;
+      echo PHP_EOL . '<br>' . PHP_EOL;
+      print_r($_SESSION);
+      return false;
+    }
+    
+    // Otherwise, clear the verification and set the user role to normal
+    setRowValue($dbConn, 'users', 'role', 'User', 'user_id', $user_id);
+    $_SESSION['role'] = 'User';
+    dbUserVerificationDeleteCode($dbConn, $user_id, true);
+    
+    if(!$noverbose)
+      echo 'Yes';
+    return true;
   }
   
   // publicLogin({...})

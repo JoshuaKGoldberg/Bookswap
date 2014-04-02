@@ -35,47 +35,41 @@
   // Gets the user info of a Facebook account
   // Sample usage: dbFacebookUsersGet($dbConn, $identity)
   function dbFacebookUsersGet($dbConn, $identity, $noverbose=false) {
-	  
 	  // Prepare the query
 	  $query = '
-		SELECT * FROM `users`
-	    INNER JOIN `FacebookUsers`
-		ON `FacebookUsers`.`user_id` = `users`.`user_id`
-		WHERE `FacebookUsers`.`fb_id` = :identity
-		LIMIT 1
+      SELECT * FROM `users`
+        INNER JOIN `FacebookUsers`
+      ON `FacebookUsers`.`user_id` = `users`.`user_id`
+      WHERE `FacebookUsers`.`fb_id` = :identity
+      LIMIT 1
 	  ';
 	  
-	  //Run the query
+	  // Run the query
 	  $stmnt = getPDOStatement($dbConn, $query);
 	  $stmnt->execute(array(':identity' => $identity));
-	  	  
 	  return $stmnt->fetch();
-	  
-	  
   }
-
 
   // dbUsersAdd("username", "password", "email", #role)
   // Adds a user to `users`
   // Sample usage: dbUsersAdd($dbConn, $username, $password, $email, $role);
-  function dbUsersAdd($dbConn, $username, $password, $email, $role) {
+  function dbUsersAdd($dbConn, $username, $password, $email, $role='Unverified') {
     // Ensure the email isn't already being used
     if(checkKeyExists($dbConn, 'users', 'email', $email)) {
       echo $email . ' is already being used.';
       return false;
     }
     
-    // Create the password, salt and all
+    // If there's a password, create the salts
     if(!empty($password)){
-		$salt = hash('sha256', uniqid(mt_rand(), true));
-		$salted = hash('sha256', $salt . $password);
-	}
-	else{
-		//Empty password sent to dbUsersAdd
-		//Probably using another authentication method
-		$salt = "";
-		$salted = "";
-	}
+      $salt = hash('sha256', uniqid(mt_rand(), true));
+      $salted = hash('sha256', $salt . $password);
+    }
+    // No password means an alternate authenticated method (e.g. Facebook)
+    else{
+      $salt = "";
+      $salted = "";
+    }
     
     // Run the insertion query
     $query = '
@@ -87,19 +81,93 @@
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':username' => $username,
-                                 ':password' => $salted,
-                                 ':email'    => $email,
-                                 ':role'     => $role,
-                                 ':salt'     => $salt));
+    $stmnt->execute(array(':username' => $username,
+                          ':password' => $salted,
+                          ':email'    => $email,
+                          ':role'     => $role,
+                          ':salt'     => $salt));
+    
+    // If unverified, also add an entry to `user_verifications`
+    if(empty($role) || !$role || $role == 'Unverified') {
+      $user_id = getRowValue($dbConn, 'users', 'user_id', 'email', $email);
+      dbUserVerificationAddCode($dbConn, $user_id, $username, $email);
+    }
+    
+    return true;
   }
   
-    // dbFacebookUsersAdd("username", "facebook ID", "email", #role);
+  // dbUserVerificationAddCode(#user_id, "username");
+  // Adds a random (sha256 hash) verification code for a user
+  // Also sends a verification email to indicate this action
+  function dbUserVerificationAddCode($dbConn, $user_id, $username, $email) {
+    // Delete any preexisting verification emails for that user
+    dbUserVerificationDeleteCode($dbConn, $user_id);
+    
+    // Run the actual insertion query
+    $query = '
+      INSERT INTO `user_verifications` (
+        `user_id`, `code`
+        )
+        VALUES (
+          :user_id,  :code
+        );
+    ';
+    $code = hash('sha256', uniqid(mt_rand(), true));
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id,
+                          ':code'    => $code));
+    
+    // Notify the user (this function is part of what's called by publicCreateUser)
+    sendVerificationEmail($dbConn, $user_id, $username, $email, $code);
+  }
+  
+  // resendVerificationEmail(#user_id, "username", "email", "code")
+  // Helper function to send a verification email to a user
+  // Returns the bool status of the mail() call
+  function sendVerificationEmail($dbConn, $user_id, $username, $email, $code) {
+    // $to = $username . '<' . $email . '>';
+    $to = $email;
+    $subject = 'BookSwap Verification Time!';
+    $message  = '<h2>Hi there, ' . $username . '!</h2>' . PHP_EOL;
+    $message .= '<p>Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great! ';
+    $message .= 'Visit ' . getLinkHTML('verification', 'this link', array(
+      'user_id' => $user_id,
+      'code' => $code
+    )) . ' to verify your account.';
+    $message .= 'If this wasn\'t you, don\'t do that.</p>' . PHP_EOL;
+    $message .= '<p><em>   -The BookSwap team</em></p>';
+    return mailFancy($to, $subject, $message); 
+  }
+  
+  // dbUserVerificationDeleteCode($user_id)
+  // Deletes the verification code for a user
+  // If specified, sends a welcome email to indicate this action
+  function dbUserVerificationDeleteCode($dbConn, $user_id, $do_email=false) {
+    // Run the deletion query
+    $query = '
+       DELETE FROM `user_verifications`
+       WHERE `user_id` = :user_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id));
+    
+    // Send an email if desired
+    if($do_email) {
+      $arguments = array(
+        'dbConn' => $dbConn
+      );
+      publicSendWelcomeEmail($arguments, true);
+    }
+    return true;
+  }
+  
+  // dbFacebookUsersAdd("username", "facebook ID", "email", #role);
   // Adds a user to `users` and `FacebookUsers` using dbUsersAdd
   //	* Will not work if a user is in `users` with the same email
   //	* Will not work if a user is in `FacebookUsers` with
   //      the same user id or facebook ID
   function dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, $role){
+    // If adding the user to the database normally failed, stop
 	  if(!dbUsersAdd($dbConn, $username, "", $email, $role)){
 		  // email already exists in database
 		  // have to handle merging of accounts
@@ -111,18 +179,16 @@
 		return false; // dbUsersAdd didn't work?
 		
 	  $query = '
-		INSERT INTO `FacebookUsers` (
-			`fb_id`, `user_id`
-		)
-		VALUES (
-			:fb_id, :user_id
-		);
+      INSERT INTO `FacebookUsers` (
+        `fb_id`, `user_id`
+      )
+      VALUES (
+        :fb_id, :user_id
+      );
 		';
 	  $stmnt = getPDOStatement($dbConn, $query);
-	  return $stmnt->execute(array(':fb_id' => $fb_id,
-								   ':user_id' => $user_info['user_id']));
-		
-	  
+	  return $stmnt->execute(array(':fb_id'   => $fb_id,
+                                 ':user_id' => $user_info['user_id']));
   }
   
   // dbUsersRemove("identity"[, "type"])

@@ -181,12 +181,26 @@
         `password` VARCHAR(127),
         `email` VARCHAR(127) NOT NULL,
         `salt` VARCHAR(127),
-        `role` INT(1),
+        `role` ENUM(' . makeSQLEnum(getUserRoles()) . ') NOT NULL DEFAULT \'' . getUserRoleDefault() . '\',
         PRIMARY KEY (`user_id`)
       )
     ');
     
-    // 3. Create the `books` table
+    // 3. Create the `user_verifications` table
+    // * These are identified by the user_id int
+    // * Keys are generated randomly on user registration
+    $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `user_verifications` (
+        `user_id` INT(10) NOT NULL UNIQUE,
+        `code` VARCHAR(127) NOT NULL,
+        `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`user_id`),
+        FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+        ON UPDATE CASCADE ON DELETE CASCADE
+      )
+    ');
+    
+    // 4. Create the `books` table
     // This refers to the known information on a book
     // * These are identified by their 13-digit ISBN number
     // * Google Book IDs are also kept for book.php
@@ -205,7 +219,7 @@
       )
     ');
     
-    // 4. Create the `entries` table
+    // 5. Create the `entries` table
     // This contains the entries of books by users
     // * These are also identified by their 13-digit ISBN number
     // * Prices are decimels, as dollars
@@ -229,7 +243,7 @@
       )
     ');
     
-    // 5. Create the `FacebookUsers` table
+    // 6. Create the `FacebookUsers` table
     // This contains the corresponding Facebook IDs
     // to users who have chosen to login with Facebook
     $dbConn->exec('
@@ -238,35 +252,36 @@
 			`user_id` INT(10) NOT NULL, 
 			PRIMARY KEY (`fb_id`),
 			FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+      ON UPDATE CASCADE ON DELETE CASCADE
 			)
 	');
 	
-	 // 6. Create the `notifications` tables
-     // Create the general notifications table
-     $dbConn->exec('
-       CREATE TABLE IF NOT EXISTS `notifications` (
-         `notification_id` INT NOT NULL AUTO_INCREMENT,
-         `user_id` INT(10) NOT NULL,
-         `message` TEXT,
-         `type` ENUM("simple", "entry") NOT NULL DEFAULT "simple",
-         `time_sent` DATETIME NOT NULL,
-         `time_seen` DATETIME,
-         PRIMARY KEY (`notification_id`),
-         FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-         ON UPDATE CASCADE ON DELETE CASCADE
-       );
-     ');
-     // Create the entry notifications table
-      $dbConn->exec('
-      CREATE TABLE IF NOT EXISTS `notifications_entry` (
-         `notification_id` INT NOT NULL,
-         `entry_id` INT(10) NOT NULL,
-         FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`notification_id`)
-         ON UPDATE CASCADE ON DELETE CASCADE,
-         FOREIGN KEY (`entry_id`) REFERENCES `entries`(`entry_id`)
-         ON UPDATE CASCADE ON DELETE CASCADE
-       );
-     ');
+	 // 7. Create the `notifications` tables
+   // Create the general notifications table
+   $dbConn->exec('
+     CREATE TABLE IF NOT EXISTS `notifications` (
+       `notification_id` INT NOT NULL AUTO_INCREMENT,
+       `user_id` INT(10) NOT NULL,
+       `message` TEXT,
+       `type` ENUM("simple", "entry") NOT NULL DEFAULT "simple",
+       `time_sent` DATETIME NOT NULL,
+       `time_seen` DATETIME,
+       PRIMARY KEY (`notification_id`),
+       FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+       ON UPDATE CASCADE ON DELETE CASCADE
+     );
+   ');
+   // Create the entry notifications table
+    $dbConn->exec('
+    CREATE TABLE IF NOT EXISTS `notifications_entry` (
+       `notification_id` INT NOT NULL,
+       `entry_id` INT(10) NOT NULL,
+       FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`notification_id`)
+       ON UPDATE CASCADE ON DELETE CASCADE,
+       FOREIGN KEY (`entry_id`) REFERENCES `entries`(`entry_id`)
+       ON UPDATE CASCADE ON DELETE CASCADE
+     );
+   ');
     
   }
   catch(Exception $err) {

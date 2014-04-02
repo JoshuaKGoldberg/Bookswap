@@ -12,7 +12,7 @@
       'Forms/AddEntry', 'Forms/Money',
       'Header/Badge', 'Header/Search',
       'Pages/404', 'Pages/account', 'Pages/book', 'Pages/import',
-      'Pages/index', 'Pages/logout', 'Pages/search'
+      'Pages/index', 'Pages/logout', 'Pages/search', 'Pages/verification'
     );
     // If the user doesn't request one of these pages, print 404 instead
     if(!in_array($name, $allowed_pages)) $name = 'Pages/404';

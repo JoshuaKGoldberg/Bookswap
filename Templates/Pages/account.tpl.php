@@ -1,4 +1,6 @@
 <?php
+  if(!UserVerified()) return AccessDenied();
+  
   // Check if the current page is the user's profile
   if(isset($_GET['user_id']) && isset($_SESSION['user_id']))
     $using_current = $_GET['user_id'] == $_SESSION['user_id'];
