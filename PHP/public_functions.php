@@ -75,9 +75,10 @@
   // * "username"
   // * "password"
   function publicLogin($arguments, $noverbose=false) {
+    $dbConn = getPDOQuick($arguments);
     $email = $arguments['email'];
     $password = $arguments['password'];
-    if(loginAttempt($email, $password) && !$noverbose) {
+    if(loginAttempt($dbConn, $email, $password) && !$noverbose) {
       echo 'Yes';
       return true;
     }
@@ -91,29 +92,29 @@
   //  * "name"
   //  * "fb_id" 
   function publicFacebookLogin($arguments, $noverbose=false) {
-	  $dbConn = getPDOQuick($arguments);
-	  $email = $arguments['email'];
-	  $username = $arguments['name'];
-	  $fb_id = $arguments['fb_id'];
-	  
-	  // Attempt to log in with Facebook normally
-	  $user_info = facebookLoginAttempt($dbConn, $fb_id);
+    $dbConn = getPDOQuick($arguments);
+    $email = $arguments['email'];
+    $username = $arguments['name'];
+    $fb_id = $arguments['fb_id'];
+
+    // Attempt to log in with Facebook normally
+    $user_info = facebookLoginAttempt($dbConn, $fb_id);
     
     // If it didn't work, try to add the user, then log in again
-	  if(!$user_info){
-		  dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, 0);
-		  $user_info = facebookLoginAttempt($dbConn, $fb_id);
-	  }
-	  
+    if(!$user_info){
+      dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, 0);
+      $user_info = facebookLoginAttempt($dbConn, $fb_id);
+    }
+
     // If it didn't work (couldn't login or register), complain
-	  if(!$user_info) {
+    if(!$user_info) {
       echo 'Could not log in...';
-		  return false;
+      return false;
     }
 
     // Otherwise it's good
-	  if(!$noverbose) {
-		  echo 'Yes';
+    if(!$noverbose) {
+      echo 'Yes';
     }
     return true;
   }
@@ -216,14 +217,12 @@
     $dbConn = getPDOQuick($arguments);
     $value_raw = ArgLoose($arguments['value']);
     $value = str_replace(' ', '%', $value_raw);
-    $value_stricter = $value . '%';
-    $value_perc = '%' . $value . '%';
     $format = isset($arguments['format']) ? ArgStrict($arguments['format']) : 'Medium';
    
     // The user may give a different column to search on
     if(isset($arguments['column']))
       $column = strtolower(ArgStrict($arguments['column']));
-    else $column = 'all';
+    else $column = 'title';
  
     // Same with the limit per page
     if(isset($arguments['limit']))
@@ -271,16 +270,26 @@
     $total = count($_stmnt->fetchAll(PDO::FETCH_ASSOC)); 
 
     */
+
+    /* 
+
+    **Going to fix weighted search for columns sometime in the future.** 
+
+    */
  
-    // Prepare the actual search query for individual column
+    // Prepare the search query for individual column
     if ( $column != "all" ) {
       $query = '
-       SELECT * FROM `books`
-       WHERE `' . $column . '` LIKE :value
-       LIMIT ' . $limit . ' OFFSET ' . $offset . '
-     ';
+        SELECT * FROM `books`
+        WHERE (
+              `' . $column . '` LIKE :value_stricter
+          OR  `' . $column . '` LIKE :value_perc
+        )
+        LIMIT ' . $limit . ' OFFSET ' . $offset . '
+      ';
+      ));
     }
-    // Prepare the actual search query for the entire table
+    // Prepare the search query for the entire table
     else {
       $weights = getSearchWeights();
  
@@ -292,38 +301,38 @@
       $ISBN_WEIGHT = $weights['isbn'];
  
       $query = '
-       SELECT *,
-         IF(
-              `title`        LIKE :value_stricter,  ' . $TITLE_WEIGHT . ',
-           IF(`title`        LIKE :value_perc, ' . $TITLE_WEIGHT/2 . ', 0)
-         )
-         + IF(`authors`      LIKE :value_perc, ' . $AUTHOR_WEIGHT . ', 0)
-         + IF(`description`  LIKE :value_perc, ' . $DESC_WEIGHT . ', 0)
-         + IF(`publisher`    LIKE :value_perc, ' . $PUB_WEIGHT . ', 0)
-         + IF(`year`         LIKE :value_perc, ' . $YEAR_WEIGHT . ', 0)
-         + IF(`isbn`         LIKE :value_perc, ' . $ISBN_WEIGHT . ', 0)
-         AS `weight`
-       FROM `books`
-       WHERE (
-             `title`         LIKE :value_perc
-         OR  `authors`       LIKE :value_perc
-         OR  `description`   LIKE :value_perc
-         OR  `publisher`     LIKE :value_perc
-         OR  `year`          LIKE :value_perc
-         OR  `isbn`          LIKE :value_perc
-       )
-       ORDER BY `weight` DESC
-       LIMIT ' . $limit . ' OFFSET ' . $offset . '
-     ';
+        SELECT *,
+          IF(
+               `title`        LIKE :value_stricter,  ' . $TITLE_WEIGHT . ',
+            IF(`title`        LIKE :value_perc, ' . $TITLE_WEIGHT/2 . ', 0)
+          )
+          + IF(`authors`      LIKE :value_perc, ' . $AUTHOR_WEIGHT . ', 0)
+          + IF(`description`  LIKE :value_perc, ' . $DESC_WEIGHT . ', 0)
+          + IF(`publisher`    LIKE :value_perc, ' . $PUB_WEIGHT . ', 0)
+          + IF(`year`         LIKE :value_perc, ' . $YEAR_WEIGHT . ', 0)
+          + IF(`isbn`         LIKE :value_perc, ' . $ISBN_WEIGHT . ', 0)
+          AS `weight`
+        FROM `books`
+        WHERE (
+              `title`         LIKE :value_perc
+          OR  `authors`       LIKE :value_perc
+          OR  `description`   LIKE :value_perc
+          OR  `publisher`     LIKE :value_perc
+          OR  `year`          LIKE :value_perc
+          OR  `isbn`          LIKE :value_perc
+        )
+        ORDER BY `weight` DESC
+        LIMIT ' . $limit . ' OFFSET ' . $offset . '
+      ';
     }
-   
+    
+
     // Run the query
     $stmnt = getPDOStatement($dbConn, $query);
     $durp = $stmnt->execute(array(
-      ':value_perc'  => '%' . $value . '%',
       ':value_stricter'  => $value . '%',
-      ));
-   
+      ':value_perc'      => '%' . $value . '%'
+    
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
  
@@ -331,16 +340,25 @@
       $result['is_search'] = true;
       TemplatePrint('Books/' . $format, 0, $result);
     }
+
     echo '<div class="search_end book">search on ';
     echo getLinkHTML('search', $value_raw, array('value' => $value_raw));
+
+    /*
+
+    **Removed due to $total not being implemented at this time.**
+
     echo ': ' . count($results) . ' results ' . ($results ? 'shown' . ($total > $limit + $offset ? '; ' . $total . ' found' : '') : 'found') . '';
     if($offset) echo ' (starting from ' . ($offset + 1) . ')';
     echo '.';
+
+    */
  
-    // If < 5 results are returned, link to import page
-    if ( count($results) < 5 ) {
+    // If 5 or less results are returned, link to import page
+    if ( count($results) <= 5 ) {
       echo '<div class="message">Looks like there aren\'t many results... Try <a href="index.php?page=import">importing</a> more results from Google Books.</div>';
     }
+
     /* 
 
     **Removed until a non-intensive way to calculate total results is implemented.**
@@ -354,6 +372,7 @@
     }
 
     */
+
   }
 
   // publicGetBookEntries({...})
