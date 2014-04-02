@@ -157,14 +157,25 @@
   
   // mailFancy("to", "subject", "message"[, "headers"])
   // Adds the From, Reply-To, and X-Mailer headers to a standard PHP mail() call
+  // Also formats the message as HTML
   function mailFancy($to, $subject, $message, $headers='') {
     // Set the BookSwap webmaster as the sender
     $headers .= 'From: <BookSwap> webmaster@rpibookswap.com' . PHP_EOL;
     $headers .= 'Reply-To: webmaster@rpibookswap.com' . PHP_EOL;
-    $headers .= 'X-Mailer: PHP/' . phpversion();
+    $headers .= 'X-Mailer: PHP/' . phpversion() . PHP_EOL;
+    
+    // Make it an HTML email
+    $headers .= 'MIME-Version: 1.0' . PHP_EOL;
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . PHP_EOL;
+    
+    // Wrap the message in <html> tags
+    $wrapper  = '<html>' . PHP_EOL;
+    $wrapper .= '  <body>' . PHP_EOL;
+    $wrapper .= $message;
+    $wrapper .= '  </body>' . PHP_EOL;
     
     // The regular PHP mail will return the result's status bool
-    return mail($to, $subject, $message, $headers);
+    return mail($to, $subject, $wrapper, $headers);
   }
   
   // During installation, let users edit config functions using the web form
