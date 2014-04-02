@@ -128,13 +128,13 @@
     // $to = $username . '<' . $email . '>';
     $to = $email;
     $subject = 'BookSwap Verification Time!';
-    $message  = '<h2>Hi there, <strong>' . $username . '</strong>!</h2>' . PHP_EOL;
-    $message .= '<p>Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great!';
+    $message  = '<h2>Hi there, ' . $username . '!</h2>' . PHP_EOL;
+    $message .= '<p>Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great! ';
     $message .= 'Visit ' . getLinkHTML('verification', 'this link', array(
       'user_id' => $user_id,
       'code' => $code
-    )) . ' to verify your account:</p>';
-    $message .= '<p>If this wasn\'t you, don\'t worry about it.</p>' . PHP_EOL;
+    )) . ' to verify your account.';
+    $message .= 'If this wasn\'t you, don\'t do that.</p>' . PHP_EOL;
     $message .= '<p><em>   -The BookSwap team</em></p>';
     return mailFancy($to, $subject, $message); 
   }

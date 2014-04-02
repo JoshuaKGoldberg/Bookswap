@@ -76,7 +76,7 @@
     $email = $_SESSION['email'];
     $recipient = '<' . $username . '> ' . $email;
     $subject = 'BookSwap Verification Time!';
-    $message  = '<h2>Congratulations are in order, <strong>' . $username . '</strong>!</h2>' . PHP_EOL;
+    $message  = '<h2>Congratulations are in order, ' . $username . '!</h2>' . PHP_EOL;
     $message .= '<p>Your account on ' . getSiteName() . ' is now active. Go on and swap some books!</p>' . PHP_EOL;
     $message .= '<p><em>   -The BookSwap team</em></p>';
     $status = mailFancy($recipient, $subject, $message); 
