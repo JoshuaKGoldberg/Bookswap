@@ -181,7 +181,7 @@
         `password` VARCHAR(127),
         `email` VARCHAR(127) NOT NULL,
         `salt` VARCHAR(127),
-        `role` ENUM(' . makeSQLEnum(getUserRoles()) . '),
+        `role` ENUM(' . makeSQLEnum(getUserRoles()) . ') NOT NULL DEFAULT \'' . getUserRoleDefault() . '\',
         PRIMARY KEY (`user_id`)
       )
     ');
