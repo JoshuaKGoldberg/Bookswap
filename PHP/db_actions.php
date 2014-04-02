@@ -90,16 +90,16 @@
     // If unverified, also add an entry to `user_verifications`
     if(empty($role) || !$role || $role == 'Unverified') {
       $user_id = getRowValue($dbConn, 'users', 'user_id', 'email', $email);
-      dbUserVerificationAddCode($dbConn, $user_id);
+      dbUserVerificationAddCode($dbConn, $user_id, $username, $email);
     }
     
     return true;
   }
   
-  // dbUserVerificationAddCode(#user_id);
+  // dbUserVerificationAddCode(#user_id, "username");
   // Adds a random (sha256 hash) verification code for a user
   // Also sends a verification email to indicate this action
-  function dbUserVerificationAddCode($dbConn, $user_id) {
+  function dbUserVerificationAddCode($dbConn, $user_id, $username, $email) {
     // Delete any preexisting verification emails for that user
     dbUserVerificationDeleteCode($dbConn, $user_id);
     
@@ -117,12 +117,25 @@
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
     
-    // Send a verification email to the user
-    $arguments = array(
-      'dbConn' => $dbConn,
-      'code'   => $code,
-    );
-    publicResendVerificationEmail($arguments, true);
+    // Notify the user (this function is part of what's called by publicCreateUser)
+    sendVerificationEmail($dbConn, $user_id, $username, $email, $code);
+  }
+  
+  // resendVerificationEmail(#user_id, "username", "email", "code")
+  // Helper function to send a verification email to a user
+  // Returns the bool status of the mail() call
+  function sendVerificationEmail($dbConn, $user_id, $username, $email, $code) {
+    // $to = $username . '<' . $email . '>';
+    $to = $email;
+    $subject = 'BookSwap Verification Time!';
+    $message  = 'Hi there, ' . $username . '!' . PHP_EOL . PHP_EOL;
+    $message .= 'Someone (hopefully you) made an account on ' . getSiteName() . '. If that\'s you, great! ';
+    $message .= 'Visit this link to verify your account: ';
+    $message .= getURL('verification') . '&user_id=' . $user_id . '&code=' . $code . PHP_EOL;
+    $message .= 'If this wasn\'t you, don\'t worry about it.' . PHP_EOL . PHP_EOL;
+    $message .= 'Cheers,' . PHP_EOL;
+    $message .= '   -The BookSwap team';
+    return mailFancy($to, $subject, $message); 
   }
   
   // dbUserVerificationDeleteCode($user_id)
