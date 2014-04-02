@@ -271,15 +271,12 @@
 
     */
 
-    /* 
-
-    **Going to fix weighted search for columns sometime in the future.** 
-
-    */
+    $single_query = '';
+    $all_query = '';
  
     // Prepare the search query for individual column
     if ( $column != "all" ) {
-      $query = '
+      $single_query = '
         SELECT * FROM `books`
         WHERE (
               `' . $column . '` LIKE :value_stricter
@@ -287,6 +284,12 @@
         )
         LIMIT ' . $limit . ' OFFSET ' . $offset . '
       ';
+
+      // Run the query
+      $stmnt = getPDOStatement($dbConn, $single_query);
+      $durp = $stmnt->execute(array(
+        ':value_stricter'  => $value . '%',
+        ':value_perc'      => '%' . $value . '%'
       ));
     }
     // Prepare the search query for the entire table
@@ -300,7 +303,7 @@
       $YEAR_WEIGHT = $weights['year'];
       $ISBN_WEIGHT = $weights['isbn'];
  
-      $query = '
+      $all_query = '
         SELECT *,
           IF(
                `title`        LIKE :value_stricter,  ' . $TITLE_WEIGHT . ',
@@ -324,14 +327,15 @@
         ORDER BY `weight` DESC
         LIMIT ' . $limit . ' OFFSET ' . $offset . '
       ';
+
+      // Run the query
+      $stmnt = getPDOStatement($dbConn, $all_query);
+      $durp = $stmnt->execute(array(
+        ':value_stricter'  => $value . '%',
+        ':value_perc'      => '%' . $value . '%'
+      ));
     }
     
-
-    // Run the query
-    $stmnt = getPDOStatement($dbConn, $query);
-    $durp = $stmnt->execute(array(
-      ':value_stricter'  => $value . '%',
-      ':value_perc'      => '%' . $value . '%'
     
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
