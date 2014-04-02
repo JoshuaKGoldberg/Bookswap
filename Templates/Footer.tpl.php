@@ -4,7 +4,7 @@
       <?php
         if(UserVerified())
           $links = ['Account', 'Search', 'Import', 'Log Out'];
-        if(UserLoggedIn())
+        else if(UserLoggedIn())
           $links = ['Account', 'Search', 'Log Out'];
         else
           $links = ['Search'];
