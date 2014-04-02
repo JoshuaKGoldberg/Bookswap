@@ -17,7 +17,9 @@
   
   // Functions the user may call via JS
   $allowed_functions = array(
-    'publicLogin', 'publicFacebookLogin', 'publicCreateUser', 'publicEditUsername',
+    'publicCreateUser', 'publicVerifyUser',
+    'publicSendWelcomeEmail', 'publicResendVerificationEmail', 
+    'publicLogin', 'publicFacebookLogin', 'publicEditUsername',
     'publicAddBook', 'publicSearch', 'publicGetBookEntries',
     'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',

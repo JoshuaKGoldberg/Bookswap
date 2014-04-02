@@ -45,6 +45,7 @@
   
   // getRowValue($dbConn, "table", "valCol", "keyCol", "keyVal")
   // Returns the single value at a specified column of a specified row
+  // (SELECT `table`.`valCol` WHERE `keyCol` = :keyVal)
   function getRowValue($dbConn, $table, $valCol, $keyCol, $keyVal) {
     $query = '
       SELECT `' . $valCol . '` FROM `' . $table . '`
@@ -53,8 +54,21 @@
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':myval' => $keyVal));
     $result = $stmnt->fetch(PDO::FETCH_OBJ);
-    return $result->$valCol;
+    return $result ? $result->$valCol : $result;
   }
-
+  
+  // setRowValue($dbConn, "table", "valCol", "keyCol", "keyVal")
+  // Sets value(s) at a specified column of a specified row
+  // ( UPDATE `table`.`valCol` SET `valCol` = :valVal WHERE `keyCol` = :keyVal)
+  function setRowValue($dbConn, $table, $valCol, $valVal, $keyCol, $keyVal) {
+    $query = '
+      UPDATE `' . $table . '`
+      SET `' . $valCol . '` = :valVal
+      WHERE `' . $keyCol . '` = :keyVal
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':valVal' => $valVal,
+                                 ':keyVal' => $keyVal));
+  }
 
 ?>

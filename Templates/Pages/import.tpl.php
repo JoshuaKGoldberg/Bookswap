@@ -1,5 +1,5 @@
 <?php 
-  if(!UserLoggedIn()) return AccessDenied();
+  if(!UserVerified()) return AccessDenied();
   if(!getGoogleKey())
     echo '<div class="error"><div class="standard_main">You do not have a Google key supplied in your settings file. None of this will work.</div></div>';
 ?>

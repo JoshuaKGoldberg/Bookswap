@@ -86,6 +86,12 @@
     return $output;
   }
   
+  /* User particulars
+  */
+  
+  function getUserRoles() { return ['Unverified', 'User', 'Administrator']; }
+  function getUserRoleDefault() { return 'Unverified'; }
+  
   /* Book particulars
   */
   
@@ -104,7 +110,6 @@
     }
   }
   
-
   /* Misc. Utilities
   */
   
@@ -120,9 +125,15 @@
     return isset($_SESSION['Logged In']) && $_SESSION['Logged In'];
   }
   
+  // Bool function - is the user verified?
+  function UserVerified() {
+    return isset($_SESSION['role']) && $_SESSION['role'] != 'Unverified';
+  }
+  
   // Complains if the user goes where they shouldn't
+  // Normally for anonymous users; $for_verification=true indicates for non-verified accounts
   function AccessDenied() {
-    echo '<section><h1 class="standard_main standard_vert">Sorry, you need to be logged in to go here!</h1></section>';
+    echo '<section><h1 class="standard_main standard_vert">Sorry, you need to be ' . (UserLoggedIn() ? 'verified' : 'logged in') . ' to go here!</h1></section>';
   }
   
   function getCurrency() { return '&#36;'; }
@@ -142,6 +153,29 @@
       echo curl_error($ch);
     curl_close($ch);
     return $data;
+  }
+  
+  // mailFancy("to", "subject", "message"[, "headers"])
+  // Adds the From, Reply-To, and X-Mailer headers to a standard PHP mail() call
+  // Also formats the message as HTML
+  function mailFancy($to, $subject, $message, $headers='') {
+    // Set the BookSwap webmaster as the sender
+    $headers .= 'From: <BookSwap> webmaster@rpibookswap.com' . PHP_EOL;
+    $headers .= 'Reply-To: webmaster@rpibookswap.com' . PHP_EOL;
+    $headers .= 'X-Mailer: PHP/' . phpversion() . PHP_EOL;
+    
+    // Make it an HTML email
+    $headers .= 'MIME-Version: 1.0' . PHP_EOL;
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . PHP_EOL;
+    
+    // Wrap the message in <html> tags
+    $wrapper  = '<html>' . PHP_EOL;
+    $wrapper .= '  <body>' . PHP_EOL;
+    $wrapper .= $message;
+    $wrapper .= '  </body>' . PHP_EOL;
+    
+    // The regular PHP mail will return the result's status bool
+    return mail($to, $subject, $wrapper, $headers);
   }
   
   // During installation, let users edit config functions using the web form

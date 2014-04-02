@@ -2,8 +2,10 @@
   <div class="standard_main">
     <div>
       <?php
-        if(UserLoggedIn())
+        if(UserVerified())
           $links = ['Account', 'Search', 'Import', 'Log Out'];
+        if(UserLoggedIn())
+          $links = ['Account', 'Search', 'Log Out'];
         else
           $links = ['Search'];
         for($i = 0, $len = count($links); $i < $len; ++$i)
