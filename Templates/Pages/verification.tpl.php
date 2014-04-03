@@ -1,4 +1,9 @@
 <?php
+  // If there is no $_SESSION['email'], don't display anything
+  if(!isset($_SESSION['email'])) {
+    return AccessDenied();
+  }
+  
   // Email tests are located here
   require_once('db_login.php');
   
