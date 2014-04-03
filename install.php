@@ -1,10 +1,24 @@
 <?php
+  require_once('defaults.php');
+  
+  // If settings.php hasn't been created yet, do that first
+  if(!file_exists('settings.php')) {
+    // Create a new, blank settings file with the default settings
+    $content  = '<?php' . PHP_EOL;
+    foreach(getDefaultSettings() as $name=>$value) {
+      $content .= '  ' . makeFunctionReplacer($name, $value) . PHP_EOL;
+    }
+    $content .= '?>';
+    file_put_contents('settings.php', $content);
+  }
   require_once('settings.php');
+  
   // If the user doesn't have to install the site, go to index.php instead
   if(isInstalled()) {
     header('Location: index.php');
     return;
   }
+  
   
   // The new text is saved to the file, and split by lines
   // If the settings aren't writeable, this complains

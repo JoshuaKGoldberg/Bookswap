@@ -15,7 +15,7 @@
   }
   // If it's from a specific user, query that from the database
   else if(isset($_GET['user_id'])) {
-    include_once('settings.php');
+    include_once('defaults.php');
     include_once('db_actions.php');
     include_once('pdo.inc.php');
     

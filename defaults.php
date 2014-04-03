@@ -1,9 +1,30 @@
 <?php
-  /* Settings.php
+  /* Defaults.php
    * General site settings and important utility functions
   */
-  function isInstalled() { return false; }
+  
+  
+  /* Installation settings
+  */
+  
+  function getDefaultSettings() {
+    return array(
+      'isInstalled' => false,
+      'getBase' => '',
+      'getCDir' => '',
+      'getDBHost' => '',
+      'getDBUser' => '',
+      'getDBPass' => '',
+      'getDBName' => 'bookswap',
+      'getGoogleKey' => '',
+      'getFacebookKey' => '',
+    );
+  }
   function CheckInstallation($page) {
+    if(!file_exists('settings.php')) {
+      header('Location: install.php');
+      return false;
+    }
     if(!isInstalled()) {
       header('Location: install.php');
       return false;
@@ -11,19 +32,11 @@
     return true;
   }
   
-  // Important variables of the site location
-  function getName() { return 'BookSwap'; }
-  function getBase() { return ''; }
-  function getCDir() { return ''; }
-  function getTemplatesPre() { return 'Templates/'; }
-  function getTemplatesExt() { return '.tpl.php'; }
-  function getIncludesPre() { return 'PHP/'; }
-  function getIncludesExt() { return '.inc.php'; }
-  function getTemplateWrapping($name) { return getTemplatesPre() . $name . getTemplatesExt(); }
-  function getIncludesWrapping($name) { return getIncludesPre() . $name . getIncludesExt(); }
   
-  // Include files required for normal operation
-  if(getCDir() != '') {
+  /* Include files required for normal operation
+  */
+  
+  if(function_exists('getCDir') && getCDir() != '') {
     chdir(getCDir()); 
     $inc_pre = getIncludesPre();
     $inc_ext = getIncludesExt();
@@ -32,16 +45,19 @@
     require_once($inc_pre . 'sql' . $inc_ext);
   }
   
-  // Database / Server Logins
-  function getDBHost() { return ''; }
-  function getDBUser() { return ''; }
-  function getDBPass() { return ''; }
-  function getDBName() { return 'bookswap'; }
+  // Important variables of the site location
+  function getName() { return 'BookSwap'; }
+  function getTemplatesPre() { return 'Templates/'; }
+  function getTemplatesExt() { return '.tpl.php'; }
+  function getIncludesPre() { return 'PHP/'; }
+  function getIncludesExt() { return '.inc.php'; }
+  function getTemplateWrapping($name) { return getTemplatesPre() . $name . getTemplatesExt(); }
+  function getIncludesWrapping($name) { return getIncludesPre() . $name . getIncludesExt(); }
+  
   
   /* Google Books API
   */
   
-  function getGoogleKey() { return ''; }
   function getGoogleLink($google_id) { return 'http://books.google.com/books?id=' . $google_id; }
   function getGoogleExport($google_id, $type) {
     $output = 'http://books.google.com/books/download/';
@@ -49,9 +65,6 @@
     return $output;
   }
   
-  /* Facebook API 
-   */
-  function getFacebookKey() { return ''; }
   
   /* Templating & Including
   */
@@ -86,11 +99,13 @@
     return $output;
   }
   
+  
   /* User particulars
   */
   
   function getUserRoles() { return ['Unverified', 'User', 'Administrator']; }
   function getUserRoleDefault() { return 'Unverified'; }
+  
   
   /* Book particulars
   */
@@ -192,13 +207,13 @@
   }
   
   // During installation, let users edit config functions using the web form
+  function makeFunctionReplacer($name, $value) {
+    if(is_string($value)) $value = '\'' . $value . '\'';
+    if(is_bool($value)) $value = $value ? 'true' : 'false';
+    return 'function ' . $name . '() { return ' . $value . '; }';
+  }
   function performSettingsReplacements($filename, $replacements) {
-    function makeFunctionReplacer($name, $value) {
-      if(is_string($value)) $value = '\'' . $value . '\'';
-      if(is_bool($value)) $value = $value ? 'true' : 'false';
-      return 'function ' . $name . '() { return ' . $value . '; }';
-    }
-    $contents = file_get_contents('settings.php');
+    $contents = file_get_contents($filename);
     foreach($replacements as $name=>$value) {
       if(!function_exists($name)) continue;
       $name_old = makeFunctionReplacer($name, call_user_func($name));

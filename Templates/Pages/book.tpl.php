@@ -3,7 +3,7 @@
     echo '<section><h4 class="standard_main standard_vert">Please provide an ISBN!</h4></section>';
     return;
   }
-  include_once('settings.php');
+  include_once('defaults.php');
   include_once('db_actions.php');
   include_once('pdo.inc.php');
     

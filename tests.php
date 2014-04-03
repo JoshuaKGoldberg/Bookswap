@@ -5,6 +5,7 @@
   */
   /* Runs a series of tests to ensure the site is working properly */
   include('settings.php');
+  include('defaults.php');
   // If the user doesn't have to install the site, go to index.php instead
   if(isInstalled()) {
     header('Location: index.php');

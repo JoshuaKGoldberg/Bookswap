@@ -10,6 +10,7 @@
   $function_name = preg_replace("/[^A-Za-z_0-9]/", '', $function_name);
 
   require_once('../settings.php');
+  require_once('../defaults.php');
   require_once('db_actions.php');
   require_once('db_login.php');
   require_once('public_functions.php');
