@@ -35,8 +35,10 @@
         <?php if($is_search): ?>
         <h2 class="book_title"><?php echo getLinkHTML('book', $title, array('isbn'=>$isbn)); ?></h1>
         <?php endif; ?>
-        <span class="authors"><?php echo str_replace('\n', ', ', $authors); ?></span>
-        <aside><?php if($year) echo '(' . $year . ')'; ?></aside>
+        <div class="book_author_info">
+          <span class="authors"><?php echo str_replace('\n', ', ', $authors); ?></span>
+          <aside><?php if($year) echo '(' . $year . ')'; ?></aside>
+        </div>
       </h2>
     </div>
     

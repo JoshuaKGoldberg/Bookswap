@@ -72,3 +72,7 @@
   display: inline;
   font-size: 28px;
 }
+
+.book.book_large .viewgoogle a {
+  font-size: .77em;
+}
