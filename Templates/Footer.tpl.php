@@ -16,12 +16,38 @@
     </div>
       <?php
         $choices = array(
-          'n aspiring, active',
-          ' fun, friendly'
+          'aspiring, active',
+          'beautiful, benefitial',
+          'cool, capable',
+          'dynamic, divergent',
+          'excellent, endearing',
+          'fun, friendly',
+          'great, gorgeous',
+          'happy, healthy',
+          'intriguing, inpsirational',
+          'jolly, joyous',
+          'key, kosher',
+          'lovely, luschous',
+          'magnificent, multifaceted',
+          'neat, nifty',
+          'otherworldly, opulent',
+          'practical, precocious',
+          'quick, qualified',
+          'robust, reliable',
+          'safe, smooth',
+          'thrilling, therapeutic',
+          'unorthodox, upbeat',
+          'vibrant, veritable',
+          'wholesome, worldly',
+          'youthful, yummy',
+          'zesty, zany'
         );
-        echo 'A' . $choices[array_rand($choices)] . ' RCOS project.';
+        $choice = $choices[array_rand($choices)];
+        echo 'A' . (in_array($choice[0], array('a', 'e', 'i', 'o', 'u')) ? 'n ' : ' ') . $choice . ' RCOS project.';
       ?>
     <br>
-    Albert Armea, Javier Camino, Josh Goldberg, Harish Lall, Evan MacGregor, and Aaron Sedlacek.
+    Josh Goldberg, Harish Lall, Evan MacGregor
+    <br>
+    <small>also Albert Armea, Javier Camino, and Aaron Sedlacek</small>
   </div>
 </footer>

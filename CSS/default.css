@@ -446,6 +446,10 @@ footer hr {
   width: 350px;
   border: 1px dashed #ccc;
 }
+footer small {
+  font-size: 84%;
+  color: #777;
+}
 
 
 /* Editable Components
