@@ -166,7 +166,7 @@
   //	* Will not work if a user is in `users` with the same email
   //	* Will not work if a user is in `FacebookUsers` with
   //      the same user id or facebook ID
-  function dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, $role){
+  function dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, $role='Unverified'){
     // If adding the user to the database normally failed, stop
 	  if(!dbUsersAdd($dbConn, $username, "", $email, $role)){
 		  // email already exists in database

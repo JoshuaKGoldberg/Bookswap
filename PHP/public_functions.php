@@ -165,7 +165,7 @@
     
     // If it didn't work, try to add the user, then log in again
     if(!$user_info){
-      dbFacebookUsersAdd($dbConn, $username, $fb_id, $email, 0);
+      dbFacebookUsersAdd($dbConn, $username, $fb_id, $email);
       $user_info = facebookLoginAttempt($dbConn, $fb_id);
     }
 
