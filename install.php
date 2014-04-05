@@ -183,5 +183,5 @@
       </section>
       
     </body>
-
+  <?php echo getJS('jquery.min'); ?>
 </html>
