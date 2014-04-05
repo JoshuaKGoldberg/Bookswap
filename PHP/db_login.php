@@ -71,6 +71,7 @@
   // Does not check for EU or other styles of school emails
   function isEmailAcademic($string) {
     $test = '.edu';
+    if(strlen($string) < strlen($test)) return false;
     return substr_compare($string, $test, -strlen($test), strlen($test)) === 0;
   }
   

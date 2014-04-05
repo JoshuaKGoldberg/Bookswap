@@ -71,21 +71,31 @@
       $salted = "";
     }
     
+    // email_edu is only populated if it's an .edu email (not from Facebook)
+    echo 'email is ' . $email . PHP_EOL;
+    if(endsWith($email, '.edu')) {
+      $email_edu = $email;
+    }
+    else {
+      $email_edu = '';
+    }
+    
     // Run the insertion query
     $query = '
       INSERT INTO  `users` (
-        `username`, `password`, `email`, `role`, `salt`
+        `username`, `password`, `email`, `email_edu`, `role`, `salt`
       )
       VALUES (
-        :username, :password, :email, :role, :salt
+        :username, :password, :email, :email_edu, :role, :salt
       )
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':username' => $username,
-                          ':password' => $salted,
-                          ':email'    => $email,
-                          ':role'     => $role,
-                          ':salt'     => $salt));
+    $stmnt->execute(array(':username'  => $username,
+                          ':password'  => $salted,
+                          ':email'     => $email,
+                          ':email_edu' => $email_edu,
+                          ':role'      => $role,
+                          ':salt'      => $salt));
     
     // If unverified, also add an entry to `user_verifications`
     if(empty($role) || !$role || $role == 'Unverified') {
@@ -117,11 +127,13 @@
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
     
-    // Notify the user (this function is part of what's called by publicCreateUser)
-    sendVerificationEmail($dbConn, $user_id, $username, $email, $code);
+    // If it's a valid .edu email, notifiy them with their verification code
+    if(endsWith($email, '.edu')) {
+      sendVerificationEmail($dbConn, $user_id, $username, $email, $code);
+    }
   }
   
-  // resendVerificationEmail(#user_id, "username", "email", "code")
+  // sendVerificationEmail(#user_id, "username", "email", "code")
   // Helper function to send a verification email to a user
   // Returns the bool status of the mail() call
   function sendVerificationEmail($dbConn, $user_id, $username, $email, $code) {
@@ -611,4 +623,15 @@
     $stmnt->execute(array(':action' => $action));
     return $stmnt->fetchAll();
   }
+  
+  
+  /* Utility functions
+  */
+  function startsWith($haystack, $needle) {
+    return $needle === "" || strpos($haystack, $needle) === 0;
+  }
+  function endsWith($haystack, $needle) {
+    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+  }
+
 ?>

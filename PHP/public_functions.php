@@ -55,7 +55,7 @@
       return false;
     }
 
-    // If successful, log in and send the verification email
+    // If successful, log the user in
     if(dbUsersAdd($dbConn, $username, $password, $email)) {
       $arguments['username'] = $arguments['j_username'];
       $arguments['password'] = $arguments['j_password'];
