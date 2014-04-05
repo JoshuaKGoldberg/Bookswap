@@ -61,6 +61,40 @@
     eval('?><?php $tabs = 0;?>' . $content . PHP_EOL);
   }
   
+  // TemplatePrintToVar("name", #tabs, {_TARGS})
+  // Captures TemplatePrint output and returns it as a string, using output buffering
+  function TemplatePrintToVar($name, $tabs=0, $_TARGS=[]) {
+    // Start output buffering
+    ob_start(); 
+    
+    // Do TemplatePrint normally
+    TemplatePrint($name, $tabs, $_TARGS);
+    
+    // Get the output buffer into a variable
+    $output = ob_get_contents();
+    
+    // Stop output buffering, and return
+    ob_end_clean();
+    return $output;
+  }
+  
+  // TemplatePrintSmallToVar("name", #tabs, {_TARGS})
+  // Captures TemplatePrintSmall output and returns it as a string, using output buffering
+  function TemplatePrintSmallToVar($name, $_TARGS=[]) {
+    // Start output buffering
+    ob_start(); 
+    
+    // Do TemplatePrint normally
+    TemplatePrint($name, $_TARGS);
+    
+    // Get the output buffer into a variable
+    $output = ob_get_contents();
+    
+    // Stop output buffering, and return
+    ob_end_clean();
+    return $output;
+  }
+  
   // PrintRequest("function_name", [args])
   // Prints an HTML form that will be picked up by JS on page load
   // JS will then send a public request to function_name with the arguments
