@@ -17,11 +17,7 @@
     }
     
     // Since they did, copy the user info over
-    foreach($user_info as $key => $value)
-      if(!is_numeric($key)) // Skip '0', '1', etc.
-        $_SESSION[$key] = $value;
-    $_SESSION['Logged In'] = time();
-    
+    copyUserToSession($user_info);
     return true;
   }
   
@@ -35,12 +31,21 @@
 		   return false;
 	  }
 	  // It does, copy the user info over
-	  foreach($user_info as $key=>$value)
-		if(!is_numeric($key)) // Skip '0', '1', etc.
-			$_SESSION[$key] = $value;
-	  $_SESSION['Logged In'] = time();
-	  
+	  copyUserToSession($user_info);
 	  return true;
+  }
+  
+  // copyUserToSession({user_info})
+  // Copies user_info to $_SESSION, ignoring numeric keys and passwords
+  function copyUserToSession($user_info) {
+    foreach($user_info as $key => $value) {
+      // Skip passwords and '0', '1', etc.
+      if(!is_numeric($key) && stripos($key, 'password') === false) {
+        $_SESSION[$key] = $value;
+      }
+    }
+    // Record the logged in time as well
+    $_SESSION['Logged In'] = time();
   }
   
   // loginCheckPassword("email", "password")
