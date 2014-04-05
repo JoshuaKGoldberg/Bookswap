@@ -26,20 +26,13 @@
       <?php else: ?>
       Please enter one for us to send a verification email to.
       <form id="verif_email_create" action="sendVerifEmailForm();">
-        <input id="email_edu" name="email_edu" type="email" class="medium" placeholder="a .edu address">
-        <br>
-        <br>
-        <?php if(!$_SESSION['password'] || !strlen($_SESSION['password'])): ?>
-        <br>
+        <input id="email_edu" name="email_edu" type="email" class="medium verif_input" placeholder="a .edu address">
         <p class="standard_main standard_vert medium">
           If you'd like, you can also set a password to log in with either email.
           <br>
-          <br>
-          <input id="password" name="password" type="password" placeholder="a new password">
-          <input id="password_confirm" name="password_confirm" type="password" placeholder="again, just to be sure">
+          <input id="password" name="password" type="password" placeholder="new password (optional)">
+          <input id="password_confirm" name="password_confirm" type="password" class="verif_input" placeholder="again, just to be sure">
         </p>
-        <br>
-        <?php endif; ?>
         <input type="submit" class="big pad-h">
       </form>
       <?php endif; ?>
