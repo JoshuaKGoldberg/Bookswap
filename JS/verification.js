@@ -21,3 +21,18 @@ function receiveVerifStatus(result) {
 function setVerifStatusText(str) {
   $("#verif_loader").html("<br>" + str);
 }
+
+function sendVerifEmailForm(event) {
+  event.preventDefault();
+  sendRequestForm("publicSetVerificationEmail", ["email_edu", "password", "password_confirm"], getVerifEmailBack, ensureVerifEmailGood);
+}
+
+function getVerifEmailBack(results) {
+  console.log("Results");
+  console.log(results);
+}
+
+function ensureVerifEmailGood() {
+  console.log("Checking");
+  console.log(arguments);
+}
