@@ -63,6 +63,10 @@ a, .a-emph, input.a-emph {
   padding-bottom: 117px;
   line-height: 140%;
 }
+.pad-h {
+  padding-right: 21px;
+  padding-left: 21px;
+}
 .unemph {
   font-size: 70%;
   font-style: italic;
@@ -109,7 +113,6 @@ input {
   max-width: 100%;
   border: 1px solid #988470;
   outline: none;
-  font-style: italic;
   font-size: 21px;
   color: #564942;
   text-shadow: 0 0 3px #ccc;
@@ -126,6 +129,11 @@ input.large {
   border-radius: 28px;
   font-size: 28px;
   color: #564228;
+}
+input[type=text],
+input[type=email],
+input[type=password] {
+  font-style: italic;
 }
 input[type=submit] {
   cursor: pointer;

@@ -29,7 +29,7 @@ function joinEnsure(settings) {
   
   // The email must be an .edu address
   if(!endsWith($("#j_email").val(), '.edu')) {
-    text_display.text("You need to use a .edu email address.");
+    text_display.html("You need to use a .edu email address.<br><small>You can always switch to a non-.edu one later</small>");
     return false;
   }
   
@@ -88,7 +88,7 @@ function getPasswordSecurityResult(test, line) {
 
 function sayEmailSecurity(str) {
   if(!endsWith(str, '.edu'))
-    return "You need to use a .edu email address.";
+    return "You need to use a .edu email address.<br><small class='unemph'>You can always switch to a non-.edu one later</small>";
 }
 
 function endsWith(str, suffix) { return str.indexOf(suffix, str.length - suffix.length) !== -1; }
