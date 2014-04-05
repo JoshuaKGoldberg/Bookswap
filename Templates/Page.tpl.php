@@ -27,6 +27,9 @@
       <?php
         // The default CSS file should be printed immediately, so it loads first
         echo getCSS('default') . PHP_EOL;
+  
+        // Include JQuery before everything, so pages can have their own JS files using it
+        echo getJS('jquery.min');
       ?>
     </head>
     

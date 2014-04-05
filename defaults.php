@@ -90,7 +90,7 @@
   function getNumBooks() { return 'dozens of'; }
   
   // Default include files
-  function getDefaultJS() { return ['jquery-2.0.3.min', 'requests', 'login', 'header', 'default']; }
+  function getDefaultJS() { return ['requests', 'login', 'header', 'default']; }
   function getDefaultCSS() { return ['normalize']; }
   function getDefaultFonts() {
     $output = '';
