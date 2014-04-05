@@ -72,7 +72,6 @@
     }
     
     // email_edu is only populated if it's an .edu email (not from Facebook)
-    echo 'email is ' . $email . PHP_EOL;
     if(endsWith($email, '.edu')) {
       $email_edu = $email;
     }
