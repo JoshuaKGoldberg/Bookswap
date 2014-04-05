@@ -128,14 +128,14 @@
     
     // If it's a valid .edu email, notifiy them with their verification code
     if(endsWith($email, '.edu')) {
-      sendVerificationEmail($dbConn, $user_id, $username, $email, $code);
+      sendVerificationEmail($user_id, $username, $email, $code);
     }
   }
   
   // sendVerificationEmail(#user_id, "username", "email", "code")
   // Helper function to send a verification email to a user
   // Returns the bool status of the mail() call
-  function sendVerificationEmail($dbConn, $user_id, $username, $email, $code) {
+  function sendVerificationEmail($user_id, $username, $email, $code) {
     // $to = $username . '<' . $email . '>';
     $to = $email;
     $subject = 'BookSwap Verification Time!';
@@ -633,4 +633,8 @@
     return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
   }
 
+  function emailBeingUsed($dbConn, $email) {
+    return getRowValue($dbConn, 'users', 'email', 'email', $email)
+        && getRowValue($dbConn, 'users', 'email_edu', 'email_edu', $email);
+  }
 ?>
