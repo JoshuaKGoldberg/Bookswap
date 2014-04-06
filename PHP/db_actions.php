@@ -55,7 +55,8 @@
   // Sample usage: dbUsersAdd($dbConn, $username, $password, $email, $role);
   function dbUsersAdd($dbConn, $username, $password, $email, $role='Unverified') {
     // Ensure the email isn't already being used
-    if(checkKeyExists($dbConn, 'users', 'email', $email)) {
+    if(checkKeyExists($dbConn, 'users', 'email', $email)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
       echo $email . ' is already being used.';
       return false;
     }

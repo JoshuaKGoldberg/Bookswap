@@ -50,7 +50,8 @@
     }
     
     // Also make sure that email isn't taken
-    if(checkKeyExists($dbConn, 'users', 'email', $email)) {
+    if(checkKeyExists($dbConn, 'users', 'email', $email)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
       if(!$noverbose) echo 'The email \'' . $email . '\' is already taken :(';
       return false;
     }
