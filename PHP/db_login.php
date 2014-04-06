@@ -6,10 +6,14 @@
   // If successfull, the timetamp and users info are copied to $_SESSION
   // Otherwise $_SESSION['Fail Counter'] is incremented
   function loginAttempt($dbConn, $email, $password) {
-    // First check if the passwords match
+    // First check if the passwords match on either email or email_edu
     $user_info = loginCheckPassword($dbConn, $email, $password);
     if(!$user_info) {
-      // If they didn't, increase the session's fail counter
+      $user_info = loginCheckPassword($dbConn, $email, $password, true);
+    }
+      
+    // If they didn't, increase the session's fail counter
+    if(!$user_info) {
       if(!isset($_SESSION['Fail Counter']))
         $_SESSION['Fail Counter'] = 1;
       else ++$_SESSION['Fail Counter'];
@@ -48,13 +52,13 @@
     $_SESSION['Logged In'] = time();
   }
   
-  // loginCheckPassword("email", "password")
+  // loginCheckPassword("email", "password", #is_edu)
   // Returns whether the password matches
   // false is returned on failure
   // $user_info (an associative array of user info) is returned on success
-  function loginCheckPassword($dbConn, $email, $password) {
+  function loginCheckPassword($dbConn, $email, $password, $is_edu=false) {
     // Grab all relevant information about the user from the database
-    $user_info = dbUsersGet($dbConn, $email, 'email');
+    $user_info = dbUsersGet($dbConn, $email, $is_edu ? 'email' : 'email_edu', true);
     
     // Check if the user has a password in the database
     // (If they don't, they're probably using another authentication method)
