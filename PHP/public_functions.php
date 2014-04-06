@@ -50,12 +50,13 @@
     }
     
     // Also make sure that email isn't taken
-    if(checkKeyExists($dbConn, 'users', 'email', $email)) {
+    if(checkKeyExists($dbConn, 'users', 'email', $email)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
       if(!$noverbose) echo 'The email \'' . $email . '\' is already taken :(';
       return false;
     }
 
-    // If successful, log in and send the verification email
+    // If successful, log the user in
     if(dbUsersAdd($dbConn, $username, $password, $email)) {
       $arguments['username'] = $arguments['j_username'];
       $arguments['password'] = $arguments['j_password'];
@@ -93,8 +94,7 @@
   function publicVerifyUser($arguments, $noverbose=false) {
     // The user must be authenticated, and logging into their own thing
     if(!UserLoggedIn()) {
-      if(!$noverbose)
-        echo 'You must be logged in to do this';
+      if(!$noverbose) echo 'You must be logged in to do this';
       return false;
     }
     $user_id = $arguments['user_id'];
@@ -132,6 +132,79 @@
     return true;
   }
   
+  // publicSetVerificationEmail({...})
+  // Sets the current user's verification email, and if directed, the password
+  // Required fields:
+  // * j_email
+  // Optional fields:
+  // * j_password
+  function publicSetVerificationEmail($arguments, $noverbose=false) {
+    if(!UserLoggedIn()) {
+      if(!$noverbose) echo 'You must be logged in.';
+      return false;
+    }
+    if(!isset($arguments['j_email'])) {
+      if(!$noverbose) echo 'No email provided!';
+      return false;
+    }
+    
+    $email = $arguments['j_email'];
+    $user_id = $_SESSION['user_id'];
+    $password = $arguments['j_password'];
+    $username = $_SESSION['username'];
+    
+    // The email must be an academic email
+    if(!isStringEmail($email)) {
+      if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
+      return false;
+    }
+    if(!isEmailAcademic($email)) {
+      if(!$noverbose) echo 'Sorry, right now we\'re only allowing school emails. Please use a .edu email address.';
+      return false;
+    }
+    
+    // Make sure the email isn't being used yet
+    $dbConn = getPDOQuick($arguments);
+    if(emailBeingUsed($dbConn, $email)) {
+      if(!$noverbose) echo 'That email is already being used.';
+      return false;
+    }
+    
+    // If a password is given, check that too
+    if(isset($arguments['j_password'])) {
+      if($password) {
+        // The password must be secure
+        if(!isPasswordSecure($password)) {
+          echo 'Your password isn\'t secure enough.';
+          return false;
+        }
+      }
+      
+      // Since the password is secure, give it to the user
+      $salt = hash('sha256', uniqid(mt_rand(), true));
+      $salted = hash('sha256', $salt . $password);
+      $query = '
+        UPDATE `users` 
+        SET `password` = :password, 
+            `salt` = :salt
+        WHERE  `user_id` = :user_id
+      ';
+      $stmnt = getPDOStatement($dbConn, $query);
+      $stmnt->execute(array(':password' => $salted,
+                            ':salt'     => $salt,
+                            ':user_id'  => $user_id));
+    }
+    
+    // All is is good, give the user the email_edu and code
+    setRowValue($dbConn, 'users', 'email_edu', $email, 'user_id', $user_id);
+    dbUserVerificationAddCode($dbConn, $user_id, $username, $email);
+    
+    // Give the user's session the user information
+    copyUserToSession(getUserInfo($dbConn, $user_id));
+    
+    if(!$noverbose) echo 'Yes';
+  }
+  
   // publicLogin({...})
   // Public pipe to loginAttempt("username", "password")
   // Required fields:
@@ -142,7 +215,7 @@
     $email = $arguments['email'];
     $password = $arguments['password'];
     if(loginAttempt($dbConn, $email, $password) && !$noverbose) {
-      echo 'Yes';
+      if(!$noverbose) echo 'Yes';
       return true;
     }
     return false;
@@ -646,10 +719,10 @@
   // * "dollars"
   // * "cents"
   // * "state"
-  function publicEntryAdd($arguments) {
+  function publicEntryAdd($arguments, $noverbose=false) {
     // Make sure there's a user, and get that user's info
     if(!UserLoggedIn()) {
-      echo 'You must be logged in to add an entry.';
+      if(!$noverbose) echo 'You must be logged in to add an entry.';
       return false;
     }
     $username = $_SESSION['username'];
@@ -669,7 +742,7 @@
     $entry_id = dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state);
     if($entry_id !== false) {
       sendAllEntryNotifications($dbConn, $entry_id);
-      echo 'Entry added successfully!';
+      if(!$noverbose) echo 'Entry added successfully!';
     }
   }
   
@@ -683,7 +756,7 @@
   function publicEntryEditPrice($arguments) {
     // Make sure there's a user, and get that user's info
     if(!UserLoggedIn()) {
-      echo 'You must be logged in to add an entry.';
+      if(!$noverbose) echo 'You must be logged in to add an entry.';
       return false;
     }
     $user_id = $_SESSION['user_id'];

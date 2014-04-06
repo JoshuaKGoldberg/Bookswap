@@ -19,7 +19,9 @@ $(document).ready(function() {
 // Called when the user attempts to submit an account creation
 // joinEnsure makes sure all fields are filled and similar 
 function joinSubmit() {
-  sendRequestForm("publicCreateUser", ["j_username", "j_password", "j_password_confirm", "j_email"], joinComplete, joinEnsure);
+  sendRequestForm("publicCreateUser", 
+    ["j_username", "j_password", "j_password_confirm", "j_email"], 
+    joinComplete, joinEnsure);
 }
 
 // Checks for common problems with front-end user registration
@@ -29,7 +31,7 @@ function joinEnsure(settings) {
   
   // The email must be an .edu address
   if(!endsWith($("#j_email").val(), '.edu')) {
-    text_display.text("You need to use a .edu email address.");
+    text_display.html("You need to use a .edu email address.<br><small>You can always switch to a non-.edu one later</small>");
     return false;
   }
   
@@ -39,15 +41,15 @@ function joinEnsure(settings) {
     return false;
   }
   
-  // The passwords have to match
-  if(settings.j_password != settings.j_password_confirm) {
-    text_display.text("The passwords don't match...");
+  // The passwords have to be secure
+  if(sayPasswordSecurity($("#j_password").val())) {
+    text_display.text("Your password isn't secure enough!");
     return false;
   }
   
-  // The passwords also have to be secure
-  if(sayPasswordSecurity($("#j_password").val())) {
-    text_display.text("Your password isn't secure enough!");
+  // The passwords also have to match
+  if(settings.j_password != settings.j_password_confirm) {
+    text_display.text("The passwords don't match...");
     return false;
   }
     
@@ -88,7 +90,7 @@ function getPasswordSecurityResult(test, line) {
 
 function sayEmailSecurity(str) {
   if(!endsWith(str, '.edu'))
-    return "You need to use a .edu email address.";
+    return "You need to use a .edu email address.<br><small class='unemph'>You can always switch to a non-.edu one later</small>";
 }
 
 function endsWith(str, suffix) { return str.indexOf(suffix, str.length - suffix.length) !== -1; }
@@ -101,7 +103,6 @@ function joinComplete(result) {
   // If the login attempt was successful, refresh
   if(result == "Yes") {
     location.reload();
-    window.scrollTo(0);
   }
   // Otherwise complain
   $("#user_login_text").text(result);

@@ -6,10 +6,14 @@
   // If successfull, the timetamp and users info are copied to $_SESSION
   // Otherwise $_SESSION['Fail Counter'] is incremented
   function loginAttempt($dbConn, $email, $password) {
-    // First check if the passwords match
+    // First check if the passwords match on either email or email_edu
     $user_info = loginCheckPassword($dbConn, $email, $password);
     if(!$user_info) {
-      // If they didn't, increase the session's fail counter
+      $user_info = loginCheckPassword($dbConn, $email, $password, true);
+    }
+      
+    // If they didn't, increase the session's fail counter
+    if(!$user_info) {
       if(!isset($_SESSION['Fail Counter']))
         $_SESSION['Fail Counter'] = 1;
       else ++$_SESSION['Fail Counter'];
@@ -17,11 +21,7 @@
     }
     
     // Since they did, copy the user info over
-    foreach($user_info as $key => $value)
-      if(!is_numeric($key)) // Skip '0', '1', etc.
-        $_SESSION[$key] = $value;
-    $_SESSION['Logged In'] = time();
-    
+    copyUserToSession($user_info);
     return true;
   }
   
@@ -35,21 +35,30 @@
 		   return false;
 	  }
 	  // It does, copy the user info over
-	  foreach($user_info as $key=>$value)
-		if(!is_numeric($key)) // Skip '0', '1', etc.
-			$_SESSION[$key] = $value;
-	  $_SESSION['Logged In'] = time();
-	  
+	  copyUserToSession($user_info);
 	  return true;
   }
   
-  // loginCheckPassword("email", "password")
+  // copyUserToSession({user_info})
+  // Copies user_info to $_SESSION, ignoring numeric keys and passwords
+  function copyUserToSession($user_info) {
+    foreach($user_info as $key => $value) {
+      // Skip passwords and '0', '1', etc.
+      if(!is_numeric($key) && stripos($key, 'password') === false) {
+        $_SESSION[$key] = $value;
+      }
+    }
+    // Record the logged in time as well
+    $_SESSION['Logged In'] = time();
+  }
+  
+  // loginCheckPassword("email", "password", #is_edu)
   // Returns whether the password matches
   // false is returned on failure
   // $user_info (an associative array of user info) is returned on success
-  function loginCheckPassword($dbConn, $email, $password) {
+  function loginCheckPassword($dbConn, $email, $password, $is_edu=false) {
     // Grab all relevant information about the user from the database
-    $user_info = dbUsersGet($dbConn, $email, 'email');
+    $user_info = dbUsersGet($dbConn, $email, $is_edu ? 'email' : 'email_edu', true);
     
     // Check if the user has a password in the database
     // (If they don't, they're probably using another authentication method)
@@ -71,6 +80,7 @@
   // Does not check for EU or other styles of school emails
   function isEmailAcademic($string) {
     $test = '.edu';
+    if(strlen($string) < strlen($test)) return false;
     return substr_compare($string, $test, -strlen($test), strlen($test)) === 0;
   }
   
