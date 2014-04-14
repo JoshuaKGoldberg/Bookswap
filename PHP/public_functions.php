@@ -116,6 +116,7 @@
       if(!$noverbose)
         echo 'Invalid code provided! Please try again.';
       print_r($arguments);
+      echo '[' . $code . ' vs ' . $code_actual . ']';
       echo PHP_EOL . '<br>' . PHP_EOL;
       echo PHP_EOL . '<br>' . PHP_EOL;
       print_r($_SESSION);
@@ -587,9 +588,11 @@
   // publicBookImportFull({...})
   // Sends a request to the Google Books API for ISBNs
   // If it receives any, it attempts to add them to the database
-  function publicBookImportFull($arguments) {
+  function publicBookImportFull($arguments, $noverbose=false) {
     $value = urlencode($arguments['value']);
-    echo '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL;
+    if(!$noverbose) {
+      echo '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL;
+    }
     
     // Start the Google query
     $query = 'https://www.googleapis.com/books/v1/volumes?';
@@ -599,28 +602,12 @@
     $query .= '&key=' . getGoogleKey();
     
     // Run the query and get the results
-    $result = json_decode(getHTTPPage($query));
+    $arguments['data'] = getHTTPPage($query);
+    $arguments['term'] = $value;
     
-    // Get the array of items, if it's found
-    $items = followPath($result, ['items']);
-    if(!$items) {
-      echo 'Nothing found for "' . $value . '"';
-      return;
-    }
-    
-    // Since there are items, get their identifiers
-    $dbConn = getPDOQuick($arguments);
-    foreach($items as $item) {
-      $identifiers = followPath($item, ['volumeInfo', 'industryIdentifiers']);
-      if(!$identifiers) continue;
-      
-      // Using all the ISBN_13 identities...
-      foreach($identifiers as $identity)
-        if($identity->type == "ISBN_13" || $identity->type == "ISBN")
-          // If it's successfully added, continue to the next item
-          if(bookImportFullCheck($dbConn, $identity->identifier))
-            continue;
-    }
+    // Use the private function to add the JSON book to the database
+    require_once('imports.inc.php');
+    return bookImportFromJSON($arguments, $noverbose);
   }
   // Real function to add a book, if the ISBN isn't already there
   function bookImportFullCheck($dbConn, $isbn) {

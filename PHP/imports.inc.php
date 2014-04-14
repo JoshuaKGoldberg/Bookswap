@@ -10,21 +10,21 @@
         $data = $arguments['data'];
         // If $data is a string, and not (JSON) an object/array, convert it
         if(is_string($data)) {
-            $data = json_decode($data);
+          $data = json_decode($data);
         }
         
         // Get the array of book items, if found
         $term = isset($arguments['term']) ? $arguments['term'] : false;
         $items = followPath($data, ['items']);
         if(!$items) {
-            if($noverbose) {
-                if($term) {
-                    echo 'Nothing found for ' . $term . '!';
-                } else {
-                    echo 'Nothing found!';
-                }
+          if($noverbose) {
+            if($term) {
+              echo 'Nothing found for ' . $term . '!';
+            } else {
+              echo 'Nothing found!';
             }
-            return false;
+          }
+          return false;
         }
         
         // Get the identifiers of each item
