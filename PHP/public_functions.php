@@ -609,39 +609,7 @@
     require_once('imports.inc.php');
     return bookImportFromJSON($arguments, $noverbose);
   }
-  // Real function to add a book, if the ISBN isn't already there
-  function bookImportFullCheck($dbConn, $isbn) {
-    // Make sure the book doesn't already exist
-    if(doesBookAlreadyExist($dbConn, $isbn))
-      return;
-      
-    // Since it doesn't, call Google to add it
-    if(publicAddBook(array('isbn'=>$isbn), true)) {
-      echo '<aside class="success">' . getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn)) . ' added</aside>';
-    }
-    else echo '<aside class="failure">' . $isbn . ' not added</aside>';
-  }
-  // Navigate through the STD->pointers
-  function followPath($object, $names) {
-    $current = $object;
-    foreach($names as $name) {
-      if(isset($current->$name))
-        $current = $current->$name;
-      else return false;
-    }
-    return $current;
-  }
-  // Mention a book already exists
-  function doesBookAlreadyExist($dbConn, $isbn) {
-    if(checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-      echo '<aside>ISBN ' . $isbn . ' is already in our database as ';
-      echo getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn));
-      echo '</aside>';
-      return true;
-    }
-    return false;
-  }
-
+  
   // publicPrintUserBooks({...})
   // Prints the formatted displays of the books on a user's list
   // Required arguments:
