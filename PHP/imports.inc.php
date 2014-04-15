@@ -27,9 +27,11 @@
           return false;
         }
         
-        // Get the identifiers of each item
+        // Get enough info from each one to add it to the database
         $dbConn = getPDOQuick($arguments);
         foreach($items as $item) {
+            $arguments['book'] = $item;
+            
             // Check for identifiers of the book, and only do work if they exist
             $identifiers = followPath($item, ['volumeInfo', 'industryIdentifiers']);
             if(!$identifiers) {
@@ -39,9 +41,20 @@
             // Attempt to add it on the first ISBN style identifier
             foreach($identifiers as $identity) {
                 if($identity->type == "ISBN_13" || $identity->type == "ISBN") {
-                    if(bookImportFullCheck($dbConn, $identity->identifier)) {
-                        // Only stop this item if that was successful
-                        continue;
+                    $isbn = $arguments['isbn'] = $identity->identifier;
+      
+                    // Make sure the book doesn't already exist
+                    if(doesBookAlreadyExist($dbConn, $isbn)) {
+                       return;
+                    }
+      
+                    // If adding it was successful, display a link to it
+                    if(bookProcessObject($arguments, true)) {
+                        echo '<aside class="success">' . getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn)) . ' added</aside>';
+                    }
+                    // Otherwise complain
+                    else {
+                        echo '<aside class="failure">' . $isbn . ' not added</aside>';
                     }
                 }
             }
@@ -63,10 +76,11 @@
       }
     }
     
+    // bookProcessObject({...})
     // Processes a $book object from the Google API, with ->volumeInfo
     // Required arguments:
     // * {book}
-    // * #isbn
+    // * "isbn"
     function bookProcessObject($arguments, $noverbose=false) {
         $book = $arguments['book'];
         $isbn = $arguments['isbn'];
