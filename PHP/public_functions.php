@@ -164,10 +164,21 @@
       return false;
     }
     
-    // Make sure the email isn't being used yet
+    // Check if the email is being used already
     $dbConn = getPDOQuick($arguments);
     if(emailBeingUsed($dbConn, $email)) {
-      if(!$noverbose) echo 'That email is already being used.';
+      // If it is, see if you can log in with that password
+      if(loginAttempt($dbConn, $email, $password) && !$noverbose) {
+        setRowValue($dbConn, 'users', 'email_edu', $email, 'user_id', $user_id);
+        if(!$noverbose) echo 'Yes';
+        return true;
+      }
+      
+      // That failed 
+      if(!$noverbose) {
+        echo 'That email is already being used.<br>';
+        echo '<small>If you have an account under ' . $email . ', you can log in here to unify the accounts.</small>';
+      }
       return false;
     }
     
