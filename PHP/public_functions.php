@@ -167,12 +167,41 @@
     // Check if the email is being used already
     $dbConn = getPDOQuick($arguments);
     if(emailBeingUsed($dbConn, $email)) {
-      // If it is, see if you can log in with that password
-      if(loginAttempt($dbConn, $email, $password) && !$noverbose) {
-        setRowValue($dbConn, 'users', 'email_edu', $email, 'user_id', $user_id);
-        if(!$noverbose) echo 'Yes';
+      // If it is, see if you can log in with that password, to unify the accounts
+      if(loginCheckPassword($dbConn, $email, $password)) {
+        $edu_user_id = getRowValue($dbConn, 'users', 'user_id', 'email_edu', $email);
+        $fb_user_id = $_SESSION['user_id'];
+        $fb_id = $_SESSION['fb_id'];
+        $fb_email = $_SESSION['email'];
+        
+        // Add the non-.edu email to the user as the primary email
+        setRowValue($dbConn, 'users', 'email', $fb_email, 'user_id', $edu_user_id);
+        
+        // Delete the Facebook user, which deletes the facebook verification too
+        $query = 'DELETE FROM `bookswap`.`users` WHERE `users`.`user_id` = :user_id';
+        $stmnt = getPDOStatement($dbConn, $query);
+        $stmnt->execute(array(':user_id' => $fb_user_id));
+        
+        // Add a new `facebookusers` row for the .edu user
+        $query = '
+            INSERT INTO `bookswap`.`facebookusers` (
+                `fb_id`, `user_id`
+              ) 
+              VALUES (
+                :fb_id, :edu_user_id
+              )';
+        $stmnt = getPDOStatement($dbConn, $query);
+        $stmnt->execute(array('fb_id' => $fb_id,
+                              'edu_user_id' => $edu_user_id));
+        
+        // Log in with the new user
+        loginAttempt($dbConn, $email, $password);
+        if(!$noverbose) {
+            echo 'Yes';
+        }
         return true;
       }
+      return false;
       
       // That failed 
       if(!$noverbose) {
