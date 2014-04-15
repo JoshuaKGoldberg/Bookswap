@@ -61,21 +61,6 @@
         }
     }
     
-    // Real function to add a book, if the ISBN isn't already there
-    function bookImportFullCheck($dbConn, $isbn) {
-      // Make sure the book doesn't already exist
-      if(doesBookAlreadyExist($dbConn, $isbn)) {
-        return;
-      }
-        
-      // Since it doesn't, call Google to add it
-      if(publicAddBook(array('isbn'=>$isbn), true)) {
-        echo '<aside class="success">' . getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn)) . ' added</aside>';
-      } else {
-        echo '<aside class="failure">' . $isbn . ' not added</aside>';
-      }
-    }
-    
     // bookProcessObject({...})
     // Processes a $book object from the Google API, with ->volumeInfo
     // Required arguments:
