@@ -63,6 +63,48 @@
       }
     }
     
+    // Processes a $book object from the Google API, with ->volumeInfo
+    // Required arguments:
+    // * {book}
+    function bookProcessObject($arguments, $noverbose=false) {
+        $book = $arguments['book'];
+        $isbn = $arguments['isbn'];
+        
+        // $book->volumeInfo is completely required for this
+        if(!isset($book->volumeInfo) || !$book->volumeInfo) {
+            return false;
+        }
+        $info = $book->volumeInfo;
+        
+        // Don't continue if the title or authors are missing
+        if(!isset($info->title) || !isset($info->authors)) {
+            return false;
+        }
+        
+        // Copy the relevant information to variables
+        $title = $info->title;
+        $authors = $info->authors;
+        $description = isset($info->description) ? explode("\n", $info->description)[0] : '';
+        $publisher = isset($info->publisher) ? $info->publisher : '';
+        $year = isset($info->publishedDate) ? $info->publishedDate : '';
+        $pages = isset($info->pageCount) ? $info->pageCount : '';
+        $googleID = isset($book->id) ? $book->id : '';
+        
+        // Don't continue if the title or authors are falsy
+        if(!$title || !$authors) {
+            return false;
+        }
+        
+        // Pipe to the actual dbBooksAdd function
+        $dbConn = getPDOQuick($arguments);
+        if(dbBooksAdd($dbConn, $isbn, $googleID, $title, $authors, $description, $publisher, $year, $pages)) {
+          if(!$noverbose) echo 'Yes';
+          return true;
+        }
+        return false;
+        
+    }
+    
     // Mention a book already exists
     function doesBookAlreadyExist($dbConn, $isbn) {
       if(checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
@@ -74,7 +116,6 @@
       return false;
     }
     
-  
     // Navigate through the STD->pointers
     function followPath($object, $names) {
       $current = $object;
