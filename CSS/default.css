@@ -108,7 +108,8 @@ section:nth-of-type(2n) .unemph {
 
 /* Inputs
 */
-input {
+input,
+button {
   padding: 3px 7px;
   max-width: 100%;
   border: 1px solid #988470;
@@ -135,7 +136,18 @@ input[type=email],
 input[type=password] {
   font-style: italic;
 }
-input[type=submit] {
+input[type=button],
+input[type=submit],
+button {
+  border-width: 1;
+  background: rgb(255,255,255);
+  background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(254,254,254,1) 35%, rgba(245,245,252,1) 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(35%,rgba(254,254,254,1)), color-stop(100%,rgba(245,245,252,1)));
+  background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(254,254,254,1) 35%,rgba(245,245,252,1) 100%);
+  background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(254,254,254,1) 35%,rgba(245,245,252,1) 100%);
+  background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(254,254,254,1) 35%,rgba(245,245,252,1) 100%);
+  background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(254,254,254,1) 35%,rgba(245,245,252,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f5f5fc',GradientType=0 );
   cursor: pointer;
 }
 
