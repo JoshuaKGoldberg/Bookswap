@@ -21,7 +21,13 @@
 	
     <?php else: ?>
     <div id="badge_second">
-      <?php echo getLinkHTML(false, '<img src="' . getBase() . '/Images/Home.gif" />'); ?>
+      <?php 
+        if($logged && isset($_SESSION['fb_id']) && $_SESSION['fb_id']) {
+          echo getLinkHTML(false, '<img src="https://graph.facebook.com/' . $_SESSION['fb_id'] . '/picture?type=large" />');
+        } else {
+          echo getLinkHTML(false, '<img src="' . getBase() . '/Images/Home.gif" />');
+        }
+      ?>
       <?php 
         if($logged) {
           include('public_functions.php');

@@ -169,6 +169,8 @@ header {
 /* Badge */
 #badge_main img {
   margin-top: 0px;
+  width: 79px;
+  height: 77px;
   border: 1px solid #777;
 }
 #login_information input {
