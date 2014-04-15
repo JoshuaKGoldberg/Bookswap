@@ -317,29 +317,10 @@
     if(!isset($result->items) || !isset($result->items[0])) return;
     $book = $result->items[0];
     
-    // Attempt to get the book's info (stored as volumeInfo)
-    if(!isset($book->volumeInfo)) return;
-    $info = $book->volumeInfo;
-    
-    // Don't continue if the title or authors are missing or blank
-    if(!isset($info->title) || !isset($info->authors)) return;
-      
-    $title = $info->title;
-    $authors = $info->authors;
-    $description = isset($info->description) ? explode("\n", $info->description)[0] : "";
-    $publisher = isset($info->publisher) ? $info->publisher : "";
-    $year = isset($info->publishedDate) ? $info->publishedDate : "";
-    $pages = isset($info->pageCount) ? $info->pageCount : "";
-    $googleID = isset($book->id) ? $book->id : "";
-    
-    // Title and authors can't be blank, but other fields can be
-    if(!$title || !$authors) return;
-    
-    if(dbBooksAdd($dbConn, $isbn, $googleID, $title, $authors, $description, $publisher, $year, $pages)) {
-      if(!$noverbose) echo 'Yes';
-      return true;
-    }
-    return false;
+    // Call the backend bookProcessObject to add the book to the database
+    $arguments['dbConn'] = $dbConn;
+    $arguments['book'] = $book;
+    return bookProcessObject($arguments, $noverbose);
   }
 
   // publicSearch({...})

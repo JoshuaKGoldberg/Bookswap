@@ -66,6 +66,7 @@
     // Processes a $book object from the Google API, with ->volumeInfo
     // Required arguments:
     // * {book}
+    // * #isbn
     function bookProcessObject($arguments, $noverbose=false) {
         $book = $arguments['book'];
         $isbn = $arguments['isbn'];
