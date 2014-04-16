@@ -191,12 +191,13 @@ header {
   margin-right: -16px;
 }
 /* Facebook */
-#fb_holder {
+#facebook_button {
   position: absolute;
+  padding-top: 3px;
   bottom: 3px;
   left: 0;
   width: 210px;
-  height: 25px;
+  height: 22px;
   border: 1px solid #324b93;
   background: rgb(76,105,186);
   background: -moz-linear-gradient(top,  rgba(76,105,186,1) 0%, rgba(60,86,161,1) 100%);
@@ -206,9 +207,11 @@ header {
   background: -ms-linear-gradient(top,  rgba(76,105,186,1) 0%,rgba(60,86,161,1) 100%);
   background: linear-gradient(to bottom,  rgba(76,105,186,1) 0%,rgba(60,86,161,1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c69ba', endColorstr='#3c56a1',GradientType=0 );
+  color: #eee;
+  font-family: "Helvetica Neue", "Helvetica";
+  cursor: pointer;
 }
-/* #fb_holder:hover, */
-#fb_holder.hover {
+#facebook_button:hover {
   background: rgb(90,121,211);
   background: -moz-linear-gradient(top,  rgba(90,121,211,1) 0%, rgba(72,100,177,1) 100%);
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(90,121,211,1)), color-stop(100%,rgba(72,100,177,1)));
@@ -218,9 +221,14 @@ header {
   background: linear-gradient(to bottom,  rgba(90,121,211,1) 0%,rgba(72,100,177,1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5a79d3', endColorstr='#4864b1',GradientType=0 );
 }
-#fb_holder.user {
+#facebook_button.user {
   width: 84px;
 }
+
+#facebook_button img {
+  margin-top: 3px;
+}
+
 /* Search */
 #header_search {
   position: absolute;
