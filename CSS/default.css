@@ -221,12 +221,16 @@ header {
   background: linear-gradient(to bottom,  rgba(90,121,211,1) 0%,rgba(72,100,177,1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5a79d3', endColorstr='#4864b1',GradientType=0 );
 }
-#facebook_button.user {
-  width: 84px;
+.logged #facebook_button {
+  width: 51px;
+  padding-left: 28px;
+  text-align: left;
 }
 
 #facebook_button img {
-  margin-top: 3px;
+  position: absolute;
+  top: 3px;
+  left: 3px;
 }
 
 /* Search */
