@@ -158,6 +158,11 @@
     return isset($_SESSION['role']) && $_SESSION['role'] != 'Unverified';
   }
   
+  // Bool function -  is the user logged into Facebook?
+  function UserLoggedInFacebook() {
+    return isset($_SESSION) && isset($_SESSION['fb_id']) && $_SESSION['fb_id'];
+  }
+  
   // Complains if the user goes where they shouldn't
   // Normally for anonymous users; $for_verification=true indicates for non-verified accounts
   function AccessDenied() {
