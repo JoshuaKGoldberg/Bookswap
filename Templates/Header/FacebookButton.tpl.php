@@ -1,1 +1,1 @@
-<div id="facebook_button">Log In With Facebook</div>
+<div id="facebook_button" onclick="FB.login();">Log In With Facebook</div>
