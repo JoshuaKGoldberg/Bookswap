@@ -227,17 +227,23 @@ header {
   right: 14px;
   left: 217px; /* lel */
 }
+#header_search_form {
+  position: relative;
+  width: 99%;
+}
 #header_search_input {
   height: 101px; /* 6 for padding */
-  width: 99%;
+  width: 100%;
   font-size: 49px;
   color: #999;
 }
 #header_search_results {
   position: absolute;
+  right: -16px; /* 14px + 2 * (1px border) */
+  left: 0;
   margin-top: -1px;
   padding: 7px;
-  border: 1px solid #aaa;
+  border: 1px solid #777;
   border-width: 0 1px 1px 1px;
   background: white;
   z-index: 7;
