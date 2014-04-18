@@ -1,1 +1,7 @@
+# Unicode support in PHP (commit ee60ceed39e65f2bb853a2f430aadf5ab23eec4a)
 AddDefaultCharset UTF-8
+
+RewriteEngine On
+
+# Instead of BookSwap/index.php?page=xyz, use BookSwap/xyz
+RewriteRule ^([0-9a-z]+)$ index.php?page=$1
