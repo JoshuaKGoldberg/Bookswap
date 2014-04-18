@@ -227,6 +227,9 @@ header {
   right: 14px;
   left: 217px; /* lel */
 }
+#header_search, #header_search * {
+  transition: 350ms background;
+}
 #header_search_form {
   position: relative;
   width: 99%;
@@ -251,6 +254,25 @@ header {
 #header_search_results.hidden {
   display: none;
 }
+#header_search.searching * {
+  background: #f7faf7;
+  transition: 140ms background;
+}
+#header_search_form:after {
+  content: "searching...";
+  position: absolute;
+  bottom: 3px;
+  right: 0;
+  text-align: right;
+  font-style: italic;
+  font-size: 2.1em;
+  opacity: 0;
+  transition: 140ms opacity;
+}
+#header_search.searching #header_search_form:after{
+  opacity: .42;
+}
+
 /* Books in search results */
 #header_search_results .book-medium {
   float: left;

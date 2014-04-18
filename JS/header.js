@@ -7,8 +7,10 @@ function searchStart(event) {
   
   // The escape key means to cancel everything
   if(event.keyCode == 27) {
+    $("#header_search").removeClass("searching");
     $("#header_search_input").val("");
     $("#header_search_results").addClass("hidden");
+    return;
   }
   
   // All other events timeout a search
@@ -18,10 +20,14 @@ function searchStart(event) {
     
     // If nothing was searched, clear it
     if(!value) {
+      $("#header_search").removeClass("searching");
       $("#header_search_results").addClass("hidden");
       $("#header_search_results_contents").html("");
       return;
     }
+    
+    // Since something is being searched, add the .searching class
+    $("#header_search").addClass("searching");
     
     // Search on these fields by default
     columns = ["title", "authors", "description"];
@@ -45,6 +51,8 @@ function searchGetResult(results, value) {
   if(value != input.val().trim())
     return;
   
+  // Visually enable the search results
+  $("#header_search").removeClass("searching");
   $("#header_search_results").removeClass("hidden");
   
   // If there aren't any results, complain instead
