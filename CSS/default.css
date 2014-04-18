@@ -533,6 +533,9 @@ footer small {
 .editable {
   text-align: center;
 }
+.editable .requesting input {
+  background: #eee;
+}
 .editable:not(.editing) {
   padding: 3px 7px;
 }
@@ -541,4 +544,13 @@ footer small {
 }
 .editable:hover:not(.editing) {
   border: 1px solid #aaa;
+}
+.editable_butt {
+  font-weight: bold;
+}
+.editable_butt.editable_cancel {
+  color: #733;
+}
+.editable_butt.editable_submit{
+  color: #373;
 }

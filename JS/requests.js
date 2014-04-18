@@ -128,6 +128,7 @@ function loadPrintedRequestResults(result, div) {
   div.outerHTML = result;
 }
 
+
 /* Editable Components */
 /*
   This is the front-end counterpart to PHP/templates.inc.php::PrintEditable.
@@ -154,6 +155,7 @@ function editClick(func_name, settings, event) {
       output = '';
 
   output += "<form>";
+  
   // Having multiple input types means printing them all
   if(settings.hasOwnProperty("types")) {
     output += "<div class='" + target.className + "'>";
@@ -166,6 +168,11 @@ function editClick(func_name, settings, event) {
   else {
     output += "  <input class='" + target.className + "' type='" + (settings.type || 'text') + "' />";
   }
+  
+  // Also print out 'X' and '✓' buttons for canceling
+  output += "<input type='button' class='editable_butt editable_cancel' value='X'>";
+  output += "<input type='submit' class='editable_butt editable_submit' value='✓'>";
+  
   output += "</form>";
   target.innerHTML = output;
   
@@ -177,6 +184,13 @@ function editClick(func_name, settings, event) {
     event.preventDefault();
     editSubmit(event.target, func_name, settings);
   };
+  
+  // Use JQuery to give the cancel button an event with no func_name
+  $(target).find(".editable_cancel")
+    .on("click", function(event) {
+      event.preventDefault();
+      editSubmit(event.target.parentNode, false, settings);
+    })
 }
 
 // When an editable component is submitted, collect the difference in values
@@ -188,16 +202,36 @@ function editSubmit(form, func_name, settings) {
       click_old = settings.click_old,
       value = $(input).val();
   
+  // Set the value and value_old in the used settings object
   settings[index] = value;
   settings[index + "_old"] = value_old;
   
-  sendRequest(func_name, settings, function(results) {
+  // Clear the button elements to prevent what look like duplicate requests
+  $(form)
+    .addClass("requesting")
+    .find(".editable_butt").hide();
+  
+  // If a func_name is given, send that as a request
+  if(func_name) {
+    sendRequest(func_name, settings, function(results) {
+      form.parentNode.onclick = click_old;
+      form.outerHTML = value;
+      if(settings.callback) {
+        if(!window[settings.callback] || !(window[settings.callback] instanceof Function))
+          console.warn(settings.callback + " is not a valid function.");
+        else window[settings.callback](results, settings);
+      }
+    });
+  }
+  // Otherwise just reset it immediately (as from the cancel button)
+  else {
+    window.durp = form;
     form.parentNode.onclick = click_old;
     form.outerHTML = value;
-    if(settings.callback) {
-      if(!window[settings.callback] || !(window[settings.callback] instanceof Function))
-        console.warn(settings.callback + " is not a valid function.");
-      else window[settings.callback](results, settings);
-    }
-  });
+  }
+}
+
+// 
+function editCancel(event, value_old) {
+    // event.target.parentNode.parentNode.innerText = value_old;
 }
