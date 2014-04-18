@@ -251,6 +251,14 @@ header {
 #header_search_results.hidden {
   display: none;
 }
+/* Books in search results */
+#header_search_results .book-medium {
+  float: left;
+  clear: none;
+  width: 49%;
+  height: 105px;
+  min-width: 350px;
+}
 /* Notifications icon
 */
 #notif_icon {
