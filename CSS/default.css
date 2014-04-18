@@ -248,7 +248,7 @@ header {
 #header_search_input {
   height: 101px; /* 6 for padding */
   width: 100%;
-  font-size: 49px;
+  font-size: 2.1em;
   color: #999;
 }
 #header_search_results {
