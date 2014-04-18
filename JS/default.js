@@ -5,8 +5,8 @@
 // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
 (function($) {
   $.QueryString = (function(a) {
-    if(!a) return {};
     var b = {};
+    if(!a) return b;
     for(var i = 0; i < a.length; ++i) {
       var p = a[i].split('=');
       if(p.length != 2) continue;

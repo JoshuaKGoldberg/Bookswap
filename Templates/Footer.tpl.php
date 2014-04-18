@@ -2,15 +2,21 @@
   <div class="standard_main">
     <div>
       <?php
-        if(UserVerified())
+        if(UserVerified()) {
           $links = ['Account', 'Search', 'Import', 'Log Out'];
-        else if(UserLoggedIn())
+        }
+        else if(UserLoggedIn()) {
           $links = ['Account', 'Search', 'Log Out'];
-        else
+        }
+        else {
           $links = ['Search'];
+        }
+        
         for($i = 0, $len = count($links); $i < $len; ++$i)
           $links[$i] = getLinkHTML(strtolower(str_replace(' ', '', $links[$i])), $links[$i]);
-        $links[$i] = getLinkExternal('https://github.com/Diogenesthecynic/Bookswap/', 'Github');
+        
+        $links[] = getLinkExternal('https://github.com/Diogenesthecynic/Bookswap/', 'Github');
+        
         echo implode('<span>&sdot;</span>', $links);
       ?>
     </div>
