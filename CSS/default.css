@@ -256,8 +256,14 @@ header {
   float: left;
   clear: none;
   width: 49%;
-  height: 105px;
+  min-height: 105px;
   min-width: 350px;
+}
+#header_search_results .book-medium .holder {
+  overflow: hidden;
+}
+#header_search_results .book-medium:nth-of-type(2n+1) {
+  clear: both;
 }
 /* Notifications icon
 */
