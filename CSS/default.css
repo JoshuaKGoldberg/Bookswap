@@ -234,6 +234,17 @@ header {
   position: relative;
   width: 99%;
 }
+#header_search_submit {
+  position: absolute;
+  top: 0;
+  right: -14px;
+  bottom: 0;
+  background: transparent !important;
+  border: none !important;
+  font-size: 2.1em;
+  font-style: italic;
+  z-index: 14;
+}
 #header_search_input {
   height: 101px; /* 6 for padding */
   width: 100%;
@@ -267,6 +278,7 @@ header {
   font-style: italic;
   font-size: 2.1em;
   opacity: 0;
+  z-index: 21;
   transition: 140ms opacity;
 }
 #header_search.searching #header_search_form:after{
