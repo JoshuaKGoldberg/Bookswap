@@ -1,0 +1,37 @@
+li {
+  margin: auto;
+  width: 70%;
+  padding: 21px;
+  font-size: 84%;
+  list-style: none;
+}
+
+input {
+  margin: auto;
+  width: 490px;
+  text-align: center;
+}
+input[type=text] {
+  margin-top: 7px;
+}
+input[type=submit] {
+  padding: 21px 14px;
+  background: white;
+  width: 140px;
+}
+input[value=''] {
+  background: #fff7f7;
+  border: 3px solid #a00;
+}
+
+.info {
+  margin: auto;
+  padding-top: 3px;
+  width: 490px;
+  font-size: 77%;
+  color: #ccc;
+}
+
+h1 + li {
+  margin-top: -21px;
+}
