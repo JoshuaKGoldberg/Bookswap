@@ -1,0 +1,15 @@
+/* Book styles unique to large displays */
+
+.book.book_large h1 {
+  text-align: center;
+}
+
+.viewgoogle {
+  margin-top: 4px;
+}
+
+@media(max-width: 770px) {
+  .book.book_large .display_book_holder {
+    overflow: visible;
+  }
+}
