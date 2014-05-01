@@ -28,6 +28,6 @@
     </div>
     <div id="import_full_thinking" class="thinker"></div>
     <div id="import_full_results"></div>
-    <h3 class="standard_main standard_vert">Because you're an administrator, you may search better.</h3>
+    <h3 class="standard_main standard_vert">Seach for books via Google</h3>
   </div>
 </section>
