@@ -15,7 +15,7 @@
 
 #input_wrapper {
   position: absolute;
-  right: 238px;
+  right: 355px;
   left: 0px;
   top: 0px;
   bottom: 0px;
@@ -35,10 +35,15 @@
   top: 0px;
   height: 49px;
   cursor: pointer;
-}  
+}
 #search_form_wrapper select {
-  margin-right: 84px;
-  width: 140px;
+  /*width: 140px;*/
+}
+#search_change {
+  margin-right:191px;
+}
+#search_limit {
+  margin-right:84px;
 }
 #search_form_wrapper button {
   font-style: italic;

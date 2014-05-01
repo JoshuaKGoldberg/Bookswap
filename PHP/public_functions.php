@@ -383,158 +383,207 @@
     else $column = 'title';
  
     // Same with the limit per page
-    if(isset($arguments['limit']))
+    if(isset($arguments['limit']) && $arguments['limit'] != 'Limit...')
       $limit = (int) ArgStrict($arguments['limit']);
     else $limit = 7;
    
     // The offset is determined per page
     if(isset($arguments['offset']))
-      $offset = (int) ArgStrict($arguments['column']);
+      $offset = (int) ArgStrict($arguments['offset']);
     else $offset = 0;
 
-    //echo('<script>alert("'.$column.'");</script>');
-    
-    /* 
-
-    **Removing initial query for now... need to find another way to calculate total results.**
-
-    // Prepare query to return the number of results for individual column
-    if ( $column != "all" ) {
-      $all_query = '
-       SELECT * FROM `books`
-       WHERE `' . $column . '` LIKE :value
-     ';
-    }
-    // Prepare query to return the number of results in the entire table
+    // The total is the total number of results, cached for future use
+    if(isset($arguments['total']) && $arguments['total'] != 0)
+      $total = (int) ArgStrict($arguments['total']);
+    // Only query for total if a new search is made!
     else {
-      $all_query = '
-       SELECT * FROM `books`
-       WHERE
-            `title`       LIKE :value
-         OR `authors`     LIKE :value
-         OR `description` LIKE :value
-         OR `publisher`   LIKE :value
-         OR `year`        LIKE :value
-         OR `isbn`        LIKE :value
-     ';
+      $total_query = '';
+      // Prepare query to return the number of results for individual column
+      if ( $column != "all" ) {
+        $total_query = '
+         SELECT COUNT(*) FROM `books`
+         WHERE `' . $column . '` LIKE :value_percent ;
+       ';
+      }
+      // Prepare query to return the number of results in the entire table
+      else {
+        $total_query = '
+         SELECT COUNT(*) FROM `books`
+         WHERE
+              `title`       LIKE :value_percent
+           OR `authors`     LIKE :value_percent
+           OR `description` LIKE :value_percent
+           OR `publisher`   LIKE :value_percent
+           OR `year`        LIKE :value_percent
+           OR `isbn`        LIKE :value_percent ;
+       ';
+      }
+      // Run the query
+      $_stmnt = getPDOStatement($dbConn, $total_query);
+      $_durp = $_stmnt->execute(array(':value_percent' => '%' . $value . '%'));
+   
+      $result = $_stmnt->fetchAll(PDO::FETCH_ASSOC);
+      $total = $result[0]['COUNT(*)'];
     }
-          // OR `.....CONCAT(title,authors,description,publisher,year) LIKE :value
- 
-    // Run the query
-    $_stmnt = getPDOStatement($dbConn, $all_query);
-    $_durp = $_stmnt->execute(array(':value'  => $value_perc));
- 
- 
-    $total = count($_stmnt->fetchAll(PDO::FETCH_ASSOC)); 
 
-    */
+    /* DEBUG: echo('C:'.$column.' L:'.$limit.' O:'.$offset.' T:'.$total); */
 
-    $single_query = '';
-    $all_query = '';
+    $query = '';
+    $weights = getSearchWeights();
  
     // Prepare the search query for individual column
     if ( $column != "all" ) {
-      $single_query = '
-        SELECT * FROM `books`
+      $WEIGHT = $weights[$column];
+      /*
+        Select all results from table `books` that match this column.
+        Weight is defined in defaults.php.
+        Results are ordered by weight, descending:
+          - Perfect match: Full weight
+          - Beginning of string: 2/3 of weight
+          - Exists in string: 1/3 of weight
+        Searches are performed as follows:
+          - Select all from `books` where:
+            - If the value is a perfect match, return it with its full weight
+            - Else:
+              - If the beginning of the string matches, return it with 2/3 weight
+              - Else:
+                - If the value exists in the string, return it with 1/3 weight
+                - Else:
+                  - Return 0
+          - Order by weight
+          - Limit and offset returned results
+      */
+      $query = '
+        SELECT *, 
+          IF(`' . $column . '` LIKE :value_strictest, ' . $WEIGHT . ', 
+            IF(`' . $column . '` LIKE :value_stricter, ' . ($WEIGHT*2)/3 . ', 
+              IF(`' . $column . '` LIKE :value_percent, ' . $WEIGHT/3 . ', 0)
+            )
+          )
+          AS `weight`
+        FROM `books`
         WHERE (
-              `' . $column . '` LIKE :value_stricter
-          OR  `' . $column . '` LIKE :value_perc
+              `' . $column . '` LIKE :value_strictest
+          OR  `' . $column . '` LIKE :value_stricter
+          OR  `' . $column . '` LIKE :value_percent
         )
-        LIMIT ' . $limit . ' OFFSET ' . $offset . '
+        ORDER BY `weight` DESC
+        LIMIT ' . $limit . ' OFFSET ' . $offset . ';
       ';
-
-      // Run the query
-      $stmnt = getPDOStatement($dbConn, $single_query);
-      $durp = $stmnt->execute(array(
-        ':value_stricter'  => $value . '%',
-        ':value_perc'      => '%' . $value . '%'
-      ));
     }
     // Prepare the search query for the entire table
-    else {
-      $weights = getSearchWeights();
- 
+    else { 
       $TITLE_WEIGHT = $weights['title'];
-      $AUTHOR_WEIGHT = $weights['authors'];
+      $AUTHORS_WEIGHT = $weights['authors'];
       $DESC_WEIGHT = $weights['description'];
       $PUB_WEIGHT = $weights['publisher'];
       $YEAR_WEIGHT = $weights['year'];
       $ISBN_WEIGHT = $weights['isbn'];
- 
-      $all_query = '
+      
+      /*
+        Select all results from table `books` that match all columns.
+        Search procedure is the same as for individual columns.
+        ISBN and year must match exactly to be returned.
+      */
+      $query = '
         SELECT *,
-          IF(
-               `title`        LIKE :value_stricter,  ' . $TITLE_WEIGHT . ',
-            IF(`title`        LIKE :value_perc, ' . $TITLE_WEIGHT/2 . ', 0)
-          )
-          + IF(`authors`      LIKE :value_perc, ' . $AUTHOR_WEIGHT . ', 0)
-          + IF(`description`  LIKE :value_perc, ' . $DESC_WEIGHT . ', 0)
-          + IF(`publisher`    LIKE :value_perc, ' . $PUB_WEIGHT . ', 0)
-          + IF(`year`         LIKE :value_perc, ' . $YEAR_WEIGHT . ', 0)
-          + IF(`isbn`         LIKE :value_perc, ' . $ISBN_WEIGHT . ', 0)
+            IF(`title` LIKE :value_strictest, ' . $TITLE_WEIGHT . ', 
+              IF(`title` LIKE :value_stricter, ' . ($TITLE_WEIGHT*2)/3 . ', 
+                IF(`title` LIKE :value_percent, ' . $TITLE_WEIGHT/3 . ', 0)
+              )
+            )
+          + IF(`authors` LIKE :value_strictest, ' . $AUTHORS_WEIGHT . ', 
+              IF(`authors` LIKE :value_stricter, ' . ($AUTHORS_WEIGHT*2)/3 . ', 
+                IF(`authors` LIKE :value_percent, ' . $AUTHORS_WEIGHT/3 . ', 0)
+              )
+            )
+          + IF(`description` LIKE :value_strictest, ' . $DESC_WEIGHT . ', 
+              IF(`description` LIKE :value_stricter, ' . ($DESC_WEIGHT*2)/3 . ', 
+                IF(`description` LIKE :value_percent, ' . $DESC_WEIGHT/3 . ', 0)
+              )
+            )
+          + IF(`publisher` LIKE :value_strictest, ' . $PUB_WEIGHT . ', 
+              IF(`publisher` LIKE :value_stricter, ' . ($PUB_WEIGHT*2)/3 . ', 
+                IF(`publisher` LIKE :value_percent, ' . $PUB_WEIGHT/3 . ', 0)
+              )
+            )
+          + IF(`year` LIKE :value_strictest, ' . $YEAR_WEIGHT . ', 0)
+          + IF(`isbn` LIKE :value_strictest, ' . $ISBN_WEIGHT . ', 0)
           AS `weight`
         FROM `books`
         WHERE (
-              `title`         LIKE :value_perc
-          OR  `authors`       LIKE :value_perc
-          OR  `description`   LIKE :value_perc
-          OR  `publisher`     LIKE :value_perc
-          OR  `year`          LIKE :value_perc
-          OR  `isbn`          LIKE :value_perc
+              `title`         LIKE :value_strictest
+          OR  `title`         LIKE :value_stricter
+          OR  `title`         LIKE :value_percent
+          OR  `authors`       LIKE :value_strictest
+          OR  `authors`       LIKE :value_stricter
+          OR  `authors`       LIKE :value_percent
+          OR  `description`   LIKE :value_strictest
+          OR  `description`   LIKE :value_stricter
+          OR  `description`   LIKE :value_percent
+          OR  `publisher`     LIKE :value_strictest
+          OR  `publisher`     LIKE :value_stricter
+          OR  `publisher`     LIKE :value_percent
+          OR  `year`          LIKE :value_strictest
+          OR  `isbn`          LIKE :value_strictest
         )
         ORDER BY `weight` DESC
-        LIMIT ' . $limit . ' OFFSET ' . $offset . '
+        LIMIT ' . $limit . ' OFFSET ' . $offset . ';
       ';
-
-      // Run the query
-      $stmnt = getPDOStatement($dbConn, $all_query);
-      $durp = $stmnt->execute(array(
-        ':value_stricter'  => $value . '%',
-        ':value_perc'      => '%' . $value . '%'
-      ));
     }
-    
+
+    // Run the query
+    $stmnt = getPDOStatement($dbConn, $query);
+    $durp = $stmnt->execute(array(
+      ':value_strictest' => $value,
+      ':value_stricter'  => $value . '%',
+      ':value_percent'   => '%' . $value . '%'
+    ));
     
     // Print the results out as HTML
     $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
- 
+    
+    $num_shown = 0;
     foreach($results as $result) {
       $result['is_search'] = true;
       TemplatePrint('Books/' . $format, 0, $result);
+      $num_shown += 1;
     }
 
-    echo '<div class="search_end book">search on ';
+    echo '<div class="search_end book" style="text-align:center">search on ';
     echo getLinkHTML('search', $value_raw, array('value' => $value_raw));
 
-    /*
-
-    **Removed due to $total not being implemented at this time.**
-
-    echo ': ' . count($results) . ' results ' . ($results ? 'shown' . ($total > $limit + $offset ? '; ' . $total . ' found' : '') : 'found') . '';
-    if($offset) echo ' (starting from ' . ($offset + 1) . ')';
-    echo '.';
-
-    */
+    // Print number of results shown, and number of first result
+    echo ': ' . $num_shown . ' results ' . ($results ? 'shown' . ($offset ? ' (starting from result #' . ($offset + 1) . ')' : '') . ($total > $limit + $offset ? '; ' . $total . ' found' : '') : 'found') . '.';
  
     // If 5 or less results are returned, link to import page
-    if ( count($results) <= 5 ) {
-      echo '<div class="message">Looks like there aren\'t many results... Try <a href="index.php?page=import">importing</a> more results from Google Books.</div>';
+    if ( $total < 5 && $column != 'isbn' ) {
+      echo '<div class="message" style="text-align:center">Looks like there aren\'t many results... Try <a href="index.php?page=import">importing</a> more results from Google Books.</div>';
     }
+
+    // Implement "Previous" and "Next" buttons for loading results
+    $prev_offset = (int)$offset - (int)$limit;
+    $next_offset = (int)$offset + (int)$limit;
+    echo '<div class="message" style="text-align:center">';
+    if ( 0 >= (int)$limit - (int)$offset ) {
+      echo '<a href="index.php?page=search&value=' . $value . '&column=' . $column . '&limit=' . $limit . '&offset=' . $prev_offset . '&total=' . $total . '">&lt; Previous</a>';
+    }
+    if ( 0 >= (int)$limit - (int)$offset && $total > (int)$offset + (int)$limit ) echo ' &bull; ';
+    if ( $total > (int)$offset + (int)$limit ) {
+      echo '<a href="index.php?page=search&value=' . $value . '&column=' . $column . '&limit=' . $limit . '&offset=' . $next_offset . '&total=' . $total . '">Next &gt;</a>';
+    }
+    echo '</div>';
+
+    /* DEBUG: echo('C:'.$column.' L:'.$limit.' O:'.$offset.' PO:'.$prev_offset.' NO:'.$next_offset.' T:'.$total); */
+
 
     /* 
-
-    **Removed until a non-intensive way to calculate total results is implemented.**
-
-    **Need to add user defined limit later.**
-
-    // if > $limit results are returned, have an option to load more
-    if ( $total > $limit + $offset ) {
-      $offset .= $limit;
-      echo '<div class="message"><a href="index.php?page=search&value=' . $value . '&column=' . $column . '&limit=' . $limit . '&offset=' . $offset . '">Load more results...</a></div>';
-    }
-
+      UP NEXT:
+       - Direct searches for ISBN to book page, else return no results
+       - Direct to import page at bottom?
+       - Implement better ISBN and year search
+       - Something else I can't remember right now
     */
-
   }
 
   // publicGetBookEntries({...})

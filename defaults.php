@@ -9,14 +9,14 @@
   
   function getDefaultSettings() {
     return array(
-      'isInstalled' => false,
-      'getBase' => '',
-      'getCDir' => '',
-      'getDBHost' => '',
-      'getDBUser' => '',
-      'getDBPass' => '',
-      'getDBName' => 'bookswap',
-      'getGoogleKey' => '',
+      'isInstalled'    => true,
+      'getBase'        => 'http://bookswap.rpi',
+      'getCDir'        => '/root/Bookswap',
+      'getDBHost'      => 'localhost',
+      'getDBUser'      => 'root',
+      'getDBPass'      => 'jacknack',
+      'getDBName'      => 'bookswap',
+      'getGoogleKey'   => 'AIzaSyDV_65gXClLKLufAvV9bP3ZSV5NQh_raUE',
       'getFacebookKey' => '',
     );
   }
@@ -127,13 +127,13 @@
   
   // Returns search weights for weighted search algorithm
   function getSearchWeights() { 
-    return array( 
-      'title' => 42, 
-      'authors' => 21, 
-      'description' => 14, 
-      'publisher' => 7, 
-      'year' => 14, 
-      'isbn' => 35 
+    return array(
+      'title'       => 126, 
+      'authors'     =>  63, 
+      'description' =>  42, 
+      'publisher'   =>  21, 
+      'year'        =>  42, 
+      'isbn'        => 105
     );
   }
   

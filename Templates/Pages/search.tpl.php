@@ -12,6 +12,12 @@
           echo '<option>' . implode('</option><option>', $options) . '</option>';
         ?>
       </select>
+      <select id="search_limit">
+        <?php
+          $options = ['Limit...', '10', '25', '50', '100'];
+          echo '<option>' . implode('</option><option>', $options) . '</option>';
+        ?>
+      </select>
     <button id="search_submit" type="submit">Go!</button>
     </form>
   </div>
