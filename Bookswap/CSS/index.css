@@ -1,0 +1,40 @@
+#user_login_container {
+  min-height: 245px;
+  transition: 350ms height;
+}
+
+#user_login_holder .left {
+  text-align: right;
+}
+
+#user_login_holder .left input {
+  text-align: left;
+}
+
+@media (min-aspect-ratio: 1/1) {
+  #user_login_holder {
+    padding-right: 35px;
+  }
+}
+ 
+@media (max-aspect-ratio: 1/1) { 
+  #user_login_container {
+    padding-bottom: 70px !important;
+  }
+}
+  
+#user_login_text span {
+  padding: 0 14px;
+
+}
+
+#password_security_results {
+  margin: -35px 0 0 0;
+  text-align: left;
+  overflow: hidden;
+}
+
+#password_security_results li {
+  color: #faa;
+  font-size: .7em;
+}

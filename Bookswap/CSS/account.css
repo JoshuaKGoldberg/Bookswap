@@ -1,0 +1,112 @@
+h1, h2, h3, h4 {
+  margin: 3px 0 3px 0;
+}
+
+.user_id_no {
+  margin-top: -35px;
+  padding-bottom: 56px;
+  text-align: center;
+  font-style: italic;
+  color: #333;
+}
+
+#links_menu {
+  margin: -14px auto 35px;
+  font-size: 1.4em;
+}
+
+/* Entries
+*/
+.book .book_entry {
+  float: right;
+  padding-top: 0;
+  margin-right: .14em;
+  color: #969696;
+  font-style: italic;
+}
+.book .book_entry.changes {
+  clear: right;
+}
+.book .entry_changes {
+  margin-left: 11px;
+  margin-right: -3px;
+  float: right;
+  width: 21px;
+  height: 21px;
+  cursor: pointer;
+  opacity: .49;
+}
+.book_entry.price {
+  height: 42px;
+  width: 203px;
+  text-align: right;
+}
+.book .entry_changes:hover {
+  opacity: 1;
+}
+.book .entry_edit {
+  background-image: url('../Images/Edit.gif');
+}
+.book .entry_edit.active {
+  background-image: url('../Images/EditActive.gif');
+}
+.book .entry_delete {
+  background-image: url('../Images/Delete.gif');
+}
+.book.book-medium {
+  /* Removed because of overflow glitches :( */
+  /* height: 98px;
+  transition: 350ms height; */
+}
+.book.book-medium .holder {
+  overflow: hidden;
+}
+.book.book-medium .clearer {
+  clear: both;
+}
+.book_entry.price input[type=button] {
+  width: 63px;
+  cursor: pointer;
+  font-size: 21px;
+}
+.book_entry.price input.go_delete {
+  padding-left: 7px;
+  padding-right: 67px;
+}
+/* Deletes
+*/
+.book_entry.price input.go_edit {
+  width: 42px;
+}
+.book_entry.price select {
+  margin-right: -.14em;
+}
+.book.book-medium.deleted {
+  height: 21px;
+  font-size: 21px;
+  text-align: center;
+}
+/* Edits
+*/
+.book .book_entry input {
+  max-width: 49px;
+  text-align: center;
+  display: inline;
+}
+.book .book_entry select {
+  width: 56px;
+  font-size: 17.5px;
+}
+.book_entry.price .dollas {
+  margin-right: 3px;
+}
+.book_entry.price .go_edit {
+  margin-left: 7px;
+}
+
+/* Notifications
+*/
+
+.notification {
+  padding-bottom: 21px;
+}
