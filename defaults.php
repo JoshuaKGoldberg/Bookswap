@@ -9,14 +9,14 @@
   
   function getDefaultSettings() {
     return array(
-      'isInstalled'    => true,
-      'getBase'        => 'http://bookswap.rpi',
-      'getCDir'        => '/root/Bookswap',
-      'getDBHost'      => 'localhost',
-      'getDBUser'      => 'root',
-      'getDBPass'      => 'jacknack',
-      'getDBName'      => 'bookswap',
-      'getGoogleKey'   => 'AIzaSyDV_65gXClLKLufAvV9bP3ZSV5NQh_raUE',
+      'isInstalled'    => false,
+      'getBase'        => '',
+      'getCDir'        => '',
+      'getDBHost'      => '',
+      'getDBUser'      => '',
+      'getDBPass'      => '',
+      'getDBName'      => '',
+      'getGoogleKey'   => '',
       'getFacebookKey' => '',
     );
   }
@@ -156,11 +156,6 @@
   // Bool function - is the user verified?
   function UserVerified() {
     return isset($_SESSION['role']) && $_SESSION['role'] != 'Unverified';
-  }
-  
-  // Bool function -  is the user logged into Facebook?
-  function UserLoggedInFacebook() {
-    return isset($_SESSION) && isset($_SESSION['fb_id']) && $_SESSION['fb_id'];
   }
   
   // Complains if the user goes where they shouldn't
