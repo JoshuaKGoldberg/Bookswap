@@ -39,7 +39,9 @@
       </p>
       <input type="submit" class="big pad-h">
     </form>
-    <p id="user_login_text" class="standard_main standard_vert small"></p>
+    <p id="user_login_text" class="standard_main standard_vert small">
+      Passwords here follow the same restrictions as normal.
+    </p>
     <?php endif; ?>
     
     <p class="standard_main standard_vert small">
