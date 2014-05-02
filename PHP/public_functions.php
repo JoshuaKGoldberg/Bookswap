@@ -341,7 +341,9 @@
     $isbn = $arguments['isbn'];
     
     // Make sure the arguments aren't blank
-    if(!$isbn) return;
+    if(!$isbn) {
+        return;
+    }
     
     // Get the actual JSON contents and decode it
     $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn . '&key=' . getGoogleKey();
@@ -354,12 +356,15 @@
     }
     
     // Attempt to get the first item in the list (which will be the book)
-    if(!isset($result->items) || !isset($result->items[0])) return;
+    if(!isset($result->items) || !isset($result->items[0])) {
+        return;
+    }
     $book = $result->items[0];
     
     // Call the backend bookProcessObject to add the book to the database
     $arguments['dbConn'] = $dbConn;
     $arguments['book'] = $book;
+    require_once('imports.inc.php');
     return bookProcessObject($arguments, $noverbose);
   }
 
@@ -639,7 +644,7 @@
     
     // Does the ISBN exist?
     $dbConn = getPDOQuick($arguments);
-    if(doesBookAlreadyExist($dbConn, $isbn))
+    if(checkKeyExists($dbConn, 'books', 'isbn', $isbn))
       return;
     
     // Since it doesn't yet, attempt to add it
