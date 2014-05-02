@@ -1,3 +1,4 @@
+<title><?php echo getSiteName(); ?></title>
 <section>
   <p class="standard_main pad-v big">
     <?php echo getSiteDescription(); ?><br />Best of all, it's free! 

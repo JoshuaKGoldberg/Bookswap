@@ -11,6 +11,7 @@
   $info = dbBooksGet(getPDOQuick(), $isbn, true);
   if(!$info) return TemplatePrint('Pages/404');
 ?>
+<title><?php echo $info['title'] . ' - ' . getSiteName(); ?></title>
 
 <!-- Actual book info -->
 <section>

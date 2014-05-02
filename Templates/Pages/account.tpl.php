@@ -33,6 +33,13 @@
   else return AccessDenied();
   
 ?>
+<title><?php 
+    if($using_current) {
+        echo getSiteName();
+    } else {
+        echo $username . ' - ' . getSiteName();
+    }
+?></title>
 <section id="account">
   <!-- Title / Username -->
   <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your name to change it.</div></section>' . PHP_EOL; ?>

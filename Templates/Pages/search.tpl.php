@@ -1,3 +1,4 @@
+<title><?php echo 'Search - ' . getSiteName(); ?></title>
 <section>
   <h1 class="standard_main standard_vert giant">Search</h1>
 

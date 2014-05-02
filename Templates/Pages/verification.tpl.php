@@ -12,6 +12,7 @@
   $email = $_SESSION['email'];
   $email_is_edu = isEmailAcademic($email_edu) || isEmailAcademic($email);
 ?>
+<title><?php echo getSiteName(); ?> Verification</title>
 <section>
   <div class="standard_main standard_width">
     

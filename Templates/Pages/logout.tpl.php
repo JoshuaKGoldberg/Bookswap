@@ -4,7 +4,7 @@
   $_SESSION = array();
   session_destroy();
 ?>
-<!-- <meta http-equiv="refresh" content="1.17; url=<?php echo getBase(); ?>"> -->
+<title><?php echo 'Logging out - ' . getSiteName(); ?></title>
 <section>
   <h1 class="standard_main standard_vert">
     You have been logged out.
