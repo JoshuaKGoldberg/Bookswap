@@ -42,7 +42,7 @@
 
 <section>
   <p class="standard_main pad-v big">
-    By signing up for RPI Textbook Exchange you're giving yourself easy access to <?php echo getNumBooks(); ?> books made available by students just like you.
+    By signing up for <?php echo getSiteName(); ?> you're giving yourself easy access to <?php echo getNumBooks(); ?> books made available by students just like you.
     <br />
     <!-- <small class="unemph"><a href="search.php">Take a look at our database!</a></small> -->
   </p>
