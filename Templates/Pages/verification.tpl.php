@@ -39,6 +39,7 @@
       </p>
       <input type="submit" class="big pad-h">
     </form>
+    <p id="user_login_text" class="standard_main standard_vert small"></p>
     <?php endif; ?>
     
     <p class="standard_main standard_vert small">
