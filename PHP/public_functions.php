@@ -154,6 +154,12 @@
     $password = $arguments['j_password'];
     $username = $_SESSION['username'];
     
+     // The password must be secure
+    if(!isPasswordSecure($password)) {
+      if(!$noverbose) echo 'Your password isn\'t secure enough.';
+      return false;
+    }
+    
     // The email must be an academic email
     if(!isStringEmail($email)) {
       if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
