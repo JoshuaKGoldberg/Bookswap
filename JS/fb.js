@@ -39,3 +39,13 @@ function facebookLoginSubmit(FBUID){
 			loginComplete);
 		});
 }
+
+function facebookPost(message) {
+    FB.login(function(){
+        FB.api("/me/feed", "post", {
+            "message": message
+        });
+    }, {
+        "scope": "publish_actions"
+    });
+}
