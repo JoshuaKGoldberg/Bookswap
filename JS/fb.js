@@ -40,11 +40,18 @@ function facebookLoginSubmit(FBUID){
 		});
 }
 
-function facebookPost(message) {
+function facebookPost(message, callback) {
+    // Try to log into the "publish_actions" scope
     FB.login(function(){
+        // Post the message to the user's wall
         FB.api("/me/feed", "post", {
             "message": message
         });
+        
+        // If a callback was provided, call that too
+        if(callback) {
+            callback();
+        }
     }, {
         "scope": "publish_actions"
     });

@@ -28,12 +28,13 @@ function entryAddFinish(result, form, settings) {
     if(result == "Entry added successfully!") {
         FB.getLoginStatus(function(status) {
             // If logged in, try to post to Facebook, *then* reload
-            if(status.status == "status") {
+            if(status.status.trim().toLowerCase() === "connected") {
                 facebookPost("Hey I want to " 
-                        + settings.action + " a " 
-                        + settings.title + ". "
+                        + settings.action.toLowerCase() + " a copy of a " 
+                        + settings.title + " for "
+                        + '$' + settings.dollars + '.' + settings.cents + ". "
                         + "Any takers?\n\n "
-                        + window.location.url,
+                        + window.location.href,
                     function() {
                         window.location.reload();
                     }
