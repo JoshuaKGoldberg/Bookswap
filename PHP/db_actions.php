@@ -359,7 +359,7 @@
   // * dbEntriesGetRecent($dbConn, "user_id", 7);     // only from user_id 7
   // * dbEntriesGetRecent($dbConn, 21);               // limit to 21 results
   // * dbEntriesGetRecent($dbConn, "user_id", 7, 21); // combine the two
-  function dbEntriesGetRecent($dbConn, $identifier=false, $value, $limit = 7) {
+  function dbEntriesGetRecent($dbConn, $identifier=false, $value, $limit = 35) {
     // Prepare the initial query
     $query = ' SELECT * FROM `entries` NATURAL JOIN `users` NATURAL JOIN `books`';
     $args = [];
