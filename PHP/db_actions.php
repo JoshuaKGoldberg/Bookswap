@@ -378,7 +378,7 @@
     
     // Set the limit, if it was specified
     if($limit) {
-      $query .= ' LIMIT :limit';
+      $query .= ' LIMIT ' . ((int) $limit);
       $args[':limit'] = $limit;
     }
     
