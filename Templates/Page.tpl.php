@@ -27,16 +27,18 @@
 >
   
     <head>
-    <?php
-        // The default CSS file should be printed immediately, so it loads first
-        echo getCSS('default') . PHP_EOL;
+        <?php
+            // The default CSS file should be printed immediately, so it loads first
+            echo getCSS('default') . PHP_EOL;
 
-        // Include JQuery before everything, so pages can have their own JS files using it
-        echo getJS('jquery.min');
-    ?>
+            // Include JQuery before everything, so pages can have their own JS files using it
+            echo getJS('jquery.min');
+        ?>
 
-    <meta property="og:site_name" content="<?php echo getSiteName(); ?>"/>
-    <meta property="og:image" content="<?php echo 'Images/Logo.png'; ?>"/>
+        <meta property="og:site_name" content="<?php echo getSiteName(); ?>"/>
+        <meta property="og:image" content="<?php echo 'Images/Logo.png'; ?>"/>
+        
+        <link rel="icon" type="image/png" href="Images/Icon.png">
     </head>
     
     <body onload="loadPrintedRequests()">
