@@ -20,17 +20,23 @@
   $css[] = $pageName;
   $js[] = $pageName;
 ?><!DOCTYPE html>
-<html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml"
+>
   
     <head>
-      <title><?php echo getSiteName(); ?></title>
-      <?php
+    <?php
         // The default CSS file should be printed immediately, so it loads first
         echo getCSS('default') . PHP_EOL;
-  
+
         // Include JQuery before everything, so pages can have their own JS files using it
         echo getJS('jquery.min');
-      ?>
+    ?>
+
+    <meta property="og:site_name" content="<?php echo getSiteName(); ?>"/>
+    <meta property="og:image" content="<?php echo 'Images/Logo.png'; ?>"/>
     </head>
     
     <body onload="loadPrintedRequests()">
