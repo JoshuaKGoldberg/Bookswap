@@ -572,7 +572,12 @@
  
     // If 5 or less results are returned, link to import page
     if ( $total < 5 && $column != 'isbn' ) {
-      echo '<div class="message" style="text-align:center">Looks like there aren\'t many results... Try <a href="index.php?page=import">importing</a> more results from Google Books.</div>';
+      echo '<div class="message" style="text-align:center">';
+      echo '  Looks like there aren\'t many results...';
+      echo ' Try <a href="index.php?page=import&import=' . $value_raw;
+      echo '">importing</a>';
+      echo ' more results from Google Books.';
+      echo '</div>' . PHP_EOL;
     }
 
     // Implement "Previous" and "Next" buttons for loading results
