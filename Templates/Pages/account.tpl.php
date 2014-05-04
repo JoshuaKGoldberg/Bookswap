@@ -24,6 +24,7 @@
     if(!$info) {
       $username = 'No such user exists!';
       $descriptor = false;
+      $info = array();
     }
     else {
       $username = $info['username'];
@@ -70,9 +71,11 @@
   </div>
   
   <!-- Contact info -->
+  <?php if(isset($info)): ?>
   <h3 id="contacter" class="standard_main standard_vert">
     <?php echo $info['email']; ?>
   </h3>
+  <?php endif; ?>
   
   <!-- Lists of books the user wants -->
   <div id="user_books" class="standard_main half_holder">
