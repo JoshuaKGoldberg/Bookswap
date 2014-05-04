@@ -4,6 +4,7 @@
     echo '<div class="error"><div class="standard_main">You do not have a Google key supplied in your settings file. None of this will work.</div></div>';
 ?>
 <title><?php echo 'Import - ' . getSiteName(); ?></title>
+
 <section>
   <h1 class="standard_main standard_vert">import by ISBN</h1>
   

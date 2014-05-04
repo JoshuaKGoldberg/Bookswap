@@ -5,6 +5,14 @@
  * The type is passed in as either 'isbn' or 'full'
 */
 
+// On page load, if ?import=<any>, immediately check to import that
+$(document).ready(function() {
+    if($.QueryString.import) {
+        $("#import_full input[type=text]").val($.QueryString.import);
+        importBook(undefined, "full");
+    }
+});
+
 // importBook(event, "type")
 // Takes the input from the respective input[type=text] and pipes it to PHP
 // If it's ISBN(s), it performs splitting and parsing 
