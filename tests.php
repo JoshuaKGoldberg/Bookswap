@@ -1,21 +1,28 @@
 <?php
-  /* Tests.php
+  /**
    * This is a set of tests used on installation of the site to ensure a minimum of working settings.
    * If all settings are set correctly, it also ensures the database has been created.
   */
-  /* Runs a series of tests to ensure the site is working properly */
-  include('settings.php');
-  include('defaults.php');
+  
+  // Runs a series of tests to ensure the site is working properly
+  require('settings.php');
+  require('defaults.php');
   // If the user doesn't have to install the site, go to index.php instead
   if(isInstalled()) {
     header('Location: index.php');
     return;
   }
   
+  // Make sure settings.php is writable before continuing
+  if(!is_writable('settings.php')) {
+    echo 'settings.php is not writable, so this will not work.';
+    return;
+  }
+  
   // If $_GET requires any replacements be made, do them, then start over
   if(!empty($_GET)) {
     performSettingsReplacements('settings.php', $_GET);
-    header('Location: tests.php');
+    echo 'Thinking hard...';
     return;
   }
   
@@ -37,23 +44,38 @@
       'description' => 'Does settings.php exist, and is it readable?',
       'tests' => array(
         array(
-          'function' => function() { return is_readable('settings.php'); },
+          'function' => function() { 
+                            return is_readable('settings.php');
+                        },
           'error' => 'Could not open settings file.',
-          'details' => 'The server could not read \'settings.php\'. Does it exist, and is it readable?'
+          'details' => 'The server could not read \'settings.php\'. 
+                        Does it exist, and is it readable?'
         ),
         array(
-          'function' => function() { return is_writable('settings.php'); },
+          'function' => function() { 
+                            return is_writable('settings.php'); 
+                        },
           'error' => 'Could not write to settings file.',
-          'details' => 'The server could not write to \'settings.php\'. This installation script needs to have write access to it, though you may return it to read-only when this is done.'
+          'details' => 'The server could not write to \'settings.php\'. 
+                        This installation script needs to have write access to 
+                        it, though you may return it to read-only when this is 
+                        done.'
         ),
         array(
-          'function' => function() { return is_dir(getIncludesPre()); },
+          'function' => function() {
+                            return is_dir(getIncludesPre());
+                        },
           'error' => 'Could not find the ' . getIncludesPre() . ' directory.',
-          'details' => 'The server could not find the ' . getIncludesPre() . ' directory of include files. Does it exist, and is it readable?'
+          'details' => 'The server could not find the ' . getIncludesPre() 
+                        . ' directory of include files. Does it exist, and is it
+                         readable?'
         ),
         array(
-          'function' => function() { return is_readable(getIncludesWrapping('pdo')); },
-          'error' => 'Could not read the database connection include file. Does it exist, and is it readable?'
+          'function' => function() {
+                            return is_readable(getIncludesWrapping('pdo'));
+                        },
+          'error' => 'Could not read the database connection include file. 
+                        Does it exist, and is it readable?'
         )
       )
     ),
@@ -61,59 +83,94 @@
       'description' => 'Are the environment-specific settings correctly set?',
       'tests' => array(
         array(
-          'function' => function() { return !!getBase(); },
+          'function' => function() {
+                            return !!getBase();
+                        },
           'error' => 'No base URL ("getBase()") provided for site.'
         ),
         array(
-          'function' => function() { return !!getCDir(); },
+          'function' => function() {
+                            return !!getCDir();
+                        },
           'error' => 'No directory ("getCDir()") provided for site.'
         ),
         array(
-          'function' => function() { return substr(getBase(), -1) != '/'; },
-          'error' => 'Your "getBase()" URL ends with a trailing slash. Please remove it.'
+          'function' => function() {
+                            return substr(getBase(), -1) != '/';
+                        },
+          'error' => 'Your "getBase()" URL ends with a trailing slash. Please 
+                      remove it.'
         ),
         array(
-          'function' => function() { return substr(getCDir(), -1) != '/'; },
-          'error' => 'Your "getCDir()" directory ends with a trailing slash. Please remove it.'
+          'function' => function() {
+                            return substr(getCDir(), -1) != '/';
+                        },
+          'error' => 'Your "getCDir()" directory ends with a trailing slash.
+                      Please remove it.'
         ),
       )
     ),
     'Media files' => array(
-      'description' => 'Do the CSS and JS directories exist, and are they readable?',
+      'description' => 'Do the CSS and JS directories exist, and are they
+                        readable?',
       'tests' => array(
         array(
-          'function' => function() { return is_dir('CSS'); },
+          'function' => function() {
+                            return is_dir('CSS');
+                        },
           'error' => 'Could not find the CSS directory.',
-          'details' => 'The server could not find the CSS directory. Does it exist, and is it readable?'
+          'details' => 'The server could not find the CSS directory. Does it
+                        exist, and is it readable?'
         ),
         array(
-          'function' => function() { return is_dir('JS'); },
+          'function' => function() {
+                            return is_dir('JS');
+                        },
           'error' => 'Could not find the JS directory.',
-          'details' => 'The server could not find the JS directory. Does it exist, and is it readable?'
+          'details' => 'The server could not find the JS directory. Does it
+                        exist, and is it readable?'
         ),
         array(
-          'function' => function() { return is_readable('CSS/install.css'); },
+          'function' => function() {
+                            return is_readable('CSS/install.css');
+                        },
           'error' => 'Could not open CSS/install.css.',
-          'details' => 'The server could not find a sample CSS file at \'CSS/install.css\'. Does it exist, and is it readable?'
+          'details' => 'The server could not find a sample CSS file at
+                       \'CSS/install.css\'. Does it exist, and is it readable?'
         ),
         array(
-          'function' => function() { return is_readable('JS/install.js'); },
+          'function' => function() {
+                            return is_readable('JS/install.js');
+                        },
           'error' => 'Could not open JS/install.js.',
-          'details' => 'The server could not find a sample JS file at \'JS/install.js\'. Does it exist, and is it readable?'
+          'details' => 'The server could not find a sample JS file at 
+                       \'JS/install.js\'. Does it exist, and is it readable?'
         )
       )
     ),
     'Database' => array(
-      'description' => 'Can the database be accessed and used using the given credentials?',
+      'description' => 'Can the database be accessed and used using the given
+                        credentials?',
       'tests' => array(
         array(
-          'function' => function() { return getDBHost(); },
+          'function' => function() {
+                            return getDBHost();
+                        },
           'error' => 'You have a blank database host.',
           'details' => ''
         ),
         array(
-          'function' => function() { return getDBUser(); },
+          'function' => function() {
+                            return getDBUser();
+                        },
           'error' => 'You have a blank database user.',
+          'details' => ''
+        ),
+        array(
+          'function' => function() {
+                            return getDBName();
+                        },
+          'error' => 'You have a blank database name.',
           'details' => ''
         )
       )
@@ -121,7 +178,9 @@
     'External libraries' => array(
       'tests' => array(
         array(
-          'function' => function() { return function_exists('curl_version'); },
+          'function' => function() { 
+                            return function_exists('curl_version');
+                        },
           'error' => 'You do not have cURL installed.',
           'details' => 'cURL is required to quickly access external webpages.'
         )
@@ -130,14 +189,30 @@
   );
   
   $test_group_num = 0;
+  
+  // Loop through each test group, associated by the $title string
   foreach($tests as $title=>$test_group) {
     $test_num = 0;
-    if(!isset($test_group['tests'])) continue;
+    
+    // If the 'tests' array isn't defined, ignore this group
+    if(!isset($test_group['tests'])) {
+        continue;
+    }
+    
+    // For each test in that group:
     foreach($test_group['tests'] as $test) {
+    
+      // Attempt to run the function
       $status = $test['function']();
+      
+      // If it's false, try printing the error message, with details if provided
       if(!$status) {
-        if(isset($test['error'])) error($test_group_num, $test_num, $test['error']);
-        if(isset($test['details'])) details($test['details']);
+        if(isset($test['error'])) {
+            error($test_group_num, $test_num, $test['error']);
+        }
+        if(isset($test['details'])) {
+            details($test['details']);
+        }
         ++$num_errors;
       }
       ++$test_num;
@@ -145,8 +220,13 @@
     ++$test_group_num;
   }
   
+  // If there were errors, complain, and stop doing things
   if($num_errors) {
-    echo '<h3>You have ' . $num_errors . ' error' . ($num_errors == 1 ? '' : 's') . ' in your installation. Please fix them, then try again.</h3>';
+    echo '<h3>You have ' . $num_errors;
+    echo ' error' . ($num_errors == 1 ? '' : 's');
+    echo ' in your installation. Please fix them, then try again.</h3>';
+    echo '<aside class="small">If you had already fixed these errors,';
+    echo ' refreshing and resubmitting is likely to fix your problem.</aside>';
     return false;
   }
   
@@ -183,7 +263,8 @@
         `email` VARCHAR(127) NOT NULL,
         `email_edu` VARCHAR(127),
         `salt` VARCHAR(127),
-        `role` ENUM(' . makeSQLEnum(getUserRoles()) . ') NOT NULL DEFAULT \'' . getUserRoleDefault() . '\',
+        `role` ENUM(' . makeSQLEnum(getUserRoles()) . ') NOT NULL DEFAULT \''
+                . getUserRoleDefault() . '\',
         PRIMARY KEY (`user_id`)
       )
     ');
@@ -278,7 +359,8 @@
     CREATE TABLE IF NOT EXISTS `notifications_entry` (
        `notification_id` INT NOT NULL,
        `entry_id` INT(10) NOT NULL,
-       FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`notification_id`)
+       FOREIGN KEY (`notification_id`) REFERENCES 
+            `notifications`(`notification_id`)
        ON UPDATE CASCADE ON DELETE CASCADE,
        FOREIGN KEY (`entry_id`) REFERENCES `entries`(`entry_id`)
        ON UPDATE CASCADE ON DELETE CASCADE
@@ -287,7 +369,8 @@
     
   }
   catch(Exception $err) {
-    echo 'There was an error creating the database. Please try again.<br>' . PHP_EOL;
+    echo 'There was an error creating the database. Please try again.<br>';
+    echo PHP_EOL;
     print_r($err->getMessage());
     return false;
   }

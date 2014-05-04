@@ -11,6 +11,18 @@
     $content .= '?>';
     file_put_contents('settings.php', $content);
   }
+  
+  // If that settings file wasn't created, or isn't now writable, complain
+  if(!file_exists('settings.php')) {
+    echo 'Error in creating \'settings.php\' file. ';
+    echo 'Do you have permission to create files?';
+    return;
+  }
+  if(!is_readable('settings.php')) {
+    echo 'Error in reading \'settings.php\' file. ';
+    echo 'Do you have permission to read this file?';
+    return;
+  }
   require_once('settings.php');
   
   // If the user doesn't have to install the site, go to index.php instead
@@ -22,26 +34,32 @@
   
   // The new text is saved to the file, and split by lines
   // If the settings aren't writeable, this complains
-  if(is_writable('settings.php'))
+  if(is_writable('settings.php')) {
     $contents = performSettingsReplacements('settings.php', $_GET);
-  else {
+  } else {
     echo '<header class="error">' . PHP_EOL;
-    echo '<div class="standard_main standard_vert medium">settings.php is not writable - settings won\'t be saved and installation will fail.</div>' . PHP_EOL;
+    echo '  <div class="standard_main standard_vert medium">' . PHP_EOL;
+    echo '    settings.php is not writable - ';
+    echo 'settings won\'t be saved and installation will fail.';
+    echo '  </div>' . PHP_EOL;
     echo '</header>' . PHP_EOL;
     $contents = file_get_contents('settings.php');
   }
   $settings_arr = preg_split('/$\R?^/m', $contents);
   
   // Get the basic CSS and fonts for styling this page
-  foreach(getDefaultCSS() as $css)
+  foreach(getDefaultCSS() as $css) {
     echo getCSS($css) . PHP_EOL;
+  }
   echo getCSS('default') . PHP_EOL;
   echo getCSS('install') . PHP_EOL;
   echo getDefaultFonts() . PHP_EOL;
   
   // Testing functions are done via install.js
-  foreach(getDefaultJS() as $js)
+  echo getJS('jquery.min');
+  foreach(getDefaultJS() as $js) {
     echo getJS($js) . PHP_EOL;
+  }
   echo getJS('install') . PHP_EOL;
   
   // Prints out a function name and where it is in the file ($settings_arr)
@@ -81,12 +99,20 @@
     'Database' => array(
       'getDBHost' => array(
         'description' => 'The hostname your MySQL database is located on',
-        'suggestion' => in_array(strtolower($host), ['localhost', '127.0.0.1']) ? 'localhost' : 'mysql.' . $host,
-        'information' => 'Your MySQL database\'s host should either be on localhost (for a local installation such as XAMPP), or the domain name / IP of your database server (for production servers).'
+        'suggestion' => in_array(strtolower($host), ['localhost', '127.0.0.1']) 
+                        ? 'localhost' : 'mysql.' . $host,
+        'information' => 'Your MySQL database\'s host should either be on
+                          localhost (for a local installation such as XAMPP), 
+                          or the domain name / IP of your database server (for 
+                          production servers).'
       ),
       'getDBUser' => array(
-        'description' => 'The MySQL user with full read+write access to your database',
-        'information' => 'This user must have general READ & WRITE priviliges to the database for installation and normal use. You may use root for testing, but it is not advisable on production servers.'
+        'description' => 'The MySQL user with full read+write access to your 
+                          database',
+        'information' => 'This user must have general READ & WRITE priviliges to
+                          the database for installation and normal use. You may 
+                          use root for testing, but it is not advisable on
+                          production servers.'
       ),
       'getDBPass' => array(
         'description' => 'The MySQL user\'s password',
@@ -95,17 +121,25 @@
       'getDBName' => array(
         'description' => 'The name of the MySQL database you\'d like to use',
         'suggestion' => strtolower(str_replace(' ', '', getName())),
-        'information' => 'This database will be created if it does not yet exist, asuming your MySQL user has sufficient priviliges.'
+        'information' => 'This database will be created if it does not yet
+                          exist, asuming your MySQL user has sufficient
+                          priviliges.'
       )
     ),
     'Optional Requirements' => array(
       'getGoogleKey' => array(
         'description' => 'A Google Books API key',
-        'information' => 'In order to use the Import page, you must have a registered Google account and API key. Information on API keys is located on <a href="https://developers.google.com/books/docs/v1/using#APIKey">this page</a>.'
+        'information' => 'In order to use the Import page, you must have a
+                          registered Google account and API key. Information on
+                          API keys is located on <a href="https://developers.'
+                          . 'google.com/books/docs/v1/using#APIKey">'
+                          . 'this page</a>.'
       ),
       'getFacebookKey' => array(
 		'description' => 'A Facebook API key',
-		'information' => 'In order to allow users to login with their Facebook account, you must have a Facebook Developer account and API key.'
+		'information' => 'In order to allow users to login with their Facebook
+		                  account, you must have a Facebook Developer account
+		                  and API key.'
 	  )
     )    
   );
@@ -113,8 +147,9 @@
   // Helper to count $function_groups
   function countKids($arr) {
     $output = 0;
-    foreach($arr as $key=>$kid)
+    foreach($arr as $key=>$kid) {
       $output += count($kid);
+    }
     return $output;
   }
 
@@ -125,19 +160,27 @@
       foreach($functions as $name=>$info) {
         if(is_array($info)) {
           echo str_repeat(' ', 14) . '<li>' . PHP_EOL;
-          echo str_repeat(' ', 16) . '<div class="what">' . getFuncNameFancy($settings_arr, $name) . '</div>' . PHP_EOL;
+          echo str_repeat(' ', 16) . '<div class="what">';
+          echo getFuncNameFancy($settings_arr, $name) . '</div>' . PHP_EOL;
           
-          if(isset($info['description'])) 
-            echo str_repeat(' ', 16) . '<div class="more">' . $info['description'] . '</div>' . PHP_EOL;
+          if(isset($info['description'])) {
+            echo str_repeat(' ', 16) . '<div class="more">';
+            echo $info['description'] . '</div>' . PHP_EOL;
+          }
           
-          // if(!$suggestion) $suggestion = (isset($info['suggestion']) && $info['suggestion']) ? $info['suggestion'] : '';
-          echo str_repeat(' ', 16) . '<input id="' . $name . '" type="' . (isset($info['type']) ? $info['type'] : 'text') . '" value="' . ((string) call_user_func($name)) . '" />' . PHP_EOL;
+          echo str_repeat(' ', 16) . '<input id="' . $name . '" type="';
+          echo (isset($info['type']) ? $info['type'] : 'text');
+          echo '" value="' . ((string)call_user_func($name)) . '" />' . PHP_EOL;
           
-          if(isset($info['information']))
-            echo str_repeat(' ', 16) . '<div class="info">' . $info['information'] . '</div>' . PHP_EOL;
+          if(isset($info['information'])) {
+            echo str_repeat(' ', 16) . '<div class="info">';
+            echo $info['information'] . '</div>' . PHP_EOL;
+          }
           
-          if(isset($info['suggestion']))
-            echo str_repeat(' ', 16) . '<aside>We suggest "<code>' . $info['suggestion'] . '</code>"</aside>' . PHP_EOL;
+          if(isset($info['suggestion'])) {
+            echo str_repeat(' ', 16) . '<aside>We suggest "<code>';
+            echo $info['suggestion'] . '</code>"</aside>' . PHP_EOL;
+          }
           
           echo str_repeat(' ', 14) . '</li>';
         }
@@ -177,11 +220,10 @@
       <section>
         <h1 class="standard_main standard_vert">When you're done</h1>
         <p id="results" class="standard_main standard_vert medium">When you're finished changing the configuration settings, click submit to test them.</p>
-        <p class="standard_main standard_vert medium">
-          <input type='submit' onclick='callSiteInstall()' />
-        </p>
+        <form onsubmit="callSiteInstall(event);" class="standard_main standard_vert medium">
+          <input id="submitter" type='submit' value='Submit' />
+        </form>
       </section>
       
     </body>
-  <?php echo getJS('jquery.min'); ?>
 </html>
