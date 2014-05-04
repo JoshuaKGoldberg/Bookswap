@@ -28,6 +28,12 @@ function sendVerifEmailForm() {
     verifComplete, verifEnsure);
 }
 
+function sendVerifEmailOnlyForm() {
+  sendRequestForm("publicSetVerificationEmail", 
+    ["j_email"],
+     verifComplete);
+}
+
 function verifComplete(result) {
   console.log("Got", result);
   // If the attempt was successful, refresh

@@ -151,11 +151,16 @@
     
     $email = $arguments['j_email'];
     $user_id = $_SESSION['user_id'];
-    $password = $arguments['j_password'];
     $username = $_SESSION['username'];
     
+    // Only test password stuff if one is provided
+    $has_pass = isset($arguments['j_password']) && $arguments['j_password'];
+    if($has_pass) {
+        $password = $arguments['j_password'];
+    }
+    
      // The password must be secure
-    if(!isPasswordSecure($password)) {
+    if($has_pass && !isPasswordSecure($password)) {
       if(!$noverbose) echo 'Your password isn\'t secure enough.';
       return false;
     }
@@ -170,11 +175,11 @@
       return false;
     }
     
-    // Check if the email is being used already
+    // If that email is being used already, try to log into it 
     $dbConn = getPDOQuick($arguments);
     if(emailBeingUsed($dbConn, $email)) {
       // If it is, see if you can log in with that password, to unify the accounts
-      if(loginCheckPassword($dbConn, $email, $password)) {
+      if($has_pass && loginCheckPassword($dbConn, $email, $password)) {
         $edu_user_id = getRowValue($dbConn, 'users', 'user_id', 'email_edu', $email);
         $fb_user_id = $_SESSION['user_id'];
         $fb_id = $_SESSION['fb_id'];
@@ -212,19 +217,17 @@
       // That failed 
       if(!$noverbose) {
         echo 'That email is already being used.<br>';
-        echo '<small>If you have an account under ' . $email . ', you can log in here to unify the accounts.</small>';
+        echo '<small>If you have an account under ' . $email . ', you can log in here with your password to unify the accounts.</small>';
       }
       return false;
     }
     
-    // If a password is given, check that too
-    if(isset($arguments['j_password'])) {
-      if($password) {
-        // The password must be secure
-        if(!isPasswordSecure($password)) {
-          echo 'Your password isn\'t secure enough.';
-          return false;
-        }
+    // If a password is given, check that for validity too
+    if($has_pass) {
+      // The password must be secure
+      if(!isPasswordSecure($password)) {
+        echo 'Your password isn\'t secure enough.';
+        return false;
       }
       
       // Since the password is secure, give it to the user

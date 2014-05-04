@@ -31,13 +31,14 @@
     </p>
     <form id="verif_email_create" onsubmit="event.preventDefault(); sendVerifEmailForm();">
       <input id="j_email" name="email_edu" type="email" class="medium verif_input" placeholder="a .edu address">
+      <input type="button" class="big pad-h" onclick="event.preventDefault(); sendVerifEmailOnlyForm();" value="Submit">
       <p class="standard_main standard_vert medium">
         <span id="pass_display">If you'd like, you can also set a password to log in with either email.</span>
         <br>
         <input id="j_password" name="password" type="password" placeholder="new password (optional)">
         <input id="j_password_confirm" name="password_confirm" type="password" class="verif_input" placeholder="again, just to be sure">
       </p>
-      <input type="submit" class="big pad-h">
+      <input type="submit" class="big pad-h" value="Submit">
     </form>
     <p id="user_login_text" class="standard_main standard_vert small">
       Passwords here follow the same restrictions as normal.
