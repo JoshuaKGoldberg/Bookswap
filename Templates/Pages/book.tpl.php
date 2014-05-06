@@ -1,6 +1,8 @@
 <?php
   if(!isset($_GET['isbn'])) {
-    echo '<section><h4 class="standard_main standard_vert">Please provide an ISBN!</h4></section>';
+    echo '<section><h4 class="standard_main standard_vert">';
+    echo 'Please provide an ISBN!';
+    echo '</h4></section>';
     return;
   }
   include_once('defaults.php');
@@ -9,7 +11,9 @@
     
   $isbn = $_GET['isbn'];
   $info = dbBooksGet(getPDOQuick(), $isbn, true);
-  if(!$info) return TemplatePrint('Pages/404');
+  if(!$info) {
+    return TemplatePrint('Pages/404');
+  }
 ?>
 <title><?php echo $info['title'] . ' - ' . getSiteName(); ?></title>
 

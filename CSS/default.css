@@ -468,8 +468,13 @@ section:nth-of-type(2n) .loading .loader {
 .book.book_large .authors {
   font-size: 1.17em;
 }
-.viewgoogle, .book .display_book_export {
+.view_externals, .book .display_book_export {
   float: right;
+}
+.view_externals span {
+  padding-right: 3px;
+  font-style: italic;
+  color: #777;
 }
 .book .book_export {
   float: right;

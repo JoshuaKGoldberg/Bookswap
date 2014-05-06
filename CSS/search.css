@@ -78,6 +78,8 @@
   font-size: 28px;
 }
 
-.book.book_large .viewgoogle a {
-  font-size: .77em;
+/* Extra specific to override other rule(s) */
+.book.book_large .view_externals span,
+.book.book_large .view_externals a {
+  font-size: .7em;
 }

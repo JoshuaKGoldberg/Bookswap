@@ -1,3 +1,12 @@
+// When the document loads, replace the Amazon search link with a direct
+// link to the book's page by 10-digit ISBN (ASIN)
+$(document).ready(function() {
+    var view_amazon = document.getElementById("view_amazon"),
+        isbn = view_amazon.getAttribute("isbn");
+    view_amazon.setAttribute("href", 
+            "http://amazon.com/dp/" + convertISBN(isbn));
+});
+
 // Gathers information about a submit-entry request, then submits it
 // Can't use automated sendRequestForm because IDs might be duplicate
 function entryAddSubmit(event, isbn) {
