@@ -171,7 +171,7 @@ function editClick(func_name, settings, event) {
   
   // Also print out 'X' and '✓' buttons for canceling
   output += "<input type='button' class='editable_butt editable_cancel' value='X'>";
-  output += "<input type='submit' class='editable_butt editable_submit' value='✓'>";
+  output += "<input type='submit' class='editable_butt editable_submit' value='&#10003;'>";
   
   output += "</form>";
   target.innerHTML = output;
