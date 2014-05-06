@@ -116,10 +116,25 @@ function updateSearchUsername(results, settings) {
   // If the results aren't blank, something happened. Complain.
   if(!is_ok) {
     $("#username")
-      .after( $("<div class='updater updater_username'>" + results + "</div>"))
+      .after( $("<div class='updater updater_username'>" + results + "</div>") )
       .find("span")
         .text(settings.value_old);
   }
   
   input.attr('placeholder', blurb.slice(0, last) + settings[is_ok ? "value" : "value_old"]);
+}
+
+// Displays any messages regarding API calls to update a book
+function updateEmailDisplay(results, settings) {
+    // Remove any previous updater_email
+    $(".updater_email").remove();
+    
+    // If there's no message, all is well
+    if(!results) {
+        return;
+    }
+    
+    $("#contact_info")
+        .append( $("<div class='updater_email'>" + results + "</div>") )
+            .text(results);
 }

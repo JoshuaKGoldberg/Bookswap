@@ -48,13 +48,13 @@
    *                          this is static.
    */
   function printContactInfo($tabs, $value, $label, $editor='') {
-    echo str_repeat('  ', $tabs) . '<div class="contact_block">' . PHP_EOL;
+    echo str_repeat('  ', $tabs) . '<div id="' . str_replace(' ', '', str_replace('.', '', $label)) . '" class="contact_block">' . PHP_EOL;
 
     // If a editor function is provided, the top div is fancy
     // (false until editEmail and editEmailEdu are implemented)
     echo str_repeat('  ', $tabs + 1) . '<div class="contact_block_up">';
     if($editor) { 
-      PrintEditable($value, $editor);
+      PrintEditable($value, $editor, array('callback' => 'updateEmailDisplay'));
     } else {
       echo $value;
     }

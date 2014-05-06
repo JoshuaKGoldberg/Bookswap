@@ -414,6 +414,15 @@
       if(!$noverbose) {
          echo "Same email as before... :(\n";
       }
+      return false;
+    }
+    
+    // Don't do anything if it's not an .edu email
+    if(!endsWith($email_new, '.edu')) {
+      if(!$noverbose) {
+         echo "Not an .edu address... :(\n";
+      }
+      return false;
     }
     
     // Replace the user's actual email
