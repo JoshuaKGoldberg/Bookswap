@@ -36,7 +36,7 @@
             <a id="view_google" target="_blank" href="<?php echo getGoogleLink($google_id); ?>">Google</a>
             &middot;
             <!-- This should be replaced via Javascript with the direct link -->
-            <a id="view_amazon" target="_blank" isbn="<?php echo $isbn; ?> href="http://www.amazon.com/s/?field-keywords=<?php echo $isbn; ?>">Amazon</a>
+            <a id="view_amazon" target="_blank" isbn="<?php echo $isbn; ?>" href="http://www.amazon.com/s/?field-keywords=<?php echo $isbn; ?>">Amazon</a>
         </div>
         <?php if($is_search): ?>
         <h2 class="book_title"><?php echo getLinkHTML('book', $title, array('isbn'=>$isbn)); ?></h1>
