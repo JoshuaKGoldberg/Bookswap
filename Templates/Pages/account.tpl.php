@@ -33,6 +33,37 @@
   }
   else return AccessDenied();
   
+  // Whether to print contact info on the screen
+  $show_contact_info = $using_current || isset($info);
+
+  /**
+   * Prints contact information of the user (such as email), as static for other
+   * users or as editable components for the current user.
+   * 
+   * @param {Integer} tabs   How many tabs to print before each line
+   * @param {String} field   The value being printed (such as "goldbj5@rpi.edu")
+   * @param {String} label   The label with the value (such as ".edu email")
+   * @param {String} editor   An optional JS function to call for the editable
+   *                          component; if provided, this is editable; if not,
+   *                          this is static.
+   */
+  function printContactInfo($tabs, $value, $label, $editor='') {
+    echo str_repeat('  ', $tabs) . '<div class="contact_block">' . PHP_EOL;
+
+    // If a editor function is provided, the top div is fancy
+    // (false until editEmail and editEmailEdu are implemented)
+    echo str_repeat('  ', $tabs + 1) . '<div class="contact_block_up">';
+    if($editor && false) { 
+      PrintEditable($value, $editor);
+    } else {
+      echo $value;
+    }
+    echo '</div>' . PHP_EOL;
+    
+    echo str_repeat('  ', $tabs + 1) . '<div class="contact_block_down">' . $label . '</div>' . PHP_EOL;
+	echo str_repeat('  ', $tabs) . '</div>' . PHP_EOL;
+  }
+  
 ?>
 <title><?php 
     if($using_current) {
@@ -71,10 +102,24 @@
   </div>
   
   <!-- Contact info -->
-  <?php if(isset($info)): ?>
-  <h3 id="contacter" class="standard_main standard_vert">
-    <?php echo $info['email']; ?>
-  </h3>
+  <?php if($show_contact_info): ?>
+  
+  <div id="contact_info" class="standard_main standard_vert">
+    <?php 
+        echo PHP_EOL;
+        // If on the current user, print callbacks to edit the info
+        if($using_current) {
+          printContactInfo(5, $_SESSION['email'], 'main email', 'publicEditEmail');
+          printContactInfo(5, $_SESSION['email_edu'], '.edu email', 'publicEditEmailEdu');
+        }
+        // Otherwise just print the info all plain-like
+        else {
+          printContactInfo(5, $info['email'], 'main email');
+          printContactInfo(5, $info['email_edu'], '.edu email');
+        }
+        echo PHP_EOL;
+    ?>
+  </div>
   <?php endif; ?>
   
   <!-- Lists of books the user wants -->

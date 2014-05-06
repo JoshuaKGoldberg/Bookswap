@@ -717,7 +717,7 @@
     // If there were none, stop immediately
     if(!$entries) {
       if(!$noverbose)
-        echo '<aside>Nothing going!</aside>';
+        echo '<aside class="nothing">Nothing going!</aside>';
         echo '<p>Perhaps you\'d like to ' . getLinkHTML('search', 'add more') . '?</p>' . PHP_EOL;
       return;
     }

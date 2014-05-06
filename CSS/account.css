@@ -11,12 +11,32 @@ h1, h2, h3, h4 {
 }
 
 #links_menu {
-  margin: -14px auto 35px;
+  margin: -14px auto 7px;
   font-size: 1.4em;
 }
 
+/* Contact info
+*/
+
+.contact_block {
+    display: inline-block;
+    padding: 0 14px 7px 14px;
+}
+
+.contact_block_up {
+    padding-bottom: 3px;
+    font-size: 1.4em;
+}
+
+.contact_block_down {
+    font-style: italic;
+    color: #494949;
+}
+
+
 /* Entries
 */
+
 .book .book_entry {
   float: right;
   padding-top: 0;
