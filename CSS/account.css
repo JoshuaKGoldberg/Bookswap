@@ -15,8 +15,17 @@ h1, h2, h3, h4 {
   font-size: 1.4em;
 }
 
-/* Contact info
+/* User info
 */
+
+.updater {
+    text-align: center;
+    font-style: italic;
+}
+
+.updater_username {
+    margin: -35px 0 28px;
+}
 
 .contact_block {
     display: inline-block;

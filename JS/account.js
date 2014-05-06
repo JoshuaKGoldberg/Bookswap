@@ -110,10 +110,13 @@ function updateSearchUsername(results, settings) {
       blurb = input.attr('placeholder'),
       last = blurb.lastIndexOf(settings.value_old);
   
+  // Remove the previous updater_username
+  $(".updater_username").remove();
+  
   // If the results aren't blank, something happened. Complain.
   if(!is_ok) {
     $("#username")
-      .after( $("<div><section class='standard_main error'><em>" + results + "</em></section></div></br>"))
+      .after( $("<div class='updater updater_username'>" + results + "</div>"))
       .find("span")
         .text(settings.value_old);
   }
