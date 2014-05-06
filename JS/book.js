@@ -1,5 +1,7 @@
 // When the document loads, replace the Amazon search link with a direct
-// link to the book's page by 10-digit ISBN (ASIN)
+// link to the book's page by 10-digit ISBN (ASIN)... except no, some of those
+// links will be no good, so don't do this.
+// Ex. ISBN13 9780307387646 -> ASIN 030738764X (actually B000VSW7X4)
 $(document).ready(function() {
     var view_amazon = document.getElementById("view_amazon"),
         isbn = view_amazon.getAttribute("isbn");
