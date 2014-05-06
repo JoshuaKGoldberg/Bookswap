@@ -53,7 +53,7 @@
     // If a editor function is provided, the top div is fancy
     // (false until editEmail and editEmailEdu are implemented)
     echo str_repeat('  ', $tabs + 1) . '<div class="contact_block_up">';
-    if($editor && false) { 
+    if($editor) { 
       PrintEditable($value, $editor);
     } else {
       echo $value;

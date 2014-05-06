@@ -1,7 +1,7 @@
 <?php
   /* Public API for running a limited subset of PHP functions
    * The allowed functions are defined by $allowed_functions
-   * The JS::sendRequest function goes to this page and specifies a function to run
+   * The JS::sendRequest function goes to here and specifies a function to run
   */
   // This has to be used with a requested function
   if(isset($_GET['function'])) $function_name = $_GET['function'];
@@ -20,9 +20,9 @@
   $allowed_functions = array(
     'publicCreateUser', 'publicVerifyUser',
     'publicSetVerificationEmail', 'publicSendWelcomeEmail', 
-    'publicLogin', 'publicFacebookLogin', 'publicEditUsername',
-    'publicAddBook', 'publicSearch', 'publicGetBookEntries',
-    'publicBookImport',
+    'publicLogin', 'publicFacebookLogin', 
+    'publicEditUsername', 'publicEditEmail', 'publicEditEmailEdu',
+    'publicAddBook', 'publicSearch', 'publicGetBookEntries', 'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',
     'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',

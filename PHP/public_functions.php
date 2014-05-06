@@ -309,7 +309,7 @@
   // publicEditUsername({...})
   // Edits the current user's username, and updates all related entries
   // Required fields:
-  // * "username" (new value)
+  // * "value" (new value)
   function publicEditUsername($arguments, $noverbose=false) {
     // Make sure you're logged in
     if(!UserLoggedIn()) {
@@ -320,14 +320,19 @@
     $username_old = $_SESSION['username'];
     $username_new = ArgLoose($arguments['value']);
     
+    // Don't do anything if it's an invalid value
     if(!$username_new || strlen($username_new) < 1) {
-      echo "Invalid username given... :(\n";
+      if(!$noverbose) {
+         echo "Invalid username given... :(\n";
+      }
       return false;
     }
     
     // Don't do anything if it's the same as before
     if($username_new == $username_old) {
-      echo "Same username as before... :(\n";
+      if(!$noverbose) {
+         echo "Same username as before... :(\n";
+      }
       return false;
     }
     
@@ -337,6 +342,86 @@
     
     // Reset the $_SESSION username to be that of the database's
     $_SESSION['username'] = getRowValue($dbConn, 'users', 'username', 'user_id', $user_id);
+  }
+  
+  // publicEditEmail({...})
+  // Edits the current user's primary email, and updates all related entries
+  // Required fields:
+  // * "value" (new value)
+  function publicEditEmail($arguments, $noverbose=false) {
+    // Make sure you're logged in
+    if(!UserLoggedIn()) {
+      if(!$noverbose) {
+        echo 'You must be logged in to edit an email.';
+      }
+      return false;
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    $email_old = $_SESSION['email'];
+    $email_new = ArgLoose($arguments['value']);
+    
+    // Don't do anything if it's an invalid value
+    if(!$email_new || !filter_var($email_new, FILTER_VALIDATE_EMAIL)) {
+      if(!$noverbose) {
+         echo "Invalid email given... :(\n";
+      }
+      return false;
+    }
+    
+    // Don't do anything if it's the same as before
+    if($email_new == $email_old) {
+      if(!$noverbose) {
+         echo "Same email as before... :(\n";
+      }
+    }
+    
+    // Replace the user's actual email
+    $dbConn = getPDOQuick($arguments);
+    dbUsersEditEmail($dbConn, $user_id, $email_new, 'user_id');
+    
+    // Reset the $_SESSION email to be that of the database's
+    $_SESSION['email'] = getRowValue($dbConn, 'users', 'email', 'user_id', $user_id);
+  }
+  
+  // publicEditEmail({...})
+  // Edits the current user's primary email, and updates all related entries
+  // Required fields:
+  // * "value" (new value)
+  function publicEditEmailEdu($arguments, $noverbose=false) {
+    // Make sure you're logged in
+    if(!UserLoggedIn()) {
+      if(!$noverbose) {
+        echo 'You must be logged in to edit an email.';
+      }
+      return false;
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    $email_old = $_SESSION['email_edu'];
+    $email_new = ArgLoose($arguments['value']);
+    
+    // Don't do anything if it's an invalid value
+    if(!$email_new || !filter_var($email_new, FILTER_VALIDATE_EMAIL)) {
+      if(!$noverbose) {
+         echo "Invalid email given... :(\n";
+      }
+      return false;
+    }
+    
+    // Don't do anything if it's the same as before
+    if($email_new == $email_old) {
+      if(!$noverbose) {
+         echo "Same email as before... :(\n";
+      }
+    }
+    
+    // Replace the user's actual email
+    $dbConn = getPDOQuick($arguments);
+    dbUsersEditEmailEdu($dbConn, $user_id, $email_new, 'user_id');
+    
+    // Reset the $_SESSION email to be that of the database's
+    $_SESSION['email_edu'] = getRowValue($dbConn, 'users', 'email_edu', 'user_id', $user_id);
   }
   
   // publicAddBook({...})
