@@ -243,6 +243,27 @@
                                  ':identity'     => $identity));
   }
   
+  // dbUsersEditEmail("identity", "email_new"[, "type"])
+  // Edits an email from `users` of the given identity (by default, user_id)
+  // Sample usage: dbUsersEditEmail($dbConn, $user_id, $email_new, "user_id");
+  function dbUsersEditEmail($dbConn, $identity, $email_new, $type='user_id') {
+    // Ensure the identity exists in the database
+    if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
+        echo 'No such ' . $type . ' exists: ' . $identity;
+        return false;
+    }
+
+    // Run the change query
+    $query = '
+        UPDATE `users` SET
+        `email` = :email_new
+        WHERE `' . $type . '` = :identity
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':email_new' => $email_new,
+                                 ':identity'  => $identity));
+  }
+
   
   /* Book Functions
   */
