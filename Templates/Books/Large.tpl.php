@@ -42,7 +42,12 @@
         <h2 class="book_title"><?php echo getLinkHTML('book', $title, array('isbn'=>$isbn)); ?></h1>
         <?php endif; ?>
         <div class="book_author_info">
-          <span class="authors"><?php echo str_replace('\n', ', ', $authors); ?></span>
+          <span class="authors"><?php 
+            $authors = explode('\n', $authors);
+            foreach($authors as $author) {
+              TemplatePrint('Author', 3, array('author' => $author));
+            }
+          ?></span>
           <aside><?php if($year) echo '(' . $year . ')'; ?></aside>
         </div>
       </h2>
@@ -62,7 +67,7 @@
       <aside>
         <?php if($pages): echo $pages; ?> pages <?php endif; ?>
         <?php if($publisher && $pages) echo '/'; ?>
-        <?php if($publisher): ?>Published by <strong><?php echo $publisher; ?></strong><?php endif; ?>
+        <?php if($publisher): ?>Published by <strong><?php TemplatePrint('Publisher', 3, array('publisher' => $publisher)); ?></strong><?php endif; ?>
       </aside>
     </div>
     <?php endif; ?>

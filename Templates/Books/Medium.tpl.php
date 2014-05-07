@@ -38,7 +38,15 @@
     
     <!-- Book information -->
     <h3><?php echo getLinkHTML('book', $title, array('isbn'=>$isbn)); ?> <aside>(<?php echo $year; ?>)</h3>
-    <div class="extra"><?php echo str_replace('\n', ', ', $authors); ?></div>
-    <aside><?php echo $publisher . ', ' . $pages . ' pages'; ?></aside><!-- </div> -->
+    <div class="extra"><?php 
+      $authors = explode('\n', $authors);
+      foreach($authors as $author) {
+        TemplatePrint('Author', 3, array('author' => $author));
+      }
+    ?></div>
+    <aside><?php 
+        TemplatePrint('Publisher', 3, array('publisher' => $publisher));
+        echo ', ' . $pages . ' pages';
+    ?></aside><!-- </div> -->
   </div>
 </div> 
