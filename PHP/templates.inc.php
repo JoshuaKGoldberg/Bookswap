@@ -8,6 +8,7 @@
   function getTemplatePage($name) {
     $allowed_pages = array(
       'Entry', 'Footer', 'Header', 'Money', 'Page', 'Notification',
+      'Author', 'Publisher',
       'Books/Export', 'Books/Large', 'Books/Medium',
       'Forms/AddEntry', 'Forms/Money',
       'Header/Badge', 'Header/Search',
