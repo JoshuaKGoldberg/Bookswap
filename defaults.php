@@ -76,7 +76,7 @@
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);
     foreach($args as $key=>$value)
-      $output .= '&' . $key . '=' . $value;
+      $output .= '&' . str_replace('"', "'", $key) . '=' . str_replace('"', '', $value);
     return '<a href="' . $output . '">' . $contents . '</a>';
   }
   function getLinkExternal($url, $text) {
