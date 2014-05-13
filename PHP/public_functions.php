@@ -15,6 +15,40 @@
     return strip_tags($arg);
   }
   
+  /* Printing for API output
+  */
+  function output($settings, $message) {
+    if(!isset($settings['verbose']) || !$settings['verbose']) {
+      return;
+    }
+    
+    if(isset($settings['format'])) {
+      switch($settings['format']) {
+        case 'xml':
+          return outputXML($message);
+        case 'json':
+          return outputJSON($message);
+        break;
+      }
+    }
+    
+    echo $message;
+    return $message;
+  }
+  
+  function outputXML($message) {
+    echo '<message>' . PHP_EOL;
+    echo '  ' . $message . PHP_EOL;
+    echo '</message>';
+  }
+  
+  function outputJSON($message) {
+    echo '{' . PHP_EOL;
+    echo '  "message": "' . $message . '"' . PHP_EOL;
+    echo '}';
+  }
+  
+  
   // publicCreateUser({...})
   // Public pipe to dbUsersAdd("username", "password")
   // Required fields:
@@ -26,6 +60,11 @@
     $username = ArgLoose($arguments['j_username']);
     $password = $arguments['j_password'];
     $email = $arguments['j_email'];
+    
+    if($noverbose) {
+        echo 'verbose is on!';
+        print_r($arguments);
+    }
     
     // Make sure the arguments aren't blank
     if(!$username || !$password || !$email) {
@@ -374,10 +413,19 @@
       if(!$noverbose) {
          echo "Same email as before... :(\n";
       }
+      return false;
+    }
+    
+    $dbConn = getPDOQuick($arguments);
+    
+    // Don't do anything if the email is taken
+    if(checkKeyExists($dbConn, 'users', 'email', $email_new)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
+      if(!$noverbose) echo 'The email \'' . $email_new . '\' is already taken :(';
+      return false;
     }
     
     // Replace the user's actual email
-    $dbConn = getPDOQuick($arguments);
     dbUsersEditEmail($dbConn, $user_id, $email_new, 'user_id');
     
     // Reset the $_SESSION email to be that of the database's
@@ -425,8 +473,15 @@
       return false;
     }
     
-    // Replace the user's actual email
     $dbConn = getPDOQuick($arguments);
+    
+    // Don't do anything if the email is taken
+    if(checkKeyExists($dbConn, 'users', 'email', $email_new)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
+      if(!$noverbose) echo 'The email \'' . $email_new . '\' is already taken :(';
+      return false;
+    }
+    
     dbUsersEditEmailEdu($dbConn, $user_id, $email_new, 'user_id');
     
     // Reset the $_SESSION email to be that of the database's
