@@ -83,7 +83,7 @@
     return '<a href="' . $url . '">' . $text . '</a>';
   }
   
-  // General Site Info
+  // General site info
   function getSchoolName() { return 'RPI'; }
   function getSiteName() { return getSchoolName() . ' ' . getName(); }
   function getSiteDescription() { return 'A hub for students to buy & sell textbooks on campus.'; }
@@ -98,6 +98,10 @@
     $output .= '<link href="http://fonts.googleapis.com/css?family=Lato:300" rel="stylesheet" type="text/css">';
     return $output;
   }
+  
+  // API information
+  function getDefaultAPIVerbosity() { return 1; }
+  function getDefaultAPIFormat() { return 'json'; }
   
   
   /* User particulars

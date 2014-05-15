@@ -34,7 +34,7 @@
     <?php
       PrintRequest('publicPrintRecentListings', array(
         'identifier' => 'isbn',
-        'isbn'=> $info['isbn']
+        'value'=> $info['isbn']
       ));
     ?>
   </div>

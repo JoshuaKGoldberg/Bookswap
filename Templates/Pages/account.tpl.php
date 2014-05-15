@@ -197,7 +197,7 @@
 <section id="recent_activity">
   <h1 class="standard_main standard_vert giant">recent <?php echo getSchoolName(); ?> listings</h1>
   <div class="standard_main listings">
-    <?php PrintRequest("publicPrintRecentListings"); ?>
+    <?php PrintRequest("publicPrintRecentListings", array("verbose" => true)); ?>
   </div>
 </section>
 <?php endif; ?>

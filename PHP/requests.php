@@ -18,6 +18,7 @@
   
   // Functions the user may call via JS
   $allowed_functions = array(
+    'publicTest',
     'publicCreateUser', 'publicVerifyUser',
     'publicSetVerificationEmail', 'publicSendWelcomeEmail', 
     'publicLogin', 'publicFacebookLogin', 
