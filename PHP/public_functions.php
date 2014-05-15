@@ -1,4 +1,17 @@
 <?php
+    /**
+     * BookSwap API Functions
+     * 
+     * <p>These are the functions listed in PHP/requests.php and callable via 
+     * PHP/requests.php and api.php. Publically accessible functions have names
+     * prepended with "public", while utilities do not.</p>
+     * <p>Be careful dealing with input, as all arguments may be modified by *
+     * users: use sanitizations such as the ArgStrict and ArgLoose functions,
+     * and PDO execution parameters.</p>
+     * 
+     * @package BookSwap
+     */
+  
   /* Functions the public may access via requests.js -> requests.php
   */
   require_once('pdo.inc.php');
@@ -15,60 +28,122 @@
     return strip_tags($arg);
   }
   
-  // publicCreateUser({...})
-  // Public pipe to dbUsersAdd("username", "password")
-  // Required fields:
-  // * "username"
-  // * "password"
-  // * "email"
-  function publicCreateUser($arguments, $noverbose=false) {
-    $dbConn = getPDOQuick($arguments);
-    $username = ArgLoose($arguments['j_username']);
-    $password = $arguments['j_password'];
-    $email = $arguments['j_email'];
-    
-    // Make sure the arguments aren't blank
-    if(!$username || !$password || !$email) {
-      echo 'Make sure to fill out all the fields!';
-      return false;
-    }
-    
-    // The password must be secure
-    if(!isPasswordSecure($password)) {
-      echo 'Your password isn\'t secure enough.';
-      return false;
-    }
-    
-    // The email must be an academic email
-    if(!isStringEmail($email)) {
-      if(!$noverbose) echo 'That email isn\'t an actual email! What are you doing, silly?';
-      return false;
-    }
-    if(!isEmailAcademic($email)) {
-      if(!$noverbose) echo 'Sorry, right now we\'re only allowing school emails. Please use a .edu email address.';
-      return false;
-    }
-    
-    // Also make sure that email isn't taken
-    if(checkKeyExists($dbConn, 'users', 'email', $email)
-      || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
-      if(!$noverbose) echo 'The email \'' . $email . '\' is already taken :(';
-      return false;
-    }
+    /* Printing for API output
+    */
+    /**
+     * output({$settings}, "$message")
+     * 
+     * If $settings['verbose'] is truthy, this prints $message in a format 
+     * specified by $settings['format']. In general, calls from regular BookSwap
+     * PHP functions, and from requests.js, will not have verbose output, as 
+     * they do not typically set verbose to true. Calls from api.php typically
+     * have verbose set to true (see defaults.php::whatever) and format set to
+     * json (see defaults.php::yuppers).
+     * Options, with the functions used, are:
+     * * "PHP": print_r(result) (default)
+     * * "JSON": json_encode(result)
+     * * "XML": xmlrpc_encode(result)
+     */
+    function output($settings, $message) {
+        if(!isset($settings['verbose']) || !$settings['verbose']) {
+          return;
+        }
 
-    // If successful, log the user in
-    if(dbUsersAdd($dbConn, $username, $password, $email)) {
-      $arguments['username'] = $arguments['j_username'];
-      $arguments['password'] = $arguments['j_password'];
-      $arguments['email'] = $arguments['j_email'];
-      publicLogin($arguments, true);
-      
-      if(!$noverbose)
-        echo 'Yes';
-      return true;
+        // If a custom format is given, check if it matches the provided formats
+        if(isset($settings['format'])) {
+            switch($settings['format']) {
+                case 'xml':
+                    outputXML($message);
+                    return;
+                case 'json':
+                    outputJSON($message);
+                    return;
+            }
+        }
+        
+        // If no given format matched a provided format, use the default printer
+        outputPHP($message);
     }
-    return false;
+  
+    function outputXML($message) {
+        echo xmlrpc_encode($message);
+    }
+  
+    function outputJSON($message) {
+        echo json_encode($message);
+    }
+  
+    function outputPHP($message) {
+      if(is_array($message)) {
+          print_r($message);
+      } else {
+          echo $message;
+      }
+    }
+  
+  // publicTest({...})
+  // Test function to print out arguments.
+  function publicTest($arguments) {
+    output($arguments, $arguments);
   }
+  
+    // publicCreateUser({...})
+    // Public pipe to dbUsersAdd("username", "password")
+    // Required fields:
+    // * "username"
+    // * "password"
+    // * "email"
+    function publicCreateUser($arguments, $noverbose=false) {
+        $dbConn = getPDOQuick($arguments);
+        $username = isset($arguments['j_username'])
+            ? ArgLoose($arguments['j_username']) : false;
+        $password = isset($arguments['j_password'])
+            ? $arguments['j_password'] : false;
+        $email = isset($arguments['j_email'])
+            ? $arguments['j_email'] : false;
+        
+        // Make sure the arguments aren't blank
+        if(!$username || !$password || !$email) {
+            output($arguments, 'Make sure to fill out all the fields!');
+            return false;
+        }
+        
+        // The password must be secure
+        if(!isPasswordSecure($password)) {
+            output($arguments, 'Your password isn\'t secure enough.');
+            return false;
+        }
+        
+        // The email must be an academic email
+        if(!isStringEmail($email)) {
+            output($arguments, 'That email isn\'t an actual email!');
+            return false;
+        }
+        if(!isEmailAcademic($email)) {
+            output($arguments, 'Sorry, right now we\'re only allowing school '
+                . 'emails. Please use a .edu email address.');
+            return false;
+        }
+        
+        // Also make sure that email isn't taken
+        if(checkKeyExists($dbConn, 'users', 'email', $email)
+          || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
+            output($arguments, 'The email \'' . $email . '\' is taken.');
+            return false;
+        }
+
+        // If successful, log the user in
+        if(dbUsersAdd($dbConn, $username, $password, $email)) {
+            $arguments['username'] = $arguments['j_username'];
+            $arguments['password'] = $arguments['j_password'];
+            $arguments['email'] = $arguments['j_email'];
+            publicLogin($arguments, true);
+            
+            output($arguments, 'Yes');
+            return true;
+        }
+        return false;
+    }
   
   // publicSendWelcomeEmail({...})
   // Also sends an email...
@@ -374,10 +449,19 @@
       if(!$noverbose) {
          echo "Same email as before... :(\n";
       }
+      return false;
+    }
+    
+    $dbConn = getPDOQuick($arguments);
+    
+    // Don't do anything if the email is taken
+    if(checkKeyExists($dbConn, 'users', 'email', $email_new)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
+      if(!$noverbose) echo 'The email \'' . $email_new . '\' is already taken :(';
+      return false;
     }
     
     // Replace the user's actual email
-    $dbConn = getPDOQuick($arguments);
     dbUsersEditEmail($dbConn, $user_id, $email_new, 'user_id');
     
     // Reset the $_SESSION email to be that of the database's
@@ -425,8 +509,15 @@
       return false;
     }
     
-    // Replace the user's actual email
     $dbConn = getPDOQuick($arguments);
+    
+    // Don't do anything if the email is taken
+    if(checkKeyExists($dbConn, 'users', 'email', $email_new)
+      || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
+      if(!$noverbose) echo 'The email \'' . $email_new . '\' is already taken :(';
+      return false;
+    }
+    
     dbUsersEditEmailEdu($dbConn, $user_id, $email_new, 'user_id');
     
     // Reset the $_SESSION email to be that of the database's
@@ -822,32 +913,43 @@
       TemplatePrint("Books/" . $format, 0, array_merge($entry, $results[$key]));
     }
   }
-  
-  // publicPrintRecentListings({...})
-  // Prints the site listings, in chronological order of most-recent-first
-  // Optionally filters them by an identifier
-  // Optional arguments:
-  // * "identifier"
-  // * "isbn"
-  function publicPrintRecentListings($arguments) {
-    // Check if there's an identifier
-    if(isset($arguments['identifier'])) {
-      $identifier = $arguments['identifier'];
-      $isbn = $arguments['isbn'];
+    
+    /**
+     * PrintRecentListings
+     * 
+     * Prints the most recent entries on the site, in chronological order. Calls
+     * TemplatePrint("Entry") on PHP/db_actions::dbEntriesGetRecent().
+     * 
+     * @param Array $arguments   Associative array of the following arguments:
+     * @param String "identifier"   An optional key by which to filter entries,
+     *                              such as "isbn" or "user_id_a"
+     * @param String "value"    A value (required only if "identifier" is given)
+     *                          to filter for, such as "9780073523323" for 
+     *                          "isbn".
+     */
+    function publicPrintRecentListings($arguments) {
+        // Check if there's an identifier
+        if(isset($arguments['identifier'])) {
+            $identifier = $arguments['identifier'];
+            $value = $arguments['value'];
+        }
+        else {
+            $identifier = $value = false;
+        }
+
+        // Get each of the recent entries
+        $dbConn = getPDOQuick($arguments);
+        $entries = dbEntriesGetRecent($dbConn, $identifier, $value);
+
+        // If there are any, for each of those entries, print them out
+        if(count($entries)) {
+            foreach($entries as $entry) {
+                TemplatePrint("Entry", 0, $entry);
+            }
+        } else {
+            output($arguments, "Nothing going!");
+        }
     }
-    else $identifier = $isbn = false;
-    
-    // Get each of the recent entries
-    $dbConn = getPDOQuick($arguments);
-    $entries = dbEntriesGetRecent($dbConn, $identifier, $isbn);
-    
-    // If there are any, for each of those entries, print them out
-    if(count($entries))
-      foreach($entries as $entry)
-        TemplatePrint("Entry", 0, $entry);
-    else
-      echo "nothing going!";
-  }
 
   // publicEntryAdd({...})
   // Adds an entry regarding a book for the current user
@@ -858,7 +960,7 @@
   // * "cents"
   // * "state"
   function publicEntryAdd($arguments, $noverbose=false) {
-    // Make sure there's a verified user, and get that user's info
+    // Make sure there's a user, and get that user's info
     if(!UserLoggedIn()) {
       if(!$noverbose) echo 'You must be logged in to add an entry.';
       return false;
