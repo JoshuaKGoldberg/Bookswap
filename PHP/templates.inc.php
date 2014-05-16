@@ -4,7 +4,7 @@
   */
   
   // getTemplatePage("name")
-  // Ensures a name is on a whitelist of allowed 
+  // Ensures a name is on a whitelist of allowed pages
   function getTemplatePage($name) {
     $allowed_pages = array(
       'Entry', 'Footer', 'Header', 'Money', 'Page', 'Notification',

@@ -18,6 +18,7 @@
      * @package BookSwap
      */
     
+    chdir('..');
     require_once('defaults.php');
     require_once('settings.php');
     require_once('PHP/public_functions.php');

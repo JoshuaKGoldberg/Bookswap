@@ -2,22 +2,26 @@
   <div class="standard_main">
     <div>
       <?php
+        $separator = ' <span>&sdot;</span>' . PHP_EOL;
+        
         if(UserVerified()) {
-          $links = ['Index', 'Account', 'Search', 'Import', 'Log Out'];
+          $links = ['Account', 'Search', 'Import', 'Log Out'];
         }
         else if(UserLoggedIn()) {
-          $links = ['Index', 'Account', 'Search', 'Log Out'];
+          $links = ['Account', 'Search', 'Log Out'];
         }
         else {
-          $links = ['Index', 'Search'];
+          $links = ['Search'];
         }
         
         for($i = 0, $len = count($links); $i < $len; ++$i)
           $links[$i] = getLinkHTML(strtolower(str_replace(' ', '', $links[$i])), $links[$i]);
         
+        echo getLinkHTML('', 'Home') . $separator;
+        
         $links[] = getLinkExternal('https://github.com/Diogenesthecynic/Bookswap/', 'Github');
         
-        echo implode('<span>&sdot;</span>', $links);
+        echo implode($separator, $links);
       ?>
     </div>
       <?php

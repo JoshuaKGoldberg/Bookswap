@@ -32,7 +32,7 @@
 >
   
     <head>
-        <!-- Page: <?php echo $pageName; ?> (<?php echo $tabs . PHP_EOL; print_r($_TARGS); ?> tabs) -->
+        <!-- Page: <?php echo $pageName; ?> (<?php echo $tabs; ?> tabs) -->
         
         <?php
             // The default CSS file should be printed immediately, so it loads first
