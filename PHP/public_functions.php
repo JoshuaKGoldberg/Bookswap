@@ -12,24 +12,39 @@
      * @package BookSwap
      */
   
-  /* Functions the public may access via requests.js -> requests.php
-  */
-  require_once('pdo.inc.php');
-  require_once('sql.inc.php');
-  require_once('db_actions.php');
-  require_once('notifications.php');
+    require_once('pdo.inc.php');
+    require_once('sql.inc.php');
+    require_once('db_actions.php');
+    require_once('notifications.php');
   
-  /* Helper functions to ensure argument safety
-  */
-  function ArgStrict($arg) {
-    return preg_replace("/[^A-Za-z0-9 ]/", '', ArgLoose($arg));
-  }
-  function ArgLoose($arg) {
-    return strip_tags($arg);
-  }
-  
-    /* Printing for API output
+    /* Helper functions to ensure argument safety
     */
+
+    /**
+     * Strict argument checking
+     * 
+     * Removes all characters from an argument string that aren't letters, 
+     * numbers, or spaces. Calls ArgLoose on the argument first, to remove tags.
+     * 
+     * @param String $arg   The argument string to be cleaned
+     * @return String
+     */
+    function ArgStrict($arg) {
+        return preg_replace("/[^A-Za-z0-9 ]/", '', ArgLoose($arg));
+    }
+  
+    /**
+     * Loose argument checking
+     * 
+     * Calls PHP's strip_tags on the argument to remove HTML/XML and similar tags.
+     * 
+     * @param String $arg   The argument string to be cleaned
+     * @return String
+     */
+    function ArgLoose($arg) {
+        return strip_tags($arg);
+    }
+  
     /**
      * output({$settings}, "$message")
      * 
@@ -64,15 +79,30 @@
         // If no given format matched a provided format, use the default printer
         outputPHP($message);
     }
-  
+    
+    /**
+     * Output a string as XML using xmlrpc_encode
+     * 
+     * @param Mixed $message
+     */
     function outputXML($message) {
         echo xmlrpc_encode($message);
     }
-  
+    
+    /**
+     * Output a string as JSON using json_encode
+     * 
+     * @param Mixed $message
+     */
     function outputJSON($message) {
         echo json_encode($message);
     }
-  
+    
+    /**
+     * Output a string as PHP using echo or print_r
+     * 
+     * @param Mixed $message
+     */
     function outputPHP($message) {
       if(is_array($message)) {
           print_r($message);
@@ -80,37 +110,49 @@
           echo $message;
       }
     }
-  
-  // publicTest({...})
-  // Test function to print out arguments.
-  function publicTest($arguments) {
-    output($arguments, $arguments);
-  }
-  
-    // publicCreateUser({...})
-    // Public pipe to dbUsersAdd("username", "password")
-    // Required fields:
-    // * "username"
-    // * "password"
-    // * "email"
+    
+    /**
+     * CreateUser
+     * 
+     * Creates a user of the given username, password, and email. This will call
+     * dbUsersAdd on success, which sets the user's verification status to 
+     * "Unverified" and sends them a verification email.
+     * For ease of use with JavaScript handlers, all fields may also be taken in
+     * with a 'j_' prefix (for example, 'j_username')
+     * 
+     * @param {String} username   The username of the new user
+     * @param {String} password   The password of the new user (must be secure:
+     *                            >=1 uppercase letter, >=1 lowercase letter,
+     *                            >=1 symbol, >=1 number, >=7 digits)
+     * @param {String} email   The email of the new user (must be a .edu email)
+     * @remarks 
+     */
     function publicCreateUser($arguments, $noverbose=false) {
-        $dbConn = getPDOQuick($arguments);
-        $username = isset($arguments['j_username'])
-            ? ArgLoose($arguments['j_username']) : false;
-        $password = isset($arguments['j_password'])
-            ? $arguments['j_password'] : false;
-        $email = isset($arguments['j_email'])
-            ? $arguments['j_email'] : false;
+        $fields = array('username', 'password', 'email');
         
-        // Make sure the arguments aren't blank
-        if(!$username || !$password || !$email) {
-            output($arguments, 'Make sure to fill out all the fields!');
-            return false;
+        // Ensure each required field is given
+        foreach($fields as $field) {
+            // If the field isn't set, that may be bad
+            if(!isset($arguments[$field])) {
+                // If the 'j_' prefix is there, swap that in
+                if(isset($arguments['j_' . $field])) {
+                    $arguments[$field] = $arguments['j_' . $field];
+                }
+                // Otherwise that's definitely bad: the field is missing
+                else {
+                    output($arguments, 'The ' . $field . ' cannot be blank.');
+                    return false;
+                }
+            }
         }
+        
+        $username = $arguments['username'];
+        $password = $arguments['password'];
+        $email = $arguments['email'];
         
         // The password must be secure
         if(!isPasswordSecure($password)) {
-            output($arguments, 'Your password isn\'t secure enough.');
+            output($arguments, 'The password isn\'t secure enough.');
             return false;
         }
         
@@ -126,6 +168,7 @@
         }
         
         // Also make sure that email isn't taken
+        $dbConn = getPDOQuick($arguments);
         if(checkKeyExists($dbConn, 'users', 'email', $email)
           || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
             output($arguments, 'The email \'' . $email . '\' is taken.');
@@ -134,33 +177,37 @@
 
         // If successful, log the user in
         if(dbUsersAdd($dbConn, $username, $password, $email)) {
-            $arguments['username'] = $arguments['j_username'];
-            $arguments['password'] = $arguments['j_password'];
-            $arguments['email'] = $arguments['j_email'];
             publicLogin($arguments, true);
-            
             output($arguments, 'Yes');
             return true;
         }
         return false;
     }
   
-  // publicSendWelcomeEmail({...})
-  // Also sends an email...
-  function publicSendWelcomeEmail($arguments, $noverbose=false) {
-    $username = $_SESSION['username'];
-    $email = $_SESSION['email'];
-    $recipient = '<' . $username . '> ' . $email;
-    $subject = 'BookSwap Verification Time!';
-    $message  = '<h2>Congratulations are in order, ' . $username . '!</h2>' . PHP_EOL;
-    $message .= '<p>Your account on ' . getSiteName() . ' is now active. Go on and swap some books!</p>' . PHP_EOL;
-    $message .= '<p><em>   -The BookSwap team</em></p>';
-    $status = mailFancy($recipient, $subject, $message); 
-    
-    if(!$noverbose)
-      echo $status ? 'Yes' : 'Could not send welcome email! Please try again.';
-    return $status;
-  }
+    /**
+     * SendWelcomeEmail
+     * 
+     * Sends a welcome email to the current user that their account is active.
+     */
+    function publicSendWelcomeEmail($arguments) {
+        $username = $_SESSION['username'];
+        $email = $_SESSION['email'];
+        $recipient = '<' . $username . '> ' . $email;
+        $subject = 'BookSwap Verification Time!';
+        $message  = '<h2>Congratulations, ' . $username . '!</h2>' . PHP_EOL;
+        $message .= '<p>Your account on ' . getSiteName() . ' is now active. ';
+        $message .= 'Go on and swap some books!</p>' . PHP_EOL;
+        $message .= '<p><em>   -The BookSwap team</em></p>';
+        $status = mailFancy($recipient, $subject, $message); 
+        
+        if($status) {
+            output($arguments, 'Yes');
+        } else {
+            output($arguments, 'Couldn\'t send an email! Please try again.');
+        }
+        
+        return $status;
+    }
   
   // publicVerifyUser({...})
   // 
@@ -211,27 +258,36 @@
   // publicSetVerificationEmail({...})
   // Sets the current user's verification email, and if directed, the password
   // Required fields:
-  // * j_email
+  // * email
   // Optional fields:
-  // * j_password
+  // * password
   function publicSetVerificationEmail($arguments, $noverbose=false) {
     if(!UserLoggedIn()) {
       if(!$noverbose) echo 'You must be logged in.';
       return false;
     }
-    if(!isset($arguments['j_email'])) {
+    
+    if(!isset($arguments['email']) && isset($arguments['j_password'])) {
+        $arguments['email'] = $arguments['j_email'];
+    }
+    
+    if(!isset($arguments['password']) && isset($arguments['j_password'])) {
+        $arguments['password'] = $arguments['j_password'];
+    }
+    
+    if(!isset($arguments['email'])) {
       if(!$noverbose) echo 'No email provided!';
       return false;
     }
     
-    $email = $arguments['j_email'];
+    $email = $arguments['email'];
     $user_id = $_SESSION['user_id'];
     $username = $_SESSION['username'];
     
     // Only test password stuff if one is provided
-    $has_pass = isset($arguments['j_password']) && $arguments['j_password'];
+    $has_pass = isset($arguments['password']) && $arguments['password'];
     if($has_pass) {
-        $password = $arguments['j_password'];
+        $password = $arguments['password'];
     }
     
      // The password must be secure
