@@ -72,6 +72,7 @@
   // Helpers to print URLs and similar
   function getJS($filename) { return '<script type="text/javascript" src="' . getBase() . '/JS/' . $filename . '.js"></script>'; }
   function getCSS($filename) { return '<link rel="stylesheet" type="text/css" href="' . getBase() . '/CSS/' . $filename . '.css">'; }
+  function getImage($filename) { return getBase() . '/Images/' . $filename; }
   function getURL($url) { return getBase() . '/index.php?' . (is_string($url) ? 'page=' . $url : $url); }
   function getLinkHTML($url, $contents, $args=[]) {
     $output = getURL($url);

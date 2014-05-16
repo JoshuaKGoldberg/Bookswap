@@ -3,13 +3,13 @@
     <div>
       <?php
         if(UserVerified()) {
-          $links = ['Account', 'Search', 'Import', 'Log Out'];
+          $links = ['Index', 'Account', 'Search', 'Import', 'Log Out'];
         }
         else if(UserLoggedIn()) {
-          $links = ['Account', 'Search', 'Log Out'];
+          $links = ['Index', 'Account', 'Search', 'Log Out'];
         }
         else {
-          $links = ['Search'];
+          $links = ['Index', 'Search'];
         }
         
         for($i = 0, $len = count($links); $i < $len; ++$i)

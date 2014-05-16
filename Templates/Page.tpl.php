@@ -7,8 +7,13 @@
   $css = getDefaultCSS();
   $js = getDefaultJS();
   
+  // If no $_TARGS is provided, use $_GET instead
+  if(!isset($_TARGS) || empty($_TARGS)) {
+    $_TARGS = $_GET;
+  }
+  
   // The requested page to print
-  $pageName = isset($_GET['page']) ? $_GET['page'] : (UserLoggedIn() ? 'account' : 'index');
+  $pageName = isset($_TARGS['page']) ? $_TARGS['page'] : (UserLoggedIn() ? 'account' : 'index');
   // For unverified users, account should redirect to verification
   if($pageName === 'account' && !UserVerified())
     $pageName = 'verification';
@@ -27,18 +32,21 @@
 >
   
     <head>
+        <!-- Page: <?php echo $pageName; ?> (<?php echo $tabs . PHP_EOL; print_r($_TARGS); ?> tabs) -->
+        
         <?php
             // The default CSS file should be printed immediately, so it loads first
             echo getCSS('default') . PHP_EOL;
-
+        ?>
+        <?php
             // Include JQuery before everything, so pages can have their own JS files using it
-            echo getJS('jquery.min');
+            echo getJS('jquery.min') . PHP_EOL;
         ?>
 
         <meta property="og:site_name" content="<?php echo getSiteName(); ?>"/>
-        <meta property="og:image" content="<?php echo 'Images/Logo.png'; ?>"/>
+        <meta property="og:image" content="<?php echo getImage('Logo.png'); ?>"/>
         
-        <link rel="icon" type="image/png" href="Images/Icon.png">
+        <link rel="icon" type="image/png" href="<?php echo getImage('Icon.png'); ?>">
     </head>
     
     <body onload="loadPrintedRequests()">
@@ -71,11 +79,11 @@
       
       <?php
         // Extra includes
-        if(isset($_GET['css']))
-          foreach(explode($_GET['css']) as $extra)
+        if(isset($_TARGS['css']))
+          foreach(explode($_TARGS['css']) as $extra)
             $css[] = $extra;
-        if(isset($_GET['js']))
-          foreach(explode($_GET['js']) as $extra)
+        if(isset($_TARGS['js']))
+          foreach(explode($_TARGS['js']) as $extra)
             $js[] = $extra;
       ?>
       
