@@ -282,7 +282,7 @@
         }
 
         if(!isset($arguments['email'])) {
-          if(!$noverbose) echo 'No email provided!';
+          output($arguments, 'No email provided!');
           return false;
         }
 
@@ -987,15 +987,11 @@
         }
     }
   
-    // publicBookImportFull({...})
-    // Sends a request to the Google Books API for ISBNs
-    // If it receives any, it attempts to add them to the database
-    
     /**
      * BookImportFull
      * 
      * Sends a request query to the Google Books API with the given search term.
-     * If it receives any results that aren't already in the database, they are
+     * If results are received that aren't already in the database, they are
      * added.
      * 
      * @todo Format the results instead of hardcoding raw HTML (template them?)
@@ -1023,19 +1019,17 @@
         return bookImportFromJSON($arguments, $noverbose);
     }
   
-  // publicPrintUserBooks({...})
-  // Prints the formatted displays of the books on a user's list
-  // Required arguments:
-  // * #user_id
-  // * 'format' (small, medium, large)
-  // * 'action' (buy, sell)
-  
     /**
      * PrintUserBooks
      * 
-     * Prints the formatted displays of all books on a user's list.
+     * Prints the formatted displays of all books referenced by the entries of
+     * a user.
      * 
-     * 
+     * @param {Number} user_id   The unique numeric ID of the user to be added.
+     * @param {String} format   The Book format to print the book listings in
+     *                          (one of "small", "medium", "large")
+     * @param {String} action   The entry action to filter on (one of "buy" or
+     *                          "sell")
      */
     function publicPrintUserBooks($arguments, $noverbose=false) {
         $user_id = ArgStrict($arguments['user_id']);
@@ -1048,8 +1042,11 @@
         
         // If there were none, stop immediately
         if(!$entries) {
-            output($arguments, '<aside class="nothing">Nothing going!</aside>';
-                    . '<p>Perhaps you\'d like to ' . getLinkHTML('search', 'add more') . '?</p>' . PHP_EOL;
+            output($arguments, '<aside class="nothing">Nothing going!</aside>'
+                    . '<p>Perhaps you\'d like to ' 
+                    . getLinkHTML('search', 'add more')
+                    . '?</p>' 
+                    . PHP_EOL
             );
             return;
         }
@@ -1057,7 +1054,7 @@
         // For each one, query the book information, and print it out
         foreach($entries as $key=>$entry) {
             $results[$key] = dbBooksGet($dbConn, $entry['isbn']);
-            TemplatePrint("Books/" . $format, 0, array_merge($entry, $results[$key]));
+            TemplatePrint('Books/' . $format, 0, array_merge($entry, $results[$key]));
         }
     }
     
@@ -1097,213 +1094,279 @@
             output($arguments, "Nothing going!");
         }
     }
+  
+    /**
+     * EntryAdd
+     * 
+     * Adds an entry on a book for the current user. The user (you) must be 
+     * logged in and verified.
+     *
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported
+     * @param {String} action   The entry action to filter on (one of "buy" or
+     *                          "sell")
+     * @param {String} dollars   The dollar portion of the price the user wants 
+     *                           to {action} the book for (as a string, for 0s)
+     * @param {String} cents   The cents portion of the price the user wants to
+     *                         {action} the book for (as a string, for 0s)
+     * @todo In the future, a user should be able to have multiple entries. The
+     *       backend function checks for that currently.
+     */
+    function publicEntryAdd($arguments, $noverbose=false) {
+        // Make sure there's a user, and get that user's info
+        if(!UserLoggedIn()) {
+            output($arguments, 'You must be logged in to add an entry.');
+            return false;
+        }
+        if(!UserVerified()) {
+            output($arguments, 'You must be verified to add an entry.');
+            return false;
+        }
 
-  // publicEntryAdd({...})
-  // Adds an entry regarding a book for the current user
-  // Required arguments:
-  // * "isbn"
-  // * "action"
-  // * "dollars"
-  // * "cents"
-  // * "state"
-  function publicEntryAdd($arguments, $noverbose=false) {
-    // Make sure there's a user, and get that user's info
-    if(!UserLoggedIn()) {
-      if(!$noverbose) echo 'You must be logged in to add an entry.';
-      return false;
+        $username = $_SESSION['username'];
+        $user_id = $_SESSION['user_id'];
+        $dbConn = getPDOQuick($arguments);
+
+        // Fetch the necessary arguments
+        $isbn = ArgStrict($arguments['isbn']);
+        $action = ArgStrict($arguments['action']);
+        $dollars = ArgStrict($arguments['dollars']);
+        $cents = ArgStrict($arguments['cents']);
+        $state = ArgStrict($arguments['state']);
+        // (price is dollars + cents)
+        $price = $dollars . '.' . $cents;
+
+        // Send the query
+        $entry_id = dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state);
+        if($entry_id !== false) {
+            sendAllEntryNotifications($dbConn, $entry_id);
+            output($arguments, 'Entry added successfully!');
+        }
     }
-    if(!UserVerified()) {
-      if(!$noverbose) echo 'You must be verified to add an entry.';
-      return false;
+  
+    /**
+     * EntryEditPrice
+     * 
+     * Edits the price of the current user's entry for a particular book, if 
+     * that entry already exists.
+     * 
+     *
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported
+     * @param {String} action   The entry action to filter on (one of "buy" or
+     *                          "sell")
+     * @param {String} dollars   The dollar portion of the price the user wants 
+     *                           to {action} the book for (as a string, for 0s)
+     * @param {String} cents   The cents portion of the price the user wants to
+     *                         {action} the book for (as a string, for 0s)
+     * 
+     * @todo In the future, a user should be able to have multiple entries, so 
+     *       this should key on entry_id.
+     */
+    function publicEntryEditPrice($arguments) {
+        // Make sure there's a user, and get that user's info
+        if(!UserLoggedIn()) {
+          output($arguments, 'You must be logged in to add an entry.');
+          return false;
+        }
+        $user_id = $_SESSION['user_id'];
+        $dbConn = getPDOQuick($arguments);
+
+        // Fetch the necessary arguments
+        $isbn = ArgStrict($arguments['isbn']);
+        $action = ArgStrict($arguments['action']);
+        $dollars = ArgStrict($arguments['dollars']);
+        $cents = ArgStrict($arguments['cents']);
+        // (price is dollars + cents)
+        $price = $dollars . '.' . $cents;
+
+        // Send the query
+        if(dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price)) {
+            output($arguments, 'Entry edited successfully!');
+        }
+    }
+  
+    /**
+     * EntryDelete
+     * 
+     * Removes an entry regarding a particular book for the current user, if it
+     * already exists.
+     * 
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported
+     * @param {String} action   The entry action to filter on (one of "buy" or
+     *                          "sell")
+     * @todo In the future, a user should be able to have multiple entries, so 
+     *       this should key on entry_id.
+     */
+    function publicEntryDelete($arguments) {
+        // Make sure there's a user, and get that user's info
+        if(!UserLoggedIn()) {
+          output($arguments, 'You must be logged in to delete an entry.');
+          return false;
+        }
+        $username = $_SESSION['username'];
+        $user_id = $_SESSION['user_id'];
+        $dbConn = getPDOQuick($arguments);
+
+        // Fetch the necessary argument
+        $isbn = ArgStrict($arguments['isbn']);
+        $action = ArgStrict($arguments['action']);
+
+        // Send the query and print the results
+        $link = getLinkHTML('book', $isbn, array('isbn'=>$isbn));
+        if(dbEntriesRemove($dbConn, $isbn, $user_id)) {
+            output($arguments, $link . ' removed successfully!');
+        } else {
+            output($arguments, $link . ' removal failed. Try again?');
+        }
     }
     
-    $username = $_SESSION['username'];
-    $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick($arguments);
-    
-    // Fetch the necessary arguments
-    $isbn = ArgStrict($arguments['isbn']);
-    $action = ArgStrict($arguments['action']);
-    $dollars = ArgStrict($arguments['dollars']);
-    $cents = ArgStrict($arguments['cents']);
-    $state = ArgStrict($arguments['state']);
-    // (price is dollars + cents)
-    $price = $dollars . '.' . $cents;
-    
-    // Send the query
-    $entry_id = dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state);
-    if($entry_id !== false) {
-      sendAllEntryNotifications($dbConn, $entry_id);
-      if(!$noverbose) echo 'Entry added successfully!';
+    /**
+     * PrintRecommendationsDatabase
+     * 
+     * Given a user_id, this prints out all entries from other users who are on
+     * any of the same books as the user's.
+     *
+     * @param {Number} user_id   The unique numeric ID of the user.
+     */
+    function publicPrintRecommendationsDatabase($arguments) {
+        $dbConn = getPDOQuick($arguments);
+        $user_id = ArgStrict($arguments['user_id']);
+
+        // Prepare the query
+        // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
+        // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
+        $query = '
+          SELECT * FROM (
+            SELECT a.* FROM
+            `entries` a
+            # matching rows in entries against themselves
+            INNER JOIN `entries` b
+            # not from the given user; ISBNs are the same, but users and actions are not
+            ON  a.user_id <> :user_id
+            AND a.isbn = b.isbn
+            AND b.user_id = :user_id
+            AND a.action <> b.action
+          ) AS matchingEntries
+          # while the above alias is not used, MySQL requires all derived tables to
+          # have an alias
+          NATURAL JOIN `books` NATURAL JOIN `users`
+        ';
+
+        // Run the query
+        $stmnt = getPDOStatement($dbConn, $query);
+        $stmnt->execute(array(':user_id' => $user_id));
+
+        // Get the results to print them out
+        $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+        if(empty($results)) {
+            output($arguments, 'Nothing going!');
+        } 
+        else {
+            foreach($results as $result) {
+                TemplatePrint("Entry", 0, $result);
+            }
+        }
     }
-  }
   
-  // publicEntryEditPrice({...})
-  // Edits an entry price regarding a book for the current user
-  // Required arguments:
-  // * "isbn"
-  // * "action"
-  // * "dollars"
-  // * "cents"
-  function publicEntryEditPrice($arguments) {
-    // Make sure there's a user, and get that user's info
-    if(!UserLoggedIn()) {
-      if(!$noverbose) echo 'You must be logged in to add an entry.';
-      return false;
+    /**
+     * PrintRecommendationsDatabase
+     * 
+     * Given a user's user_id (a) and another user's user_id (b), this finds and
+     * prints all matching entries betwen the two users.
+     *
+     * @param {Number} user_id_a   The unique numeric ID of the first user.
+     * @param {Number} user_id_b   The unique numeric ID of the second user.
+    */
+    function publicPrintRecommendationsUser($arguments) {
+        $dbConn = getPDOQuick($arguments);
+        $user_id_a = ArgStrict($arguments['user_id_a']);
+        $user_id_b = ArgStrict($arguments['user_id_b']);
+
+        // Prepare the query
+        // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
+        $query = '
+          SELECT * FROM (
+            SELECT a.*
+            FROM `entries` a
+            # matching rows in entries against themselves
+            INNER JOIN `entries` b
+            # where ISBNs are the same, and the two user_ids match
+            ON a.isbn = b.isbn
+            AND a.user_id LIKE :user_id_a
+            AND b.user_id LIKE :user_id_b
+          ) AS matchingEntries
+          # while the above alias is not used, MySQL requires all derived tables to
+          # have an alias
+          NATURAL JOIN `books` NATURAL JOIN `users`
+        ';
+
+        // Run the query
+        $stmnt = getPDOStatement($dbConn, $query);
+        $stmnt->execute(array(':user_id_a' => $user_id_a,
+                              ':user_id_b' => $user_id_b));
+
+        // Get the results to print them out
+        $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+        if(empty($results)) {
+            output($arguments, 'Nothing going!');
+        } 
+        else {
+            foreach($results as $result) {
+                TemplatePrint("Entry", 0, $result);
+            }
+        }
     }
-    $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick($arguments);
-    
-    // Fetch the necessary arguments
-    $isbn = ArgStrict($arguments['isbn']);
-    $action = ArgStrict($arguments['action']);
-    $dollars = ArgStrict($arguments['dollars']);
-    $cents = ArgStrict($arguments['cents']);
-    // (price is dollars + cents)
-    $price = $dollars . '.' . $cents;
-    
-    // Send the query
-    if(dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price))
-      echo 'Entry edited successfully!';
-  }
   
-  // publicEntryDelete({...})
-  // Removes an entry regarding a book for the current user
-  // Required arguments:
-  // * "isbn"
-  // * "action"
-  function publicEntryDelete($arguments) {
-    // Make sure there's a user, and get that user's info
-    if(!UserLoggedIn()) {
-      echo 'You must be logged in to delete an entry.';
-      return false;
+  /**
+   * GetNumNotifications
+   * 
+   * Gets the number of notifications the current user has, or -1 if anonymous.
+   * 
+   * @return {Number}
+   */
+    function publicGetNumNotifications($arguments=[]) {
+        if(!UserLoggedIn()) {
+            return -1;
+        } else {
+            $dbConn = getPDOQuick($arguments);
+            return dbNotificationsCount($dbConn, $_SESSION['user_id']);
+        }
     }
-    $username = $_SESSION['username'];
-    $user_id = $_SESSION['user_id'];
-    $dbConn = getPDOQuick($arguments);
-    
-    // Fetch the necessary argument
-    $isbn = ArgStrict($arguments['isbn']);
-    $action = ArgStrict($arguments['action']);
-    
-    // Send the query and print the results
-    $link = getLinkHTML('book', $isbn, array('isbn'=>$isbn));
-    if(dbEntriesRemove($dbConn, $isbn, $user_id))
-      echo $link . ' removed successfully!';
-    else echo $link . ' removal failed, refresh and try again?';
-  }
   
-  // publicPrintRecommendationsDatabase({...})
-  // Finds and prints all matching entries for a given user
-  // Required arguments:
-  // * #user_id
-  function publicPrintRecommendationsDatabase($arguments) {
-    $dbConn = getPDOQuick($arguments);
-    $user_id = ArgStrict($arguments['user_id']);
-    
-    // Prepare the query
-    // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
-    // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
-    $query = '
-      SELECT * FROM (
-        SELECT a.* FROM
-        `entries` a
-        # matching rows in entries against themselves
-        INNER JOIN `entries` b
-        # not from the given user; ISBNs are the same, but users and actions are not
-        ON  a.user_id <> :user_id
-        AND a.isbn = b.isbn
-        AND b.user_id = :user_id
-        AND a.action <> b.action
-      ) AS matchingEntries
-      # while the above alias is not used, MySQL requires all derived tables to
-      # have an alias
-      NATURAL JOIN `books` NATURAL JOIN `users`
-    ';
-    
-    // Run the query
-    $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':user_id' => $user_id));
-    
-    // Get the results to print them out
-    $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-    if(empty($results))
-      echo 'Nothing going!';
-    else
-      foreach($results as $result)
-        TemplatePrint("Entry", 0, $result);
-  }
-  
-  // publicPrintRecommendationsUser({...})
-  // Finds and prints all matching entries between two users
-  // Required arguments:
-  // * #user_id_a
-  // * #user_id_b
-  function publicPrintRecommendationsUser($arguments) {
-    $dbConn = getPDOQuick($arguments);
-    $user_id_a = ArgStrict($arguments['user_id_a']);
-    $user_id_b = ArgStrict($arguments['user_id_b']);
-    
-    // Prepare the query
-    // http://stackoverflow.com/questions/5505244/selecting-matching-mutual-records-in-mysql/5505280#5505280
-    $query = '
-      SELECT * FROM (
-        SELECT a.*
-        FROM `entries` a
-        # matching rows in entries against themselves
-        INNER JOIN `entries` b
-        # where ISBNs are the same, and the two user_ids match
-        ON a.isbn = b.isbn
-        AND a.user_id LIKE :user_id_a
-        AND b.user_id LIKE :user_id_b
-      ) AS matchingEntries
-      # while the above alias is not used, MySQL requires all derived tables to
-      # have an alias
-      NATURAL JOIN `books` NATURAL JOIN `users`
-    ';
-    
-    // Run the query
-    $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':user_id_a' => $user_id_a,
-                          ':user_id_b' => $user_id_b));
-    
-    // Get the results to print them out
-    $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-    if(empty($results))
-      echo 'Nothing going!';
-    else
-      foreach($results as $result)
-        TemplatePrint('Entry', 0, $result);
-  }
-  
-  // publicGetNumNotifications()
-  // Returns the number of notifications the current user has, or -1 if the user is logged out
-  function publicGetNumNotifications($arguments=[]) {
-    $count = -1;
-    if(UserLoggedIn()){
-      $dbConn = getPDOQuick($arguments);
-      $count = dbNotificationsCount($dbConn, $_SESSION['user_id']);
+    /**
+     * PrintNotifications
+     * 
+     * Finds and prints all notifications of the current user.
+     */
+    function publicPrintNotifications($arguments=[]) {
+        if(!UserLoggedIn()) {
+            return;
+        }
+        $dbConn = getPDOQuick($arguments);
+        $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
+        if(empty($result)) {
+            output($arguments, 'Nothing going!');
+        } else {
+            foreach($result as $notification) {
+                TemplatePrint('Notification', 0, $notification);
+            }
+        }
     }
-    return $count;
-  }
   
-  // publicPrintNotifications() {
-  // Finds and prints all notifications of the current user
-  function publicPrintNotifications($arguments=[]) {
-    $dbConn = getPDOQuick($arguments);
-    $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
-    if(empty($result))
-      echo 'Nothing going!';
-    else
-      foreach($result as $notification)
-        TemplatePrint('Notification', 0, $notification);
-  }
-  
-  // publicDeleteNotification
-  // Deletes a notification of the given id, if it belongs to the current user
-  function publicDeleteNotification($arguments=[]) {
-    if(!UserLoggedIn()) return;
-    $dbConn = getPDOQuick($arguments);
-    dbNotificationsRemove($dbConn, $arguments['notification_id']);
-  }
+    /**
+     * DeleteNotification
+     * 
+     * Deletes a notification of a given ID, if it belongs to the current user.
+     * 
+     * @param {String} notification_id   The ID of the notification to delete.
+     */
+    function publicDeleteNotification($arguments=[]) {
+        if(!UserLoggedIn()) {
+            return;
+        }
+        $dbConn = getPDOQuick($arguments);
+        dbNotificationsRemove($dbConn, $arguments['notification_id']);
+    }
 ?>
