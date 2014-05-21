@@ -44,8 +44,9 @@ function sendRequest(func_name, settings, callback) {
       args = [],
       s_name;
   
-  // Generate the list of arguments
+  // Generate the list of arguments, with the given function and verbosity on
   settings["function"] = func_name;
+  settings["verbosity"] = true;
   for(s_name in settings)
     args.push(encodeURIComponent(s_name) + "=" + encodeURIComponent(settings[s_name]));
   
