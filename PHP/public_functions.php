@@ -585,18 +585,14 @@
         $_SESSION['email_edu'] = getRowValue($dbConn, 'users', 'email_edu', 'user_id', $user_id);
     }
   
-    // publicAddBook({...})
-    // Gets the info on a book from the Google API, then pipes it to dbBooksAdd
-    // Required fields:
-    // * "isbn"
-    // https://developers.google.com/books/docs/v1/using
-    // https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
-    
+  
     /**
      * AddBook
      * 
      * Given an ISBN, this queries more book information from the Google Books
      * API and (if the book exists) adds it to the database.
+     * https://developers.google.com/books/docs/v1/using
+     * https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
      * 
      * @param {String} isbn   An ISBN number (as a string, in case it starts
      *                        with 0) of a book to be imported
@@ -1020,82 +1016,6 @@
     }
   
     /**
-     * PrintUserBooks
-     * 
-     * Prints the formatted displays of all books referenced by the entries of
-     * a user.
-     * 
-     * @param {Number} user_id   The unique numeric ID of the user to be added.
-     * @param {String} format   The Book format to print the book listings in
-     *                          (one of "small", "medium", "large")
-     * @param {String} action   The entry action to filter on (one of "buy" or
-     *                          "sell")
-     */
-    function publicPrintUserBooks($arguments, $noverbose=false) {
-        $user_id = ArgStrict($arguments['user_id']);
-        $format = ArgStrict($arguments['format']);
-        $action = ArgStrict($arguments['action']);
-        $dbConn = getPDOQuick($arguments);
-        
-        // Get each of the entries of that type
-        $entries = dbEntriesGet($dbConn, $user_id, $action);
-        
-        // If there were none, stop immediately
-        if(!$entries) {
-            output($arguments, '<aside class="nothing">Nothing going!</aside>'
-                    . '<p>Perhaps you\'d like to ' 
-                    . getLinkHTML('search', 'add more')
-                    . '?</p>' 
-                    . PHP_EOL
-            );
-            return;
-        }
-        
-        // For each one, query the book information, and print it out
-        foreach($entries as $key=>$entry) {
-            $results[$key] = dbBooksGet($dbConn, $entry['isbn']);
-            TemplatePrint('Books/' . $format, 0, array_merge($entry, $results[$key]));
-        }
-    }
-    
-    /**
-     * PrintRecentListings
-     * 
-     * Prints the most recent entries on the site, in chronological order. Calls
-     * TemplatePrint("Entry") on PHP/db_actions::dbEntriesGetRecent().
-     * 
-     * @param Array $arguments   Associative array of the following arguments:
-     * @param String "identifier"   An optional key by which to filter entries,
-     *                              such as "isbn" or "user_id_a"
-     * @param String "value"    A value (required only if "identifier" is given)
-     *                          to filter for, such as "9780073523323" for 
-     *                          "isbn".
-     */
-    function publicPrintRecentListings($arguments) {
-        // Check if there's an identifier
-        if(isset($arguments['identifier'])) {
-            $identifier = $arguments['identifier'];
-            $value = $arguments['value'];
-        }
-        else {
-            $identifier = $value = false;
-        }
-
-        // Get each of the recent entries
-        $dbConn = getPDOQuick($arguments);
-        $entries = dbEntriesGetRecent($dbConn, $identifier, $value);
-
-        // If there are any, for each of those entries, print them out
-        if(count($entries)) {
-            foreach($entries as $entry) {
-                TemplatePrint("Entry", 0, $entry);
-            }
-        } else {
-            output($arguments, "Nothing going!");
-        }
-    }
-  
-    /**
      * EntryAdd
      * 
      * Adds an entry on a book for the current user. The user (you) must be 
@@ -1221,6 +1141,113 @@
             output($arguments, $link . ' removal failed. Try again?');
         }
     }
+  
+    /**
+     * GetNumNotifications
+     * 
+     * Gets the number of notifications the current user has, or -1 if anonymous.
+     * 
+     * @return {Number}
+     */
+    function publicGetNumNotifications($arguments=[]) {
+        if(!UserLoggedIn()) {
+            return -1;
+        } else {
+            $dbConn = getPDOQuick($arguments);
+            return dbNotificationsCount($dbConn, $_SESSION['user_id']);
+        }
+    }
+  
+    /**
+     * DeleteNotification
+     * 
+     * Deletes a notification of a given ID, if it belongs to the current user.
+     * 
+     * @param {String} notification_id   The ID of the notification to delete.
+     */
+    function publicDeleteNotification($arguments=[]) {
+        if(!UserLoggedIn()) {
+            return;
+        }
+        $dbConn = getPDOQuick($arguments);
+        dbNotificationsRemove($dbConn, $arguments['notification_id']);
+    }
+    
+    /**
+     * PrintRecentListings
+     * 
+     * Prints the most recent entries on the site, in chronological order. Calls
+     * TemplatePrint("Entry") on PHP/db_actions::dbEntriesGetRecent().
+     * 
+     * @param Array $arguments   Associative array of the following arguments:
+     * @param String "identifier"   An optional key by which to filter entries,
+     *                              such as "isbn" or "user_id_a"
+     * @param String "value"    A value (required only if "identifier" is given)
+     *                          to filter for, such as "9780073523323" for 
+     *                          "isbn".
+     */
+    function publicPrintRecentListings($arguments) {
+        // Check if there's an identifier
+        if(isset($arguments['identifier'])) {
+            $identifier = $arguments['identifier'];
+            $value = $arguments['value'];
+        }
+        else {
+            $identifier = $value = false;
+        }
+
+        // Get each of the recent entries
+        $dbConn = getPDOQuick($arguments);
+        $entries = dbEntriesGetRecent($dbConn, $identifier, $value);
+
+        // If there are any, for each of those entries, print them out
+        if(count($entries)) {
+            foreach($entries as $entry) {
+                TemplatePrint("Entry", 0, $entry);
+            }
+        } else {
+            output($arguments, "Nothing going!");
+        }
+    }
+    
+    /**
+     * PrintUserBooks
+     * 
+     * Prints the formatted displays of all books referenced by the entries of
+     * a user.
+     * 
+     * @param {Number} user_id   The unique numeric ID of the user to be added.
+     * @param {String} format   The Book format to print the book listings in
+     *                          (one of "small", "medium", "large")
+     * @param {String} action   The entry action to filter on (one of "buy" or
+     *                          "sell")
+     */
+    function publicPrintUserBooks($arguments, $noverbose=false) {
+        $user_id = ArgStrict($arguments['user_id']);
+        $format = ArgStrict($arguments['format']);
+        $action = ArgStrict($arguments['action']);
+        $dbConn = getPDOQuick($arguments);
+        
+        // Get each of the entries of that type
+        $entries = dbEntriesGet($dbConn, $user_id, $action);
+        
+        // If there were none, stop immediately
+        if(!$entries) {
+            output($arguments, '<aside class="nothing">Nothing going!</aside>'
+                    . '<p>Perhaps you\'d like to ' 
+                    . getLinkHTML('search', 'add more')
+                    . '?</p>' 
+                    . PHP_EOL
+            );
+            return;
+        }
+        
+        // For each one, query the book information, and print it out
+        foreach($entries as $key=>$entry) {
+            $results[$key] = dbBooksGet($dbConn, $entry['isbn']);
+            TemplatePrint('Books/' . $format, 0, array_merge($entry, $results[$key]));
+        }
+    }
     
     /**
      * PrintRecommendationsDatabase
@@ -1319,22 +1346,6 @@
         }
     }
   
-  /**
-   * GetNumNotifications
-   * 
-   * Gets the number of notifications the current user has, or -1 if anonymous.
-   * 
-   * @return {Number}
-   */
-    function publicGetNumNotifications($arguments=[]) {
-        if(!UserLoggedIn()) {
-            return -1;
-        } else {
-            $dbConn = getPDOQuick($arguments);
-            return dbNotificationsCount($dbConn, $_SESSION['user_id']);
-        }
-    }
-  
     /**
      * PrintNotifications
      * 
@@ -1353,20 +1364,5 @@
                 TemplatePrint('Notification', 0, $notification);
             }
         }
-    }
-  
-    /**
-     * DeleteNotification
-     * 
-     * Deletes a notification of a given ID, if it belongs to the current user.
-     * 
-     * @param {String} notification_id   The ID of the notification to delete.
-     */
-    function publicDeleteNotification($arguments=[]) {
-        if(!UserLoggedIn()) {
-            return;
-        }
-        $dbConn = getPDOQuick($arguments);
-        dbNotificationsRemove($dbConn, $arguments['notification_id']);
     }
 ?>
