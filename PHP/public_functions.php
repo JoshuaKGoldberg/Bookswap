@@ -506,14 +506,13 @@
      * FacebookLogin
      * 
      * Attempts to log in with the given credentials. This is a small function
-     * that acts as a pipe to <c>facebookLoginAttempt("email", "password")</c>.
+     * that acts as a pipe to <c>facebookLoginAttempt("fb_id")</c>.
      * 
      * @param {String} email   An email to log in with
-     * @param {Password} password   The password for the user account
      * @param {String} fb_id   The Facebook user's ID (on Facebook)
      */
     function publicFacebookLogin($arguments) {
-        if(!requireArguments($arguments, 'email', 'password', 'fb_id')) {
+        if(!requireArguments($arguments, 'email', 'fb_id')) {
             return false;
         }
         
