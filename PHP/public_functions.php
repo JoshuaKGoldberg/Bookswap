@@ -104,11 +104,60 @@
      * @param Mixed $message
      */
     function outputPHP($message) {
-      if(is_array($message)) {
-          print_r($message);
-      } else {
-          echo $message;
-      }
+        if(is_array($message)) {
+            print_r($message);
+        } else {
+            echo $message;
+        }
+    }
+    
+    /**
+     * Checks to make sure each required argument is present in an associative
+     * array. Any amount of strings or arrays of strings are allowed.
+     * 
+     * @param {Array} arguments   An array of arguments to be checked.
+     * @param {Mixed} [requirements]   A string or array of strings that must be in
+     *                             the arguments array.
+     * @return Boolean   Whether each required argument was provided.
+     */
+    function requireArguments($arguments, $requirements) {
+        $num_args = func_num_args();
+        
+        // Starting with each of the required parts (not including $arguments)
+        for($i = 1; $i < $num_args; $i += 1) {
+            $requirement = func_get_arg($i);
+            
+            // If that argument's a string, check it directly
+            if(!isset($arguments[$requirement])) {
+                // Lazy load an array of failure strings
+                if(!isset($failures)) {
+                    $failures = [];
+                }
+                array_push($failures, $requirement);
+            } 
+            // If it's an array, check all the strings in it
+            else {
+                foreach($requirement as $key=>$value) {
+                    if(!isset($arguments[$value])) {
+                        // Lazy load an array of failure strings
+                        if(!isset($failures)) {
+                            $failures = [];
+                        }
+                        array_push($failures, $requirement);
+                    }
+                }
+            }
+        }
+        
+        // If any failures were detected, oh no!
+        if(isset($failures)) {
+            output($arguments, array(
+                'error' => count($failures) . ' required arguments missing.',
+                'failures' => $failures
+            ));
+            return false;
+        }
+        return true;
     }
     
     /**
@@ -120,12 +169,11 @@
      * For ease of use with JavaScript handlers, all fields may also be taken in
      * with a 'j_' prefix (for example, 'j_username')
      * 
-     * @param {String} username   The username of the new user
+     * @param {String} username   The username of the new user.
      * @param {String} password   The password of the new user (must be secure:
      *                            >=1 uppercase letter, >=1 lowercase letter,
-     *                            >=1 symbol, >=1 number, >=7 digits)
-     * @param {String} email   The email of the new user (must be a .edu email)
-     * @remarks 
+     *                            >=1 symbol, >=1 number, >=7 characters long).
+     * @param {String} email   The email of the new user (must be a .edu email).
      */
     function publicCreateUser($arguments) {
         $fields = array('username', 'password', 'email');

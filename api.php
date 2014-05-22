@@ -23,9 +23,13 @@
     require_once('settings.php');
     require_once('PHP/public_functions.php');
     
+    // If verbosity level is not given by the user, set it to the default
+    if(!isset($_GET['verbose'])) {
+        $_GET['verbose'] = getDefaultAPIVerbosity();
+    }
+    
     // This page is useless without a provided function
-    if(!isset($_GET['function'])) {
-        echo 'Provide a function.';
+    if(!requireArguments($_GET, 'function')) {
         return;
     }
     
@@ -33,11 +37,6 @@
     // e.g. "Test" becomes "publicTest"
     if(!startsWith($_GET['function'], 'public')) {
         $_GET['function'] = 'public' . $_GET['function'];
-    }
-    
-    // If verbosity level is not given by the user, set it to the default
-    if(!isset($_GET['verbose'])) {
-        $_GET['verbose'] = getDefaultAPIVerbosity();
     }
     
     // If format is not given by the user, set it to the default
