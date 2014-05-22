@@ -312,12 +312,10 @@
         if(!requireArguments($arguments, 'user_id', 'code')) {
             return false;
         }
-        
-        // The user must logged in to do this
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to do this');
+        if(!requireUserLogin($arguments, 'verify yourself')) {
             return false;
         }
+        
         $user_id = $arguments['user_id'];
         $code = $arguments['code'];
 
@@ -359,6 +357,10 @@
      * @param {String} [password]   An optional password for the user.
      */
     function publicSetVerificationEmail($arguments) {
+        if(!requireUserLogin($arguments, 'set your email and/or password')) {
+            return false;
+        }
+        
         // Allow email and password arguments under the 'j_*' prefix
         if(!isset($arguments['email']) && isset($arguments['j_password'])) {
             $arguments['email'] = $arguments['j_email'];
@@ -371,12 +373,6 @@
             return false;
         }
         
-        // The user must logged in to do this
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in.');
-            return false;
-        }
-
         $email = $arguments['email'];
         $user_id = $_SESSION['user_id'];
         $username = $_SESSION['username'];
@@ -556,15 +552,13 @@
      * @param {String} value   The requested new username
      */
     function publicEditUsername($arguments) {
+        if(!requireUserLogin($arguments, 'edit your username')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'value')) {
             return false;
         }
         
-        // The user must be logged in to do this
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to edit a username.');
-            return false;
-        }
         $user_id = $_SESSION['user_id'];
         $username_old = $_SESSION['username'];
         $username_new = ArgLoose($arguments['value']);
@@ -598,14 +592,11 @@
      * @param {String} value   The requested new primary email
      */
     function publicEditEmail($arguments) {
-        if(!requireArguments($arguments, 'value')) {
+        if(!requireUserLogin($arguments, 'edit your email')) {
             return false;
         }
-        
-        // You must be logged in to do this
-        if(!UserLoggedIn()) {
-          output($arguments, 'You must be logged in to edit an email.');
-          return false;
+        if(!requireArguments($arguments, 'value')) {
+            return false;
         }
         
         $user_id = $_SESSION['user_id'];
@@ -650,13 +641,10 @@
      * @param {String} value   The requested new educational email
      */
     function publicEditEmailEdu($arguments) {
-        if(!requireArguments($arguments, 'value')) {
+        if(!requireUserLogin($arguments, 'edit your email')) {
             return false;
         }
-        
-        // You must be logged in to do this
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to edit an email.');
+        if(!requireArguments($arguments, 'value')) {
             return false;
         }
         
@@ -1010,6 +998,9 @@
      *                        argument requirements as well.
      */
     function publicBookImport($arguments) {
+        if(!requireUserVerification($arguments, 'import a book')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'type')) {
             return false;
         }
@@ -1036,6 +1027,9 @@
      * @remarks This seems to be a partial duplicate of publicAddBook
      */
     function publicBookImportISBN($arguments) {
+        if(!requireUserVerification($arguments, 'import a book')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'isbn')) {
             return false;
         }
@@ -1103,6 +1097,9 @@
      * @param {String} value   A query term to search in the Google Books API.
      */
     function publicBookImportFull($arguments) {
+        if(!requireUserVerification($arguments, 'import a book')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'value')) {
             return false;
         }
@@ -1144,20 +1141,13 @@
      *       backend function checks for that currently.
      */
     function publicEntryAdd($arguments) {
+        if(!requireUserVerification($arguments, 'add an entry')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
             return false;
         }
         
-        // Make sure there's a user, and get that user's info
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to add an entry.');
-            return false;
-        }
-        if(!UserVerified()) {
-            output($arguments, 'You must be verified to add an entry.');
-            return false;
-        }
-
         $username = $_SESSION['username'];
         $user_id = $_SESSION['user_id'];
         $dbConn = getPDOQuick($arguments);
@@ -1198,15 +1188,13 @@
      *       this should key on entry_id.
      */
     function publicEntryEditPrice($arguments) {
+        if(!requireUserVerification($arguments, 'edit an entry price')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
             return false;
         }
         
-        // Make sure there's a user, and get that user's info
-        if(!UserLoggedIn()) {
-          output($arguments, 'You must be logged in to add an entry.');
-          return false;
-        }
         $user_id = $_SESSION['user_id'];
         $dbConn = getPDOQuick($arguments);
 
@@ -1238,15 +1226,13 @@
      *       this should key on entry_id.
      */
     function publicEntryDelete($arguments) {
+        if(!requireUserVerification($arguments, 'delete an entry')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'isbn', 'action')) {
             return false;
         }
         
-        // Make sure there's a user, and get that user's info
-        if(!UserLoggedIn()) {
-          output($arguments, 'You must be logged in to delete an entry.');
-          return false;
-        }
         $username = $_SESSION['username'];
         $user_id = $_SESSION['user_id'];
         $dbConn = getPDOQuick($arguments);
@@ -1272,12 +1258,12 @@
      * @return {Number}
      */
     function publicGetNumNotifications($arguments=[]) {
-        if(!UserLoggedIn()) {
+        if(!requireUserVerification($arguments, 'get your notifications')) {
             return -1;
-        } else {
-            $dbConn = getPDOQuick($arguments);
-            return dbNotificationsCount($dbConn, $_SESSION['user_id']);
         }
+        
+        $dbConn = getPDOQuick($arguments);
+        return dbNotificationsCount($dbConn, $_SESSION['user_id']);
     }
   
     /**
@@ -1288,13 +1274,13 @@
      * @param {String} notification_id   The ID of the notification to delete.
      */
     function publicDeleteNotification($arguments) {
+        if(!requireUserVerification($arguments, 'delete a notification')) {
+            return false;
+        }
         if(!requireArguments($arguments, 'notification_id')) {
             return false;
         }
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to delete a notification.');
-            return;
-        }
+        
         $dbConn = getPDOQuick($arguments);
         dbNotificationsRemove($dbConn, $arguments['notification_id']);
     }
@@ -1489,10 +1475,10 @@
      * Finds and prints all notifications of the current user.
      */
     function publicPrintNotifications($arguments=[]) {
-        if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to print notifications.');
+        if(!requireUserVerification($arguments, 'print notifications')) {
             return false;
         }
+        
         $dbConn = getPDOQuick($arguments);
         $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
         if(empty($result)) {
