@@ -266,7 +266,7 @@
      * @param {String} email   An email from the user that must be a .edu.
      * @param {String} [password]   An optional password for the user.
      */
-    function publicSetVerificationEmail($arguments, $noverbose=false) {
+    function publicSetVerificationEmail($arguments) {
         // The user must logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in.');
@@ -398,7 +398,7 @@
      * @param {String} email   An email to log in with
      * @param {Password} password   The password for the user account
      */
-    function publicLogin($arguments, $noverbose=false) {
+    function publicLogin($arguments) {
         $dbConn = getPDOQuick($arguments);
         $email = $arguments['email'];
         $password = $arguments['password'];
@@ -421,7 +421,7 @@
      * @param {Password} password   The password for the user account
      * @param {String} fb_id   The Facebook user's ID (on Facebook)
      */
-    function publicFacebookLogin($arguments, $noverbose=false) {
+    function publicFacebookLogin($arguments) {
         $dbConn = getPDOQuick($arguments);
         $email = $arguments['email'];
         $username = $arguments['name'];
@@ -455,7 +455,7 @@
      * 
      * @param {String} value   The requested new username
      */
-    function publicEditUsername($arguments, $noverbose=false) {
+    function publicEditUsername($arguments) {
         // The user must be logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to edit a username.');
@@ -493,7 +493,7 @@
      * 
      * @param {String} value   The requested new primary email
      */
-    function publicEditEmail($arguments, $noverbose=false) {
+    function publicEditEmail($arguments) {
         // You must be logged in to do this
         if(!UserLoggedIn()) {
           output($arguments, 'You must be logged in to edit an email.');
@@ -541,7 +541,7 @@
      * 
      * @param {String} value   The requested new educational email
      */
-    function publicEditEmailEdu($arguments, $noverbose=false) {
+    function publicEditEmailEdu($arguments) {
         // You must be logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to edit an email.');
@@ -584,51 +584,6 @@
         // Reset the $_SESSION email to be that of the database's
         $_SESSION['email_edu'] = getRowValue($dbConn, 'users', 'email_edu', 'user_id', $user_id);
     }
-  
-  
-    /**
-     * AddBook
-     * 
-     * Given an ISBN, this queries more book information from the Google Books
-     * API and (if the book exists) adds it to the database.
-     * https://developers.google.com/books/docs/v1/using
-     * https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
-     * 
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
-     */
-    function publicAddBook($arguments, $noverbose=false) {
-        $dbConn = getPDOQuick($arguments);
-        $isbn = $arguments['isbn'];
-        
-        // Make sure the arguments aren't blank
-        if(!$isbn) {
-            output($arguments, 'Please provide an ISBN.');
-            return false;
-        }
-        
-        // Get the actual JSON contents and decode it
-        $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn . '&key=' . getGoogleKey();
-        $result = json_decode(getHTTPPage($url));
-        
-        // If there was an error, oh no!
-        if(isset($result->error)) {
-            output($arguments, $result->error->message);
-            return;
-        }
-        
-        // Attempt to get the first item in the list (which will be the book)
-        if(!isset($result->items) || !isset($result->items[0])) {
-            return;
-        }
-        $book = $result->items[0];
-        
-        // Call the backend bookProcessObject to add the book to the database
-        $arguments['dbConn'] = $dbConn;
-        $arguments['book'] = $book;
-        require_once('imports.inc.php');
-        return bookProcessObject($arguments, $noverbose);
-    }
     
     /**
      * GetBookEntries
@@ -642,7 +597,7 @@
      * @param {String} [action]   An action to filter the queries on (if not
      *                            given, all entries on that ISBN are returned)
      */
-    function publicGetBookEntries($arguments, $noverbose=false) {
+    function publicGetBookEntries($arguments) {
         $dbConn = getPDOQuick($arguments);
         $isbn = $arguments['isbn'];
         
@@ -951,6 +906,7 @@
      * @todo Format the results instead of hardcoding raw HTML (template them?)
      * @param {String} isbn   An ISBN number (as a string, in case it starts
      *                        with 0) of a book to be imported
+     * @remarks This seems to be a partial duplicate of publicAddBook
      */
     function publicBookImportISBN($arguments) {
         $isbn = ArgStrict($arguments['isbn']);
@@ -984,6 +940,51 @@
     }
   
     /**
+     * AddBook
+     * 
+     * Given an ISBN, this queries more book information from the Google Books
+     * API and (if the book exists) adds it to the database.
+     * https://developers.google.com/books/docs/v1/using
+     * https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
+     * 
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported
+     * @remarks This seems to be a partial duplicate of publicBookImportISBN
+     */
+    function publicAddBook($arguments) {
+        $dbConn = getPDOQuick($arguments);
+        $isbn = $arguments['isbn'];
+        
+        // Make sure the arguments aren't blank
+        if(!$isbn) {
+            output($arguments, 'Please provide an ISBN.');
+            return false;
+        }
+        
+        // Get the actual JSON contents and decode it
+        $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn . '&key=' . getGoogleKey();
+        $result = json_decode(getHTTPPage($url));
+        
+        // If there was an error, oh no!
+        if(isset($result->error)) {
+            output($arguments, $result->error->message);
+            return;
+        }
+        
+        // Attempt to get the first item in the list (which will be the book)
+        if(!isset($result->items) || !isset($result->items[0])) {
+            return;
+        }
+        $book = $result->items[0];
+        
+        // Call the backend bookProcessObject to add the book to the database
+        $arguments['dbConn'] = $dbConn;
+        $arguments['book'] = $book;
+        require_once('imports.inc.php');
+        return bookProcessObject($arguments);
+    }
+  
+    /**
      * BookImportFull
      * 
      * Sends a request query to the Google Books API with the given search term.
@@ -993,11 +994,9 @@
      * @todo Format the results instead of hardcoding raw HTML (template them?)
      * @param {String} value   A query term to search in the Google Books API.
      */
-    function publicBookImportFull($arguments, $noverbose=false) {
+    function publicBookImportFull($arguments) {
         $value = urlencode($arguments['value']);
-        if(!$noverbose) {
-            echo '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL;
-        }
+        output($arguments, '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL);
         
         // Start the Google query
         $query = 'https://www.googleapis.com/books/v1/volumes?';
@@ -1012,7 +1011,7 @@
         
         // Use the private function to add the JSON book to the database
         require_once('imports.inc.php');
-        return bookImportFromJSON($arguments, $noverbose);
+        return bookImportFromJSON($arguments, $arguments['verbose']);
     }
   
     /**
@@ -1032,7 +1031,7 @@
      * @todo In the future, a user should be able to have multiple entries. The
      *       backend function checks for that currently.
      */
-    function publicEntryAdd($arguments, $noverbose=false) {
+    function publicEntryAdd($arguments) {
         // Make sure there's a user, and get that user's info
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to add an entry.');
@@ -1222,7 +1221,7 @@
      * @param {String} action   The entry action to filter on (one of "buy" or
      *                          "sell")
      */
-    function publicPrintUserBooks($arguments, $noverbose=false) {
+    function publicPrintUserBooks($arguments) {
         $user_id = ArgStrict($arguments['user_id']);
         $format = ArgStrict($arguments['format']);
         $action = ArgStrict($arguments['action']);
