@@ -113,7 +113,8 @@
     
     /**
      * Checks to make sure each required argument is present in an associative
-     * array. Any amount of strings or arrays of strings are allowed.
+     * array. Any amount of strings or arrays of strings are allowed. If any
+     * aren't present, it complains using output.
      * 
      * @param {Array} arguments   An array of arguments to be checked.
      * @param {Mixed} [requirements]   A string or array of strings that must be in
@@ -163,13 +164,51 @@
     }
     
     /**
+     * If the user isn't logged in, this complains gracefully using output().
+     * 
+     * @param {Array} arguments   An array of arguments to be checked.
+     * @param {String} [action]   An optional short description of what the user
+     *                            is trying to do, which will be printed out if 
+     *                            the user isn't logged in.
+     * @return Boolean   Whether the user is logged in.
+     */
+    function requireUserLogin($arguments, $action='do this') {
+        if(!UserLoggedIn()) {
+            output($arguments, 'You must be logged in to ' . $action . '.');
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * If the user isn't logged in and verified, this complains gracefully using
+     * output().
+     * 
+     * @param {Array} arguments   An array of arguments to be checked.
+     * @param {String} action   A short description of what the user is trying
+     *                          to do, which will be printed out if the user
+     *                          isn't verified.
+     * @return Boolean   Whether the user is verified.
+     */
+    function requireUserVerification($arguments, $action='do this') {
+        if(!requireUserLogin($arguments, $action)) {
+            return false;
+        }
+        if(!UserVerified()) {
+            output($arguments, 'You must be verified to ' . $action . '.');
+            return false;
+        }
+        return true;
+    }
+    
+    /**
      * CreateUser
      * 
      * Creates a user of the given username, password, and email. This will call
      * dbUsersAdd on success, which sets the user's verification status to 
      * "Unverified" and sends them a verification email.
      * For ease of use with JavaScript handlers, all fields may also be taken in
-     * with a 'j_' prefix (for example, 'j_username')
+     * with a 'j_' prefix (for example, 'j_username').
      * 
      * @param {String} username   The username of the new user.
      * @param {String} password   The password of the new user (must be secure:
