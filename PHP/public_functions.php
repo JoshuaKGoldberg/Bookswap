@@ -900,8 +900,11 @@
     /**
      * BookImportISBN
      * 
-     * Goes through th emotions of checking if an ISBN is in the database. If it
-     * isn't, the function to query and add the book is called.
+     * Imports a book by querying a given ISBN. If that ISBN isn't already in 
+     * the database, this queries the Google Books API on that ISBN and calls 
+     * the internal bookProcessObject on the given JSON result.
+     * https://developers.google.com/books/docs/v1/using
+     * https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
      * 
      * @todo Format the results instead of hardcoding raw HTML (template them?)
      * @param {String} isbn   An ISBN number (as a string, in case it starts
@@ -909,6 +912,10 @@
      * @remarks This seems to be a partial duplicate of publicAddBook
      */
     function publicBookImportISBN($arguments) {
+        if(!isset($arguments['isbn'])) {
+            output($arguments, 'An ISBN is required.');
+            return false;
+        }
         $isbn = ArgStrict($arguments['isbn']);
         
         // Make sure the ISBN is valid
@@ -917,15 +924,36 @@
             return;
         }
         
-        // Does the ISBN exist?
+        // Make sure the ISBN doesn't already exist
         $dbConn = getPDOQuick($arguments);
         if(checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
             output($arguments, 'ISBN ' . $isbn . ' already exists!');
             return;
         }
         
-        // Since it doesn't yet, attempt to add it
-        $added = publicAddBook($arguments);
+        // Get the actual JSON contents and decode them
+        $url = 'https://www.googleapis.com/books/v1/volumes?'
+             . 'q=isbn:' . $isbn . '&key=' . getGoogleKey();
+        $result = json_decode(getHTTPPage($url));
+        
+        // If there was an error, oh no!
+        if(isset($result->error)) {
+            output($arguments, $result->error->message);
+            return;
+        }
+        
+        // Attempt to get the first item in the list (which will be the book)
+        if(!isset($result->items) || !isset($result->items[0])) {
+            output($arguments, 'No results for ' . $isbn);
+            return false;
+        }
+        $book = $result->items[0];
+        
+        // Call the backend bookProcessObject to add the book to the database
+        $arguments['dbConn'] = $dbConn;
+        $arguments['book'] = $book;
+        require_once('imports.inc.php');
+        $added = bookProcessObject($arguments);
         
         // If that was successful, hooray!
         if($added) {
@@ -939,50 +967,6 @@
         }
     }
   
-    /**
-     * AddBook
-     * 
-     * Given an ISBN, this queries more book information from the Google Books
-     * API and (if the book exists) adds it to the database.
-     * https://developers.google.com/books/docs/v1/using
-     * https://www.googleapis.com/books/v1/volumes?q=isbn:9780073523323&key=AIzaSyD2FxaIBhdLTA7J6K5ktG4URdCFmQZOCUw
-     * 
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
-     * @remarks This seems to be a partial duplicate of publicBookImportISBN
-     */
-    function publicAddBook($arguments) {
-        $dbConn = getPDOQuick($arguments);
-        $isbn = $arguments['isbn'];
-        
-        // Make sure the arguments aren't blank
-        if(!$isbn) {
-            output($arguments, 'Please provide an ISBN.');
-            return false;
-        }
-        
-        // Get the actual JSON contents and decode it
-        $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn . '&key=' . getGoogleKey();
-        $result = json_decode(getHTTPPage($url));
-        
-        // If there was an error, oh no!
-        if(isset($result->error)) {
-            output($arguments, $result->error->message);
-            return;
-        }
-        
-        // Attempt to get the first item in the list (which will be the book)
-        if(!isset($result->items) || !isset($result->items[0])) {
-            return;
-        }
-        $book = $result->items[0];
-        
-        // Call the backend bookProcessObject to add the book to the database
-        $arguments['dbConn'] = $dbConn;
-        $arguments['book'] = $book;
-        require_once('imports.inc.php');
-        return bookProcessObject($arguments);
-    }
   
     /**
      * BookImportFull

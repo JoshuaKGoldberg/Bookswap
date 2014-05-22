@@ -23,7 +23,7 @@
     'publicSetVerificationEmail', 'publicSendWelcomeEmail', 
     'publicLogin', 'publicFacebookLogin', 
     'publicEditUsername', 'publicEditEmail', 'publicEditEmailEdu',
-    'publicAddBook', 'publicSearch', 'publicGetBookEntries', 'publicBookImport',
+    'publicSearch', 'publicGetBookEntries', 'publicBookImport',
     'publicPrintUserBooks', 'publicPrintRecentListings',
     'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
     'publicPrintRecommendationsDatabase',
