@@ -270,6 +270,10 @@
      *                        matched against what's in the database.
      */
     function publicVerifyUser($arguments) {
+        if(!requireArguments($arguments, 'user_id', 'code')) {
+            return false;
+        }
+        
         // The user must logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to do this');
@@ -316,23 +320,22 @@
      * @param {String} [password]   An optional password for the user.
      */
     function publicSetVerificationEmail($arguments) {
+        // Allow email and password arguments under the 'j_*' prefix
+        if(!isset($arguments['email']) && isset($arguments['j_password'])) {
+            $arguments['email'] = $arguments['j_email'];
+        }
+        if(!isset($arguments['password']) && isset($arguments['j_password'])) {
+            $arguments['password'] = $arguments['j_password'];
+        }
+        
+        if(!requireArguments($arguments, 'email', 'password')) {
+            return false;
+        }
+        
         // The user must logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in.');
             return false;
-        }
-
-        if(!isset($arguments['email']) && isset($arguments['j_password'])) {
-            $arguments['email'] = $arguments['j_email'];
-        }
-
-        if(!isset($arguments['password']) && isset($arguments['j_password'])) {
-            $arguments['password'] = $arguments['j_password'];
-        }
-
-        if(!isset($arguments['email'])) {
-          output($arguments, 'No email provided!');
-          return false;
         }
 
         $email = $arguments['email'];
@@ -448,6 +451,10 @@
      * @param {Password} password   The password for the user account
      */
     function publicLogin($arguments) {
+        if(!requireArguments($arguments, 'email', 'password')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $email = $arguments['email'];
         $password = $arguments['password'];
@@ -471,6 +478,10 @@
      * @param {String} fb_id   The Facebook user's ID (on Facebook)
      */
     function publicFacebookLogin($arguments) {
+        if(!requireArguments($arguments, 'email', 'password', 'fb_id')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $email = $arguments['email'];
         $username = $arguments['name'];
@@ -489,8 +500,9 @@
         if($user_info) {
             output($arguments, 'Yes');
             return true;
+        }
         // If it didn't work (couldn't login or register), complain
-        } else {
+        else {
             output($arguments, 'No');
             return false;
         }
@@ -505,6 +517,10 @@
      * @param {String} value   The requested new username
      */
     function publicEditUsername($arguments) {
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
         // The user must be logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to edit a username.');
@@ -543,6 +559,10 @@
      * @param {String} value   The requested new primary email
      */
     function publicEditEmail($arguments) {
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
         // You must be logged in to do this
         if(!UserLoggedIn()) {
           output($arguments, 'You must be logged in to edit an email.');
@@ -591,6 +611,10 @@
      * @param {String} value   The requested new educational email
      */
     function publicEditEmailEdu($arguments) {
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
         // You must be logged in to do this
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to edit an email.');
@@ -647,6 +671,10 @@
      *                            given, all entries on that ISBN are returned)
      */
     function publicGetBookEntries($arguments) {
+        if(!requireArguments($arguments, 'isbn', 'action')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $isbn = $arguments['isbn'];
         
@@ -671,7 +699,7 @@
         
         // Return a JSON encoding of the results
         $result = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-        output($arguments, json_encode($result));
+        output($arguments, $result);
         return $result;
     }
     
@@ -706,6 +734,10 @@
      *                           for successive searches, this is cached.
      */
     function publicSearch($arguments) {
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $value_raw = ArgLoose($arguments['value']);
         $value = str_replace(' ', '%', $value_raw);
@@ -933,12 +965,16 @@
      * Quick handler to go to publicBookImportFull or publicBookImportISBN, 
      * depending on the search type. Works very well for JavaScript handling.
      * 
-     * @param {String} type   What type of import should happen: 'full'
-     *                        redirects to ~Full, while all else goes to ~ISBN.
+     * @param {String} type   What type of import to attempt: 'full' redirects 
+     *                        to ~Full, while all else goes to ~ISBN.
      *                        Keep in mind those functions have their own 
      *                        argument requirements as well.
      */
     function publicBookImport($arguments) {
+        if(!requireArguments($arguments, 'type')) {
+            return false;
+        }
+        
         if(ArgStrict($arguments['type']) == 'full') {
             return publicBookImportFull($arguments);
         } else {
@@ -961,10 +997,10 @@
      * @remarks This seems to be a partial duplicate of publicAddBook
      */
     function publicBookImportISBN($arguments) {
-        if(!isset($arguments['isbn'])) {
-            output($arguments, 'An ISBN is required.');
+        if(!requireArguments($arguments, 'isbn')) {
             return false;
         }
+        
         $isbn = ArgStrict($arguments['isbn']);
         
         // Make sure the ISBN is valid
@@ -1028,6 +1064,10 @@
      * @param {String} value   A query term to search in the Google Books API.
      */
     function publicBookImportFull($arguments) {
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
         $value = urlencode($arguments['value']);
         output($arguments, '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL);
         
@@ -1065,6 +1105,10 @@
      *       backend function checks for that currently.
      */
     function publicEntryAdd($arguments) {
+        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
+            return false;
+        }
+        
         // Make sure there's a user, and get that user's info
         if(!UserLoggedIn()) {
             output($arguments, 'You must be logged in to add an entry.');
@@ -1101,7 +1145,6 @@
      * 
      * Edits the price of the current user's entry for a particular book, if 
      * that entry already exists.
-     * 
      *
      * @param {String} isbn   An ISBN number (as a string, in case it starts
      *                        with 0) of a book to be imported
@@ -1116,6 +1159,10 @@
      *       this should key on entry_id.
      */
     function publicEntryEditPrice($arguments) {
+        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
+            return false;
+        }
+        
         // Make sure there's a user, and get that user's info
         if(!UserLoggedIn()) {
           output($arguments, 'You must be logged in to add an entry.');
@@ -1152,6 +1199,10 @@
      *       this should key on entry_id.
      */
     function publicEntryDelete($arguments) {
+        if(!requireArguments($arguments, 'isbn', 'action')) {
+            return false;
+        }
+        
         // Make sure there's a user, and get that user's info
         if(!UserLoggedIn()) {
           output($arguments, 'You must be logged in to delete an entry.');
@@ -1197,8 +1248,12 @@
      * 
      * @param {String} notification_id   The ID of the notification to delete.
      */
-    function publicDeleteNotification($arguments=[]) {
+    function publicDeleteNotification($arguments) {
+        if(!requireArguments($arguments, 'notification_id')) {
+            return false;
+        }
         if(!UserLoggedIn()) {
+            output($arguments, 'You must be logged in to delete a notification.');
             return;
         }
         $dbConn = getPDOQuick($arguments);
@@ -1211,10 +1266,9 @@
      * Prints the most recent entries on the site, in chronological order. Calls
      * TemplatePrint("Entry") on PHP/db_actions::dbEntriesGetRecent().
      * 
-     * @param Array $arguments   Associative array of the following arguments:
-     * @param String "identifier"   An optional key by which to filter entries,
+     * @param String [identifier]   An optional key by which to filter entries,
      *                              such as "isbn" or "user_id_a"
-     * @param String "value"    A value (required only if "identifier" is given)
+     * @param String [value]    A value (required only if "identifier" is given)
      *                          to filter for, such as "9780073523323" for 
      *                          "isbn".
      */
@@ -1255,6 +1309,10 @@
      *                          "sell")
      */
     function publicPrintUserBooks($arguments) {
+        if(!requireArguments($arguments, 'user_id', 'format', 'action')) {
+            return false;
+        }
+        
         $user_id = ArgStrict($arguments['user_id']);
         $format = ArgStrict($arguments['format']);
         $action = ArgStrict($arguments['action']);
@@ -1290,6 +1348,10 @@
      * @param {Number} user_id   The unique numeric ID of the user.
      */
     function publicPrintRecommendationsDatabase($arguments) {
+        if(!requireArguments($arguments, 'user_id')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $user_id = ArgStrict($arguments['user_id']);
 
@@ -1339,6 +1401,10 @@
      * @param {Number} user_id_b   The unique numeric ID of the second user.
     */
     function publicPrintRecommendationsUser($arguments) {
+        if(!requireArguments($arguments, 'user_id_a', 'user_id_b')) {
+            return false;
+        }
+        
         $dbConn = getPDOQuick($arguments);
         $user_id_a = ArgStrict($arguments['user_id_a']);
         $user_id_b = ArgStrict($arguments['user_id_b']);
@@ -1385,7 +1451,8 @@
      */
     function publicPrintNotifications($arguments=[]) {
         if(!UserLoggedIn()) {
-            return;
+            output($arguments, 'You must be logged in to print notifications.');
+            return false;
         }
         $dbConn = getPDOQuick($arguments);
         $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
