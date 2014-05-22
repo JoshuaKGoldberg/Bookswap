@@ -120,7 +120,7 @@
      *                             the arguments array.
      * @return Boolean   Whether each required argument was provided.
      */
-    function requireArguments($arguments, $requirements) {
+    function requireArguments($arguments) {
         $num_args = func_num_args();
         
         // Starting with each of the required parts (not including $arguments)
@@ -128,12 +128,14 @@
             $requirement = func_get_arg($i);
             
             // If that argument's a string, check it directly
-            if(!isset($arguments[$requirement])) {
-                // Lazy load an array of failure strings
-                if(!isset($failures)) {
-                    $failures = [];
-                }
-                array_push($failures, $requirement);
+            if(is_string($requirement)) {
+                if(!isset($arguments[$requirement])) {
+                    // Lazy load an array of failure strings
+                    if(!isset($failures)) {
+                        $failures = [];
+                    }
+                    array_push($failures, $requirement);
+                } 
             } 
             // If it's an array, check all the strings in it
             else {
@@ -143,7 +145,7 @@
                         if(!isset($failures)) {
                             $failures = [];
                         }
-                        array_push($failures, $requirement);
+                        array_push($failures, $value);
                     }
                 }
             }
@@ -178,7 +180,7 @@
     function publicCreateUser($arguments) {
         $fields = array('username', 'password', 'email');
         
-        // Ensure each required field is given
+        // Allow the 'j_*' versions of fields to exist if the regular ones don't
         foreach($fields as $field) {
             // If the field isn't set, that may be bad
             if(!isset($arguments[$field])) {
@@ -186,14 +188,13 @@
                 if(isset($arguments['j_' . $field])) {
                     $arguments[$field] = $arguments['j_' . $field];
                 }
-                // Otherwise that's definitely bad: the field is missing
-                else {
-                    output($arguments, 'The ' . $field . ' cannot be blank.');
-                    return false;
-                }
             }
         }
         
+        // Each field is required, now that any aliases are copied over
+        if(!requireArguments($arguments, $fields)) {
+            return false;
+        }
         $username = $arguments['username'];
         $password = $arguments['password'];
         $email = $arguments['email'];
