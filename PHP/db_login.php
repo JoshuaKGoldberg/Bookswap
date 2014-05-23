@@ -44,7 +44,7 @@
   function copyUserToSession($user_info) {
     foreach($user_info as $key => $value) {
       // Skip passwords and '0', '1', etc.
-      if(!is_numeric($key) && stripos($key, 'password') === false) {
+      if(!is_numeric($key) && stripos($key, 'password') === false && $key != 'salt') {
         $_SESSION[$key] = $value;
       }
     }
