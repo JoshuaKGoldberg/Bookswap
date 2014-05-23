@@ -704,6 +704,36 @@
     }
     
     /**
+     * UserEditPassword
+     * 
+     * 
+     */
+    function publicUserEditPassword($arguments) {
+        if(!requireUserLogin($arguments, 'edit your password')) {
+            return false;
+        }
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
+        $user_id = $_SESSION['user_id'];
+        $password = $arguments['value'];
+        
+        // The password must be secure
+        if(!isPasswordSecure($password)) {
+            output($arguments, 'The password isn\'t secure enough.');
+            return false;
+        }
+        
+        // Replace the user's actual password, and make a new salt
+        $dbConn = getPDOQuick($arguments);
+        dbUsersEditPassword($dbConn, $user_id, $password, 'user_id');
+        
+        // Reset the user's session, including password and salt
+        copyUserToSession(getUserInfo($dbConn, $user_id));
+    }
+    
+    /**
      * Search
      * 
      * <p>

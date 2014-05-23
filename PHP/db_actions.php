@@ -145,7 +145,7 @@
           :user_id,  :code
         );
     ';
-    $code = hash('sha256', uniqid(mt_rand(), true));
+    $code = getPasswordHash();
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
@@ -306,6 +306,33 @@
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':email_new' => $email_new,
                                  ':identity'  => $identity));
+  }
+  
+  //
+  function dbUsersEditPassword($dbConn, $identity, $password_raw, $type='user_id') {
+    // Ensure the identity exists in the database
+    if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
+        echo 'No such ' . $type . ' exists: ' . $identity;
+        return false;
+    }
+    
+    // Hash the password for security, with a new salt each time this is called
+    $salt_new = getPasswordSalt();
+    $password_new = getPasswordSalted($password_raw, $salt_new);
+    
+    // Run the change query
+    $query = '
+      UPDATE `users` 
+      SET
+        `password` = :password,
+        `salt` = :salt
+      WHERE `' . $type . '` = :identity
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':password'  => $password_new,
+                                 ':salt'      => $salt_new,
+                                 ':identity'  => $identity));
+    
   }
 
   

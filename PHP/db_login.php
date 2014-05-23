@@ -1,6 +1,7 @@
 <?php
   /* Scripts for logging into the site
   */
+  require_once('db_actions.php');
   
   // Runs through all the motions of attempting to log in with the given credentials
   // If successfull, the timetamp and users info are copied to $_SESSION
@@ -77,7 +78,7 @@
     if(empty($user_info['salt']) || empty($user_info['password'])) return false;
     
     // Get the salt to hash the password, making sure they match
-    $salted = hash('sha256', $user_info['salt'] . $password);
+    $salted = getPasswordSalted($password, $user_info['salt']);
     return ($salted == $user_info['password']) ? $user_info : false;
   }
   
