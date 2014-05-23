@@ -2,7 +2,7 @@
 */
 
 function loginSubmit() {
-  sendRequestForm("publicLogin", ["email", "password"], loginComplete, true);
+  sendRequestForm("publicUserLogin", ["email", "password"], loginComplete, true);
   $("#login_submit").val("Thinking...");
 }
 

@@ -29,11 +29,11 @@
     // Functions the user may call via JS
     $allowed_functions = array(
         'publicTest',
-        'publicCreateUser', 'publicVerifyUser',
-        'publicSetVerificationEmail', 'publicSendWelcomeEmail', 
-        'publicLogin', 'publicFacebookLogin', 
-        'publicEditUsername', 'publicEditEmail', 'publicEditEmailEdu',
-        'publicSearch', 'publicGetBookEntries', 'publicBookImport',
+        'publicUserCreate', 'publicUserVerify',
+        'publicUserSetVerificationEmail', 'publicUserSendWelcomeEmail', 
+        'publicUserLogin', 'publicUserLoginFacebook', 
+        'publicUserEditUsername', 'publicUserEditEmail', 'publicUserEditEmailEdu',
+        'publicSearch', 'publicBookGetEntries', 'publicBookImport',
         'publicPrintUserBooks', 'publicPrintRecentListings',
         'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
         'publicPrintRecommendationsDatabase',

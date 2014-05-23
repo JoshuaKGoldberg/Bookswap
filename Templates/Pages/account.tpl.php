@@ -76,7 +76,7 @@
   <!-- Title / Username -->
   <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your info to change it.</div></section>' . PHP_EOL; ?>
   <h1 id="username" class="standard_main standard_vert giant"><?php
-    if($using_current) PrintEditable($username, 'publicEditUsername', array('callback' => 'updateSearchUsername'));
+    if($using_current) PrintEditable($username, 'publicUserEditUsername', array('callback' => 'updateSearchUsername'));
     else echo $username;
   ?></h1>
   <?php if($descriptor): ?>
@@ -109,8 +109,8 @@
         echo PHP_EOL;
         // If on the current user, print callbacks to edit the info
         if($using_current) {
-          printContactInfo(5, $_SESSION['email'], 'main email', 'publicEditEmail');
-          printContactInfo(5, $_SESSION['email_edu'], '.edu email', 'publicEditEmailEdu');
+          printContactInfo(5, $_SESSION['email'], 'main email', 'publicUserEditEmail');
+          printContactInfo(5, $_SESSION['email_edu'], '.edu email', 'publicUserEditEmailEdu');
         }
         // Otherwise just print the info all plain-like
         else {

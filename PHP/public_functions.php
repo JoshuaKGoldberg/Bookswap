@@ -235,7 +235,7 @@
      *                            >=1 symbol, >=1 number, >=7 characters long).
      * @param {String} email   The email of the new user (must be a .edu email).
      */
-    function publicCreateUser($arguments) {
+    function publicUserCreate($arguments) {
         $fields = array('username', 'password', 'email');
         
         // Allow the 'j_*' versions of fields to exist if the regular ones don't
@@ -284,7 +284,7 @@
 
         // If successful, log the user in
         if(dbUsersAdd($dbConn, $username, $password, $email)) {
-            publicLogin($arguments, true);
+            publicUserLogin($arguments, true);
             output($arguments, 'Yes');
             return true;
         }
@@ -296,7 +296,7 @@
      * 
      * Sends a welcome email to the current user that their account is active.
      */
-    function publicSendWelcomeEmail($arguments) {
+    function publicUserSendWelcomeEmail($arguments) {
         $username = $_SESSION['username'];
         $email = $_SESSION['email'];
         $recipient = '<' . $username . '> ' . $email;
@@ -327,7 +327,7 @@
      * @param {String} code   A verification code from a sent email, to be 
      *                        matched against what's in the database.
      */
-    function publicVerifyUser($arguments) {
+    function publicUserVerify($arguments) {
         if(!requireArguments($arguments, 'user_id', 'code')) {
             return false;
         }
@@ -375,7 +375,7 @@
      * @param {String} email   An email from the user that must be a .edu.
      * @param {String} [password]   An optional password for the user.
      */
-    function publicSetVerificationEmail($arguments) {
+    function publicUserSetVerificationEmail($arguments) {
         if(!requireUserLogin($arguments, 'set your email and/or password')) {
             return false;
         }
@@ -504,7 +504,7 @@
      * @param {String} email   An email to log in with
      * @param {Password} password   The password for the user account
      */
-    function publicLogin($arguments) {
+    function publicUserLogin($arguments) {
         if(!requireArguments($arguments, 'email', 'password')) {
             return false;
         }
@@ -530,7 +530,7 @@
      * @param {String} email   An email to log in with
      * @param {String} fb_id   The Facebook user's ID (on Facebook)
      */
-    function publicFacebookLogin($arguments) {
+    function publicUserLoginFacebook($arguments) {
         if(!requireArguments($arguments, 'email', 'fb_id')) {
             return false;
         }
@@ -569,7 +569,7 @@
      * 
      * @param {String} value   The requested new username
      */
-    function publicEditUsername($arguments) {
+    function publicUserEditUsername($arguments) {
         if(!requireUserLogin($arguments, 'edit your username')) {
             return false;
         }
@@ -609,7 +609,7 @@
      * 
      * @param {String} value   The requested new primary email
      */
-    function publicEditEmail($arguments) {
+    function publicUserEditEmail($arguments) {
         if(!requireUserLogin($arguments, 'edit your email')) {
             return false;
         }
@@ -658,7 +658,7 @@
      * 
      * @param {String} value   The requested new educational email
      */
-    function publicEditEmailEdu($arguments) {
+    function publicUserEditEmailEdu($arguments) {
         if(!requireUserLogin($arguments, 'edit your email')) {
             return false;
         }
@@ -701,51 +701,6 @@
         
         // Reset the $_SESSION email to be that of the database's
         $_SESSION['email_edu'] = getRowValue($dbConn, 'users', 'email_edu', 'user_id', $user_id);
-    }
-    
-    /**
-     * GetBookEntries
-     * 
-     * Retrieves all entries for an book of a given ISBN. An action ("Buy" or 
-     * "Sell") may be given optionally. The results are returned as JSON.
-     * 
-     * @todo Allow for other formats, such as HTML or XML
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
-     * @param {String} [action]   An action to filter the queries on (if not
-     *                            given, all entries on that ISBN are returned)
-     */
-    function publicGetBookEntries($arguments) {
-        if(!requireArguments($arguments, 'isbn', 'action')) {
-            return false;
-        }
-        
-        $dbConn = getPDOQuick($arguments);
-        $isbn = $arguments['isbn'];
-        
-        // If an action isn't given, default to '%' (anything)
-        if(!isset($arguments['action']) || !$arguments['action']) {
-            $action = '%';
-        } else {
-            $action = $arguments['action'];
-        }
-        
-        // Prepare the initial query
-        $query = '
-            SELECT * FROM `entries`
-            WHERE `isbn` LIKE :isbn
-            AND `action` LIKE :action
-        ';
-        
-        // Run the query
-        $stmnt = getPDOStatement($dbConn, $query);
-        $durp = $stmnt->execute(array(':isbn' => $isbn,
-                                      ':action' => $action));
-        
-        // Return a JSON encoding of the results
-        $result = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-        output($arguments, $result);
-        return $result;
     }
     
     /**
@@ -1003,7 +958,52 @@
            - Something else I can't remember right now
         */
     }
-  
+    
+    /**
+     * GetBookEntries
+     * 
+     * Retrieves all entries for an book of a given ISBN. An action ("Buy" or 
+     * "Sell") may be given optionally. The results are returned as JSON.
+     * 
+     * @todo Allow for other formats, such as HTML or XML
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported
+     * @param {String} [action]   An action to filter the queries on (if not
+     *                            given, all entries on that ISBN are returned)
+     */
+    function publicBookGetEntries($arguments) {
+        if(!requireArguments($arguments, 'isbn', 'action')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $isbn = $arguments['isbn'];
+        
+        // If an action isn't given, default to '%' (anything)
+        if(!isset($arguments['action']) || !$arguments['action']) {
+            $action = '%';
+        } else {
+            $action = $arguments['action'];
+        }
+        
+        // Prepare the initial query
+        $query = '
+            SELECT * FROM `entries`
+            WHERE `isbn` LIKE :isbn
+            AND `action` LIKE :action
+        ';
+        
+        // Run the query
+        $stmnt = getPDOStatement($dbConn, $query);
+        $durp = $stmnt->execute(array(':isbn' => $isbn,
+                                      ':action' => $action));
+        
+        // Return a JSON encoding of the results
+        $result = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+        output($arguments, $result);
+        return $result;
+    }
+    
     /**
      * BookImport
      * 

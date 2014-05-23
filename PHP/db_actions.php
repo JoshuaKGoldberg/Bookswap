@@ -168,7 +168,7 @@
       $arguments = array(
         'dbConn' => $dbConn
       );
-      publicSendWelcomeEmail($arguments, true);
+      publicUserSendWelcomeEmail($arguments, true);
     }
     return true;
   }
