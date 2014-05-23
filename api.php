@@ -44,7 +44,8 @@
         $_GET['format'] = getDefaultAPIFormat();
     }
     
-    // Build the query based on all $_GET parts, and execute
-    $path = getBase() . '/PHP/requests.php?' . http_build_query($_GET);
-    echo getHTTPPage($path);
+    // Execute a visit PHP/requests.php as normal, like if the user visited it
+    // directly (this keeps $_SESSION intact)
+    chdir(getCDir() . '\PHP');
+    require_once(getCDir() . '\PHP\requests.php');
 ?>

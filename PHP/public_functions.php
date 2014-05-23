@@ -95,7 +95,11 @@
      * @param Mixed $message
      */
     function outputJSON($message) {
-        echo json_encode($message);
+        if(null !== JSON_PRETTY_PRINT) {
+            echo json_encode($message, JSON_PRETTY_PRINT);
+        } else {
+            echo json_encode($message);
+        }
     }
     
     /**
@@ -199,6 +203,21 @@
             return false;
         }
         return true;
+    }
+    
+    /**
+     * Test
+     * 
+     * Quick testing function for use with api.php and public_functions.php. 
+     * Displays the given arguments, $_GET, the user's session, and a timestamp.
+     */
+    function publicTest($arguments) {
+        $output = array(
+            'arguments' => $arguments,
+            'session' => $_SESSION,
+            'timestamp' => time()
+        );
+        output($arguments, $output);
     }
     
     /**

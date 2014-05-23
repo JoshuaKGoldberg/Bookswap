@@ -148,8 +148,9 @@
   
   // 'Safe' way to ensure a session has been started
   function EnsureSessionStarted() {
-    if(session_id() == '' || !isset($_SESSION['Started']) || !$_SESSION['Started'])
+    if(session_id() == '' || !isset($_SESSION['Started']) || !$_SESSION['Started']) {
       session_start();
+    }
     $_SESSION['Started'] = true;
   }
   
