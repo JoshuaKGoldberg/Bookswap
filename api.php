@@ -46,6 +46,6 @@
     
     // Execute a visit PHP/requests.php as normal, like if the user visited it
     // directly (this keeps $_SESSION intact)
-    chdir(getCDir() . '\PHP');
-    require_once(getCDir() . '\PHP\requests.php');
+    chdir(getCDir() . '/PHP');
+    require_once(getCDir() . '/PHP/requests.php');
 ?>
