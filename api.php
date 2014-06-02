@@ -23,9 +23,13 @@
     require_once('settings.php');
     require_once('PHP/public_functions.php');
     
+    // If verbosity level is not given by the user, set it to the default
+    if(!isset($_GET['verbose'])) {
+        $_GET['verbose'] = getDefaultAPIVerbosity();
+    }
+    
     // This page is useless without a provided function
-    if(!isset($_GET['function'])) {
-        echo 'Provide a function.';
+    if(!requireArguments($_GET, 'function')) {
         return;
     }
     
@@ -35,17 +39,13 @@
         $_GET['function'] = 'public' . $_GET['function'];
     }
     
-    // If verbosity level is not given by the user, set it to the default
-    if(!isset($_GET['verbose'])) {
-        $_GET['verbose'] = getDefaultAPIVerbosity();
-    }
-    
     // If format is not given by the user, set it to the default
     if(!isset($_GET['format'])) {
         $_GET['format'] = getDefaultAPIFormat();
     }
     
-    // Build the query based on all $_GET parts, and execute
-    $path = getBase() . '/PHP/requests.php?' . http_build_query($_GET);
-    echo getHTTPPage($path);
+    // Execute a visit PHP/requests.php as normal, like if the user visited it
+    // directly (this keeps $_SESSION intact)
+    chdir(getCDir() . '/PHP');
+    require_once(getCDir() . '/PHP/requests.php');
 ?>

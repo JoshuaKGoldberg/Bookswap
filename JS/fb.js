@@ -34,7 +34,7 @@ window.fbAsyncInit = function() {
 
 function facebookLoginSubmit(FBUID){
 	FB.api('/me', function(response){
-			sendRequest("publicFacebookLogin", 
+			sendRequest("publicUserLoginFacebook", 
 			{name: response.name, email: response.email, fb_id: FBUID},
 			loginComplete);
 		});

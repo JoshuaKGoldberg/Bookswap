@@ -19,7 +19,7 @@ $(document).ready(function() {
 // Called when the user attempts to submit an account creation
 // joinEnsure makes sure all fields are filled and similar 
 function joinSubmit() {
-  sendRequestForm("publicCreateUser", 
+  sendRequestForm("publicUserCreate", 
     ["j_username", "j_password", "j_password_confirm", "j_email"], 
     joinComplete, joinEnsure);
 }

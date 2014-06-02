@@ -63,8 +63,8 @@
     
     // If there's a password, create the salts
     if(!empty($password)){
-      $salt = hash('sha256', uniqid(mt_rand(), true));
-      $salted = hash('sha256', $salt . $password);
+      $salt = getPasswordSalt();
+      $salted = getPasswordSalted($password, $salt);
     }
     // No password means an alternate authenticated method (e.g. Facebook)
     else{
@@ -106,6 +106,29 @@
     return true;
   }
   
+    /**
+     * Generates a random salt, to later be used for password encoding.
+     * 
+     * @return {String}
+     * @todo Stop using sha256!
+     */
+    function getPasswordSalt() {
+        return hash('sha256', uniqid(mt_rand(), true));
+    }
+    
+    /**
+     * Generates a hash of a password, to be used for password encoding.
+     * 
+     * 
+     * @param {String} password   The actuall password the user submits
+     * @param {String} salt   A random string obtained from getPasswordSalt()
+     * @return {String}
+     * @todo Stop using sha256!
+     */
+    function getPasswordSalted($password, $salt) {
+        return hash('sha256', $salt . $password);
+    }
+  
   // dbUserVerificationAddCode(#user_id, "username");
   // Adds a random (sha256 hash) verification code for a user
   // Also sends a verification email to indicate this action
@@ -122,7 +145,7 @@
           :user_id,  :code
         );
     ';
-    $code = hash('sha256', uniqid(mt_rand(), true));
+    $code = getPasswordHash();
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
@@ -168,7 +191,7 @@
       $arguments = array(
         'dbConn' => $dbConn
       );
-      publicSendWelcomeEmail($arguments, true);
+      publicUserSendWelcomeEmail($arguments, true);
     }
     return true;
   }
@@ -283,6 +306,33 @@
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':email_new' => $email_new,
                                  ':identity'  => $identity));
+  }
+  
+  //
+  function dbUsersEditPassword($dbConn, $identity, $password_raw, $type='user_id') {
+    // Ensure the identity exists in the database
+    if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
+        echo 'No such ' . $type . ' exists: ' . $identity;
+        return false;
+    }
+    
+    // Hash the password for security, with a new salt each time this is called
+    $salt_new = getPasswordSalt();
+    $password_new = getPasswordSalted($password_raw, $salt_new);
+    
+    // Run the change query
+    $query = '
+      UPDATE `users` 
+      SET
+        `password` = :password,
+        `salt` = :salt
+      WHERE `' . $type . '` = :identity
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':password'  => $password_new,
+                                 ':salt'      => $salt_new,
+                                 ':identity'  => $identity));
+    
   }
 
   

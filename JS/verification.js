@@ -3,11 +3,11 @@ $(document).ready(function() {
   // If there is, send a request to verify the user's email
   if($.QueryString.user_id && $.QueryString.code) {
     setVerifStatusText("Thinking...");
-    sendRequest("publicVerifyUser", $.QueryString, receiveVerifStatus);
+    sendRequest("publicUserVerify", $.QueryString, receiveVerifStatus);
   }
 });
 
-// When the publicVerifyUser request returns, handle the result with this
+// When the publicUserVerify request returns, handle the result with this
 function receiveVerifStatus(result) {
   if(result == "Yes") {
     setVerifStatusText("You're good!");
@@ -23,13 +23,13 @@ function setVerifStatusText(str) {
 }
 
 function sendVerifEmailForm() {
-  sendRequestForm("publicSetVerificationEmail", 
+  sendRequestForm("publicUserSetVerificationEmail", 
     ["j_email", "j_password", "j_password_confirm"],
     verifComplete, verifEnsure);
 }
 
 function sendVerifEmailOnlyForm() {
-  sendRequestForm("publicSetVerificationEmail", 
+  sendRequestForm("publicUserSetVerificationEmail", 
     ["j_email"],
      verifComplete);
 }

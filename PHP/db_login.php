@@ -1,6 +1,7 @@
 <?php
   /* Scripts for logging into the site
   */
+  require_once('db_actions.php');
   
   // Runs through all the motions of attempting to log in with the given credentials
   // If successfull, the timetamp and users info are copied to $_SESSION
@@ -11,13 +12,25 @@
     if(!$user_info) {
       $user_info = loginCheckPassword($dbConn, $email, $password, true);
     }
+    
+    // Wait half a second (to deter brute force attacks)
+    sleep(.49);
       
-    // If they didn't, increase the session's fail counter
+    // If the info is blank (failed to log in), increase the user's fail counter
     if(!$user_info) {
-      if(!isset($_SESSION['Fail Counter']))
+      if(!isset($_SESSION['Fail Counter'])) {
         $_SESSION['Fail Counter'] = 1;
-      else ++$_SESSION['Fail Counter'];
+      } else {
+        ++$_SESSION['Fail Counter'];
+      }
+      // If the login counter is unnecessarily large, wait a little bit more...
+      if($_SESSION['Fail Counter'] > 7) {
+        sleep(1.17);
+      }
+      
       return false;
+    } else {
+        $_SESSION['Fail Counter'] = 0;
     }
     
     // Since they did, copy the user info over
@@ -44,7 +57,7 @@
   function copyUserToSession($user_info) {
     foreach($user_info as $key => $value) {
       // Skip passwords and '0', '1', etc.
-      if(!is_numeric($key) && stripos($key, 'password') === false) {
+      if(!is_numeric($key) && stripos($key, 'password') === false && $key != 'salt') {
         $_SESSION[$key] = $value;
       }
     }
@@ -65,7 +78,7 @@
     if(empty($user_info['salt']) || empty($user_info['password'])) return false;
     
     // Get the salt to hash the password, making sure they match
-    $salted = hash('sha256', $user_info['salt'] . $password);
+    $salted = getPasswordSalted($password, $user_info['salt']);
     return ($salted == $user_info['password']) ? $user_info : false;
   }
   

@@ -142,18 +142,18 @@
   /* For example, to print a username-editing span:
      PHP code
      --------
-     <?php PrintEditable("User Sample", "publicEditUsername"); ?>
+     <?php PrintEditable("User Sample", "publicUserEditUsername"); ?>
      
      Resultant HTML (line breaks for clarity)
      --------------
      <span class="editable"
-           onclick="editClick('publicEditUsername');">
+           onclick="editClick('publicUserEditUsername');">
       Josh Goldberg
      </span>
      
      Resultant JS call (when submitted with "User Changed")
      -----------------
-     sendRequest("publicEditUsername", {
+     sendRequest("publicUserEditUsername", {
       value: "User Changed",
       value_old: "User Sample"
      });
