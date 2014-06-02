@@ -58,25 +58,31 @@
      * * "PHP": print_r(result) (default)
      * * "JSON": json_encode(result)
      * * "XML": xmlrpc_encode(result)
+     * 
+     * @param {Array} settings   An associative array of settings keys. Only
+     *                           'verbose' and 'format' are used.
+     * @param {Mixed} message   A message to be printed in some format, such as
+     *                          a String, Number, or Array.
      */
     function output($settings, $message) {
         if(!isset($settings['verbose']) || !$settings['verbose']) {
-          return;
+            return;
         }
 
-        // If a custom format is given, check if it matches the provided formats
-        if(isset($settings['format'])) {
-            switch($settings['format']) {
-                case 'xml':
-                    outputXML($message);
-                    return;
-                case 'json':
-                    outputJSON($message);
-                    return;
-            }
+        if(!isset($settings['format'])) {
+            $settings['format'] = getDefaultAPIFormat();
         }
         
-        // If no given format matched a provided format, use the default printer
+        switch(strtolower($settings['format'])) {
+            case 'xml':
+                outputXML($message);
+                return;
+            case 'json':
+                outputJSON($message);
+                return;
+        }
+        
+        // If no given format matched a provided format, use the PHP printer
         outputPHP($message);
     }
     
@@ -205,11 +211,15 @@
         return true;
     }
     
+    
+    /* Public Functions
+    */
+    
     /**
      * Test
      * 
      * Quick testing function for use with api.php and public_functions.php. 
-     * Displays the given arguments, $_GET, the user's session, and a timestamp.
+     * Displays the given arguments, the user's session, and a timestamp.
      */
     function publicTest($arguments) {
         $output = array(
@@ -317,7 +327,7 @@
     }
   
     /**
-     * VerifyUser
+     * UserVerify
      * 
      * Attempts to verify the current user by checking a given verification code
      * against what's stored in the database. 
@@ -501,8 +511,8 @@
      * Attempts to log in with the given credentials. This is a small function
      * that acts as a pipe to <c>loginAttempt("email", "password")</c>.
      * 
-     * @param {String} email   An email to log in with
-     * @param {Password} password   The password for the user account
+     * @param {String} email   An email to log in with.
+     * @param {Password} password   The password for the user account.
      */
     function publicUserLogin($arguments) {
         if(!requireArguments($arguments, 'email', 'password')) {
@@ -524,11 +534,12 @@
     /**
      * FacebookLogin
      * 
-     * Attempts to log in with the given credentials. This is a small function
-     * that acts as a pipe to <c>facebookLoginAttempt("fb_id")</c>.
+     * Attempts to log in via Facebook with the given credentials. This is a
+     * small function that acts as a pipe to
+     * <c>facebookLoginAttempt("fb_id")</c>.
      * 
-     * @param {String} email   An email to log in with
-     * @param {String} fb_id   The Facebook user's ID (on Facebook)
+     * @param {String} email   An email to log in with.
+     * @param {String} fb_id   The Facebook user's ID (on Facebook).
      */
     function publicUserLoginFacebook($arguments) {
         if(!requireArguments($arguments, 'email', 'fb_id')) {
@@ -564,10 +575,10 @@
     /**
      * EditUsername
      * 
-     * Edits the current user's username, and updates all related entries. The
-     * new value must be different from the old and longer than one character.
+     * Edits the current user's username. The new value must be different from 
+     * the old and longer than one character.
      * 
-     * @param {String} value   The requested new username
+     * @param {String} value   The requested new username.
      */
     function publicUserEditUsername($arguments) {
         if(!requireUserLogin($arguments, 'edit your username')) {
@@ -607,7 +618,7 @@
      * Edits the current user's primary email address. The new value must be a
      * valid email address, and not already used in the database.
      * 
-     * @param {String} value   The requested new primary email
+     * @param {String} value   The requested new primary email.
      */
     function publicUserEditEmail($arguments) {
         if(!requireUserLogin($arguments, 'edit your email')) {
@@ -656,7 +667,7 @@
      * a valid email address, not already used in the database, and end with a
      * '.edu'.
      * 
-     * @param {String} value   The requested new educational email
+     * @param {String} value   The requested new educational email.
      */
     function publicUserEditEmailEdu($arguments) {
         if(!requireUserLogin($arguments, 'edit your email')) {
@@ -706,7 +717,11 @@
     /**
      * UserEditPassword
      * 
+     * Edits the current user's password. The new value must be secure: >=1 
+     * uppercase letter, >=1 lowercase letter, >=1 symbol, >=1 number, 
+     * >=7 characters long.
      * 
+     * @param {String} value   The requested new password.
      */
     function publicUserEditPassword($arguments) {
         if(!requireUserLogin($arguments, 'edit your password')) {
@@ -736,18 +751,12 @@
     /**
      * Search
      * 
-     * <p>
      * Runs a search on the local database based on a given query value. The 
      * results will be weighted on column importance (Title > Description, etc.)
      * when possible.
-     * </p>
-     * <p>
      * Results will be printed as HTML based on Templates/Books/<format>, where
      * <format> is an optional argument that defaults to "Medium".
-     * </p>
-     * <p>
-     * The weighted search uses weights from defaults.php::getSearchWeights()
-     * </p>
+     * The weighted search uses weights from defaults.php::getSearchWeights().
      * 
      * @todo Allow format=JSON, format=XML, etc.
      * @todo Don't hardcode the HTML echo calls (use a "Books" template)
@@ -761,7 +770,8 @@
      * @param {Number} [total]   The number of results found. This normally
      *                           isn't passed in by the user, but rather has a 
      *                           separate query to find the number. However,
-     *                           for successive searches, this is cached.
+     *                           enabling total as an argument enables it to be 
+     *                           cached for successive searches.
      */
     function publicSearch($arguments) {
         if(!requireArguments($arguments, 'value')) {
@@ -993,13 +1003,13 @@
      * GetBookEntries
      * 
      * Retrieves all entries for an book of a given ISBN. An action ("Buy" or 
-     * "Sell") may be given optionally. The results are returned as JSON.
+     * "Sell") may be given optionally.
      * 
      * @todo Allow for other formats, such as HTML or XML
      * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
+     *                        with 0) of a book to be imported.
      * @param {String} [action]   An action to filter the queries on (if not
-     *                            given, all entries on that ISBN are returned)
+     *                            given, all entries on that ISBN are returned).
      */
     function publicBookGetEntries($arguments) {
         if(!requireArguments($arguments, 'isbn', 'action')) {
@@ -1041,9 +1051,9 @@
      * depending on the search type. Works very well for JavaScript handling.
      * 
      * @param {String} type   What type of import to attempt: 'full' redirects 
-     *                        to ~Full, while all else goes to ~ISBN.
-     *                        Keep in mind those functions have their own 
-     *                        argument requirements as well.
+     *                        to publicBookImportFull, while all others go to 
+     *                        publicBookImportISBN. Keep in mind those functions
+     *                        have their own argument requirements as well.
      */
     function publicBookImport($arguments) {
         if(!requireUserVerification($arguments, 'import a book')) {
@@ -1071,8 +1081,7 @@
      * 
      * @todo Format the results instead of hardcoding raw HTML (template them?)
      * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
-     * @remarks This seems to be a partial duplicate of publicAddBook
+     *                        with 0) of a book to be imported.
      */
     function publicBookImportISBN($arguments) {
         if(!requireUserVerification($arguments, 'import a book')) {
@@ -1133,7 +1142,6 @@
         }
     }
   
-  
     /**
      * BookImportFull
      * 
@@ -1174,17 +1182,17 @@
     /**
      * EntryAdd
      * 
-     * Adds an entry on a book for the current user. The user (you) must be 
-     * logged in and verified.
+     * Adds an entry on a book for the current user. The user  must be logged in
+     * and verified.
      *
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
-     * @param {String} action   The entry action to filter on (one of "buy" or
-     *                          "sell")
+     * @param {String} isbn   The ISBN number (as a String, in case it starts
+     *                        with 0) of the book.
+     * @param {String} action   The entry action to be listed (either "buy" or
+     *                          "sell").
      * @param {String} dollars   The dollar portion of the price the user wants 
-     *                           to {action} the book for (as a string, for 0s)
+     *                           to {action} the book for (as a String, for 0s).
      * @param {String} cents   The cents portion of the price the user wants to
-     *                         {action} the book for (as a string, for 0s)
+     *                         {action} the book for (as a String, for 0s).
      * @todo In the future, a user should be able to have multiple entries. The
      *       backend function checks for that currently.
      */
@@ -1223,14 +1231,14 @@
      * Edits the price of the current user's entry for a particular book, if 
      * that entry already exists.
      *
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
+     * @param {String} isbn   The ISBN number (as a String, in case it starts
+     *                        with 0) of the book.
      * @param {String} action   The entry action to filter on (one of "buy" or
-     *                          "sell")
+     *                          "sell").
      * @param {String} dollars   The dollar portion of the price the user wants 
-     *                           to {action} the book for (as a string, for 0s)
+     *                           to {action} the book for (as a String, for 0s).
      * @param {String} cents   The cents portion of the price the user wants to
-     *                         {action} the book for (as a string, for 0s)
+     *                         {action} the book for (as a String, for 0s).
      * 
      * @todo In the future, a user should be able to have multiple entries, so 
      *       this should key on entry_id.
@@ -1266,8 +1274,8 @@
      * Removes an entry regarding a particular book for the current user, if it
      * already exists.
      * 
-     * @param {String} isbn   An ISBN number (as a string, in case it starts
-     *                        with 0) of a book to be imported
+     * @param {String} isbn   The ISBN number (as a String, in case it starts
+     *                        with 0) of the book.
      * @param {String} action   The entry action to filter on (one of "buy" or
      *                          "sell")
      * @todo In the future, a user should be able to have multiple entries, so 
@@ -1319,7 +1327,7 @@
      * 
      * Deletes a notification of a given ID, if it belongs to the current user.
      * 
-     * @param {String} notification_id   The ID of the notification to delete.
+     * @param {Number} notification_id   The ID of the notification to delete.
      */
     function publicDeleteNotification($arguments) {
         if(!requireUserVerification($arguments, 'delete a notification')) {
@@ -1375,11 +1383,10 @@
      * Prints the formatted displays of all books referenced by the entries of
      * a user.
      * 
-     * @param {Number} user_id   The unique numeric ID of the user to be added.
+     * @param {Number} user_id   The unique numeric ID of the user.
      * @param {String} format   The Book format to print the book listings in
-     *                          (one of "small", "medium", "large")
-     * @param {String} action   The entry action to filter on (one of "buy" or
-     *                          "sell")
+     *                          ("small", "medium", or "large").
+     * @param {String} action   The entry action to filter on ("buy" or "sell").
      */
     function publicPrintUserBooks($arguments) {
         if(!requireArguments($arguments, 'user_id', 'format', 'action')) {
@@ -1415,8 +1422,8 @@
     /**
      * PrintRecommendationsDatabase
      * 
-     * Given a user_id, this prints out all entries from other users who are on
-     * any of the same books as the user's.
+     * Given a user_id, this prints out all entries from other users who have
+     * listings on any of the same books as the user's.
      *
      * @param {Number} user_id   The unique numeric ID of the user.
      */
@@ -1465,10 +1472,10 @@
     }
   
     /**
-     * PrintRecommendationsDatabase
+     * PrintRecommendationsUser
      * 
      * Given a user's user_id (a) and another user's user_id (b), this finds and
-     * prints all matching entries betwen the two users.
+     * prints all matching entries between the two users.
      *
      * @param {Number} user_id_a   The unique numeric ID of the first user.
      * @param {Number} user_id_b   The unique numeric ID of the second user.
