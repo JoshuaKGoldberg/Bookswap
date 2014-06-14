@@ -211,6 +211,28 @@
         return true;
     }
     
+    /**
+     * If the user isn't logged in, verified, and an administrator, this 
+     * complains gracefully using output().
+     * 
+     * 
+     * @param {Array} arguments   An array of arguments to be checked.
+     * @param {String} action   A short description of what the user is trying
+     *                          to do, which will be printed out if the user
+     *                          isn't an administrator.
+     * @return Boolean   Whether the user is an administrator.
+     */
+    function requireUserAdministrator($arguments, $action='do this') {
+        if(!requireUserVerification($arguments, $action)) {
+            return false;
+        }
+        if(!UserAdministrator()) {
+            output($arguments, 'You must be an administrator to ' . $action . '.');
+            return false;
+        }
+        return true;
+    }
+    
     
     /* Public Functions
     */
@@ -1193,8 +1215,6 @@
      *                           to {action} the book for (as a String, for 0s).
      * @param {String} cents   The cents portion of the price the user wants to
      *                         {action} the book for (as a String, for 0s).
-     * @param {String} state   What condition the book should be (one of 
-     *                         "like new", "fair", or "terrible").)
      * @todo In the future, a user should be able to have multiple entries. The
      *       backend function checks for that currently.
      */
@@ -1202,7 +1222,7 @@
         if(!requireUserVerification($arguments, 'add an entry')) {
             return false;
         }
-        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents', 'state')) {
+        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
             return false;
         }
         

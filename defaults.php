@@ -164,6 +164,11 @@
     return isset($_SESSION['role']) && $_SESSION['role'] != 'Unverified';
   }
   
+  // Bool function - is the user an administrator?
+  function UserAdministrator() {
+    return isset($_SESSION['role']) && $_SESSION['role'] == 'Administrator';
+  }
+  
   // Complains if the user goes where they shouldn't
   // Normally for anonymous users; $for_verification=true indicates for non-verified accounts
   function AccessDenied() {
