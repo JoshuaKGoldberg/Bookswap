@@ -397,6 +397,7 @@
         :isbn, :google_id,  :title, :authors, :description, :publisher, :year, :pages
       )
     ';
+    
     $stmnt = getPDOStatement($dbConn, $query);
     return $stmnt->execute(array(':isbn'        => $isbn,
                                  ':google_id'   => $googleID,

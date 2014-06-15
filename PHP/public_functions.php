@@ -1202,6 +1202,44 @@
     }
   
     /**
+     * BookCreateManual
+     * 
+     * Creates a book manually with the given arguments, rather than querying 
+     * information from the Google Books API. Because this could be somewhat
+     * insecure, only administrators are allowed to do it.
+     * 
+     * @param {String} isbn 
+     * @param {Number} googleID 
+     * @param {String} title 
+     * @param {String} authors 
+     * @param {String} description 
+     * @param {String} publisher 
+     * @param {String} year 
+     * @param {String} pages 
+     */
+    function publicBookCreateManual($arguments) {
+        if(!requireUserAdministrator($arguments, 'create a book')) {
+            return false;
+        }
+        if(!requireArguments($arguments, 'isbn', 'googleID', 'title', 'authors',
+                'description', 'publisher', 'year', 'pages')) {
+            return false;
+        }
+        
+        $isbn = $arguments['isbn'];
+        $good = dbBooksAdd(getPDOQuick($arguments), 
+            $isbn, $arguments['googleID'], $arguments['title'],
+            $arguments['authors'], $arguments['description'],  
+            $arguments['publisher'], $arguments['year'], $arguments['pages']);
+        
+        
+        if($good) {
+            output($arguments, 'ISBN ' . $isbn . ' added successfully!');
+            return true;
+        }
+    }
+    
+    /**
      * EntryAdd
      * 
      * Adds an entry on a book for the current user. The user  must be logged in

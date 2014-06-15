@@ -35,6 +35,7 @@
         'publicUserEditUsername', 'publicUserEditPassword',
         'publicUserEditEmail', 'publicUserEditEmailEdu',
         'publicSearch', 'publicBookGetEntries', 'publicBookImport',
+        'publicBookCreateManual',
         'publicPrintUserBooks', 'publicPrintRecentListings',
         'publicEntryAdd', 'publicEntryEditPrice', 'publicEntryDelete',
         'publicPrintRecommendationsDatabase',
@@ -44,7 +45,10 @@
     );
 
     // If the user doesn't request one of these functions, quit
-    if(!in_array($function_name, $allowed_functions)) return;
+    if(!in_array($function_name, $allowed_functions)) {
+        output($_GET, $function_name . ' is not allowed.');
+        return false;
+    }
 
     // If it is, run the function
     call_user_func($function_name, $_GET);
