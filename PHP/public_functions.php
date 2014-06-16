@@ -329,6 +329,8 @@
      * Sends a welcome email to the current user that their account is active.
      */
     function publicUserSendWelcomeEmail($arguments) {
+        require_once('templates.inc.php');
+        
         $email = $_SESSION['email'];
         $username = $_SESSION['username'];
         $recipient = '<' . $username . '> ' . $email;
