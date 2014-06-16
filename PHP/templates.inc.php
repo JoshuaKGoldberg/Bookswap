@@ -86,7 +86,7 @@
     ob_start(); 
     
     // Do TemplatePrint normally
-    TemplatePrint($name, $_TARGS);
+    TemplatePrint($name, 0, $_TARGS);
     
     // Get the output buffer into a variable
     $output = ob_get_contents();
