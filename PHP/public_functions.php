@@ -334,17 +334,11 @@
         $email = $_SESSION['email'];
         $username = $_SESSION['username'];
         $recipient = '<' . $username . '> ' . $email;
-        $subject = 'BookSwap Verification Time!';
+        $subject = 'Welcome to ' . getSiteName() . '!';
         
         $status = TemplateEmail($recipient, $subject, 'Emails/Welcome', array(
             'username' => $username
         ));
-        
-        // $message  = '<h2>Congratulations, ' . $username . '!</h2>' . PHP_EOL;
-        // $message .= '<p>Your account on ' . getSiteName() . ' is now active. ';
-        // $message .= 'Go on and swap some books!</p>' . PHP_EOL;
-        // $message .= '<p><em>   -The BookSwap team</em></p>';
-        // $status = mailFancy($recipient, $subject, $message); 
         
         if($status) {
             output($arguments, 'Yes');
