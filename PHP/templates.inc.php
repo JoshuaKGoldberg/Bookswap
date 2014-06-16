@@ -13,7 +13,8 @@
       'Forms/AddEntry', 'Forms/Money',
       'Header/Badge', 'Header/Search',
       'Pages/404', 'Pages/account', 'Pages/book', 'Pages/import',
-      'Pages/index', 'Pages/logout', 'Pages/search', 'Pages/verification'
+      'Pages/index', 'Pages/logout', 'Pages/search', 'Pages/verification',
+      'Emails/PasswordReset', 'Emails/Verification', 'Emails/Welcome'
     );
     // If the user doesn't request one of these pages, print 404 instead
     if(!in_array($name, $allowed_pages)) $name = 'Pages/404';
@@ -94,6 +95,13 @@
     // Stop output buffering, and return
     ob_end_clean();
     return $output;
+  }
+  
+  // TemplateEmail("to", "subject", "name", {_TARGS})
+  // Captures a template normally and emails it to a recipient email
+  function TemplateEmail($to, $subject, $name, $_TARGS=[]) {
+    $message = TemplatePrintSmallToVar($name, $_TARGS);
+    return mailFancy($to, $subject, $message);
   }
   
   // PrintRequest("function_name", [args])

@@ -329,15 +329,16 @@
      * Sends a welcome email to the current user that their account is active.
      */
     function publicUserSendWelcomeEmail($arguments) {
-        $username = $_SESSION['username'];
+        require_once('templates.inc.php');
+        
         $email = $_SESSION['email'];
+        $username = $_SESSION['username'];
         $recipient = '<' . $username . '> ' . $email;
-        $subject = 'BookSwap Verification Time!';
-        $message  = '<h2>Congratulations, ' . $username . '!</h2>' . PHP_EOL;
-        $message .= '<p>Your account on ' . getSiteName() . ' is now active. ';
-        $message .= 'Go on and swap some books!</p>' . PHP_EOL;
-        $message .= '<p><em>   -The BookSwap team</em></p>';
-        $status = mailFancy($recipient, $subject, $message); 
+        $subject = 'Welcome to ' . getSiteName() . '!';
+        
+        $status = TemplateEmail($recipient, $subject, 'Emails/Welcome', array(
+            'username' => $username
+        ));
         
         if($status) {
             output($arguments, 'Yes');
