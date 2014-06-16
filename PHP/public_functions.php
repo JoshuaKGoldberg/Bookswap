@@ -1214,8 +1214,8 @@
      * @param {String} authors 
      * @param {String} description 
      * @param {String} publisher 
-     * @param {String} year 
-     * @param {String} pages 
+     * @param {Number} year 
+     * @param {Number} pages 
      */
     function publicBookCreateManual($arguments) {
         if(!requireUserAdministrator($arguments, 'create a book')) {
