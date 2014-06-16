@@ -96,6 +96,17 @@
     return $output;
   }
   
+  // TemplateEmail("to", "subject", "name", {_TARGS})
+  // Captures a template normally and emails it to a recipient email
+  function TemplateEmail($to, $subject, $name, $_TARGS=[]) {
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      return false;
+    }
+    
+    $message = TemplatePrintSmallToVar($name, $_TARGS);
+    return mailFancy($to, $subject, $message);
+  }
+  
   // PrintRequest("function_name", [args])
   // Prints an HTML form that will be picked up by JS on page load
   // JS will then send a public request to function_name with the arguments
