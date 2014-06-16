@@ -51,8 +51,8 @@
   function getTemplatesExt() { return '.tpl.php'; }
   function getIncludesPre() { return 'PHP/'; }
   function getIncludesExt() { return '.inc.php'; }
-  function getTemplateWrapping($name) { return getTemplatesPre() . $name . getTemplatesExt(); }
-  function getIncludesWrapping($name) { return getIncludesPre() . $name . getIncludesExt(); }
+  function getTemplateWrapping($name) { return getCDir() . '/' . getTemplatesPre() . $name . getTemplatesExt(); }
+  function getIncludesWrapping($name) { return getCDir() . '/' . getIncludesPre() . $name . getIncludesExt(); }
   
   
   /* Google Books API
