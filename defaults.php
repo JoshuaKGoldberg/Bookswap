@@ -209,6 +209,9 @@
     
     // Wrap the message in <html> tags
     $wrapper  = '<html>' . PHP_EOL;
+    $wrapper .= ' <head>' . PHP_EOL;
+    $wrapper .= '  <title>' . $subject . '</title>' . PHP_EOL;
+    $wrapper .= ' </head>' . PHP_EOL;
     $wrapper .= '  <body>' . PHP_EOL;
     $wrapper .= $message;
     $wrapper .= '  </body>' . PHP_EOL;
