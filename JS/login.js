@@ -8,8 +8,8 @@ function loginSubmit() {
 
 function loginComplete(result) {
   console.log("result was", result);
-  // If the result is 'Yes', it was successful
-  if(result == 'Yes') {
+  // If the result is "Yes", it was successful
+  if(result == '"Yes"') {
     var message = "You've successfully logged in! ";
     message += "You should be redirected to ";
     message += "<a href='/account.php'>your profile page</a>";

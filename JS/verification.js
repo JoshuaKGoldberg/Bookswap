@@ -9,7 +9,7 @@ $(document).ready(function() {
 
 // When the publicUserVerify request returns, handle the result with this
 function receiveVerifStatus(result) {
-  if(result == "Yes") {
+  if(result == '"Yes"') {
     setVerifStatusText("You're good!");
     window.location.reload();
   }
@@ -37,7 +37,7 @@ function sendVerifEmailOnlyForm() {
 function verifComplete(result) {
   console.log("Got", result);
   // If the attempt was successful, refresh
-  if(result == "Yes") {
+  if(result == '"Yes"') {
     location.reload();
   }
   // Otherwise complain

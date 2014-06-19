@@ -101,7 +101,7 @@ function hasSymbol(str) { return (/[^a-zA-Z0-9]/.test(str)); }
 
 function joinComplete(result) {
   // If the login attempt was successful, refresh
-  if(result == "Yes") {
+  if(result == '"Yes"') {
     location.reload();
   }
   // Otherwise complain
