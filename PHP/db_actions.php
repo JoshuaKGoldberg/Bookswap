@@ -190,6 +190,57 @@
     }
     return true;
   }
+    
+  // dbUserPasswordResetAddCode(#user_id, "username");
+  // Adds a random (sha256 hash) password reset code for a user, and emails them
+  // that code
+  function dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email) {
+    // Delete any preexisting password reset codes for that user
+    dbUserPasswordResetDeleteCode($dbConn, $user_id);
+        
+    // Run the actual insertion query
+    $query = '
+      INSERT INTO `password_resets` (
+        `user_id`, `code`
+        )
+        VALUES (
+          :user_id,  :code
+        );
+    ';
+    $code = getPasswordHash();
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id,
+                          ':code'    => $code));
+      
+    return sendVerificationEmail($user_id, $username, $email, $code);
+  }
+  
+  // sendPasswordResetEmail(#user_id, "username", "email", "code")
+  // Helper function to send a password verification email to a user
+  // Returns the bool status of the mail() call
+  function sendPasswordResetEmail($user_id, $username, $email, $code) {
+    require_once('templates.inc.php');
+    return TemplateEmail($email, 'BookSwap Password Reset', 'Emails/PasswordReset', array(
+        'user_id' => $user_id,
+        'username' => $username,
+        'email' => $email,
+        'code' => $code
+    ));
+  }
+  
+  // dbUserPasswordResetDeleteCode($user_id)
+  // Deletes the password reset code for a user
+  function dbUserPasswordResetDeleteCode($dbConn, $user_id) {
+    // Run the deletion query
+    $query = '
+       DELETE FROM `password_resets`
+       WHERE `user_id` = :user_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id));
+    
+    return true;
+  }
   
   // dbFacebookUsersAdd("username", "facebook ID", "email", #role);
   // Adds a user to `users` and `FacebookUsers` using dbUsersAdd
@@ -693,6 +744,22 @@
       WHERE `user_id` LIKE ' . filterUserID($userID) . '
       LIMIT 1
     ')->fetch(PDO::FETCH_ASSOC);
+  }
+  
+  // getUserFromEmail(PDO, "email")
+  // Gets all the info about a user from the database, from either email
+  function getUserFromEmail($dbConn, $email) {
+    $query = '
+      SELECT * FROM `users`
+      WHERE 
+        `email` LIKE :email
+        OR
+        `email_edu` LIKE :email
+      LIMIT 1
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':email' => $email));
+    return $stmnt->fetch(PDO::FETCH_ASSOC);
   }
   
   // getUserEntries(PDO, $userID[, 'action'])

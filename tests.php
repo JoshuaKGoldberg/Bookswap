@@ -366,6 +366,18 @@
        ON UPDATE CASCADE ON DELETE CASCADE
      );
    ');
+   
+   // 8. Create the `password_resets` table
+   $dbConn->exec('
+      CREATE TABLE IF NOT EXISTS `password_resets` (
+        `user_id` INT(10) NOT NULL UNIQUE,
+        `code` VARCHAR(127) NOT NULL,
+        `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`user_id`),
+        FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+        ON UPDATE CASCADE ON DELETE CASCADE
+     );
+   ');
     
   }
   catch(Exception $err) {
