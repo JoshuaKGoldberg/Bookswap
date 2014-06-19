@@ -111,8 +111,8 @@ function getDistinctArray(arr) {
 
 function importBookGetResult(result, type) {
   // If the result begins with 'Yes', remove that
-  if(result.indexOf("Yes") == 0)
-    result = result.substr(3);
+  if(result.indexOf('"Yes"') == 0)
+    result = result.substr(5);
   
   // If the result is still good, add it
   if(result && result.toLowerCase() != "no") {
