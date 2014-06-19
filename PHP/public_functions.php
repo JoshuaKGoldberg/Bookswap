@@ -564,7 +564,15 @@
     }
     
     /**
+     * UserPerformPasswordReset
      * 
+     * Given a password reset code created by RequestPasswordReset, this 
+     * will attempt to set a given password value to the database.
+     * 
+     * @param {String} email   Either of the user's email addresses.
+     * @param {String} username   The user's username, for security's sake.
+     * @param {String} code   The password reset code from `password_resets`.
+     * @param {String} value   The new value for the password.
      */
     function publicUserPerformPasswordReset($arguments) {
         if(!requireArguments($arguments, 'code', 'email', 'username', 'value')) {
