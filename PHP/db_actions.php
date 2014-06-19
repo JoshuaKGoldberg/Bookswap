@@ -197,7 +197,7 @@
   function dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email) {
     // Delete any preexisting password reset codes for that user
     dbUserPasswordResetDeleteCode($dbConn, $user_id);
-    
+        
     // Run the actual insertion query
     $query = '
       INSERT INTO `password_resets` (
@@ -744,6 +744,22 @@
       WHERE `user_id` LIKE ' . filterUserID($userID) . '
       LIMIT 1
     ')->fetch(PDO::FETCH_ASSOC);
+  }
+  
+  // getUserFromEmail(PDO, "email")
+  // Gets all the info about a user from the database, from either email
+  function getUserFromEmail($dbConn, $email) {
+    $query = '
+      SELECT * FROM `users`
+      WHERE 
+        `email` LIKE :email
+        OR
+        `email_edu` LIKE :email
+      LIMIT 1
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':email' => $email));
+    return $stmnt->fetch(PDO::FETCH_ASSOC);
   }
   
   // getUserEntries(PDO, $userID[, 'action'])
