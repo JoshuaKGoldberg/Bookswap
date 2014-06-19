@@ -317,7 +317,6 @@
         // If successful, log the user in
         if(dbUsersAdd($dbConn, $username, $password, $email)) {
             publicUserLogin($arguments, true);
-            output($arguments, 'Yes');
             return true;
         }
         return false;
