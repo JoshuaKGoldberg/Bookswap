@@ -528,7 +528,95 @@
     }
     
     /**
-     * Login
+     * UserRequestPasswordReset
+     * 
+     * Adds a code in the `password_resets` table that indicates a user should
+     * be able to reset their (likely forgotten) password using that code.
+     * 
+     * @param {String} email   Either of the user's email addresses.
+     * @param {String} username   The user's username, for security's sake.
+     */
+    function publicUserRequestPasswordReset($arguments) {
+        if(!requireArguments($arguments, 'email', 'username')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $email = $arguments['email'];
+        $username = $arguments['username'];
+        
+        // Grab user info from the database, and ensure it matches
+        $user_info = getUserFromEmail($dbConn, $email);
+        if(empty($user_info) || $username != $user_info['username']) {
+            output($arguments, 'Incorrect user information.');
+            return false;
+        }
+        $user_id = $user_info['user_id'];
+        
+        // With the request verified, create a reset code and send them an email
+        $status = dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email);
+        if($status) {
+            output($arguments, 'Yes');
+        } else {
+            output($arguments, 'An unknown failure occurred... :(');
+        }
+        return $status;
+    }
+    
+    /**
+     * 
+     */
+    function publicUserPerformPasswordReset($arguments) {
+        if(!requireArguments($arguments, 'code', 'email', 'username', 'value')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $code = $arguments['code'];
+        $email = $arguments['email'];
+        $username = $arguments['username'];
+        $password = $arguments['value'];
+        
+        // The password must be secure
+        if(!isPasswordSecure($password)) {
+            output($arguments, 'The password isn\'t secure enough.');
+            return false;
+        }
+        
+        // Grab user info from the database, and ensure it matches
+        $user_info = getUserFromEmail($dbConn, $email);
+        if(empty($user_info) || $username != $user_info['username']) {
+            output($arguments, 'Incorrect user information.');
+            return false;
+        }
+        $user_id = $user_info['user_id'];
+        
+        // Grab reset info from the database, and ensure it exists
+        $reset_info = dbUserPasswordResetGetCode($dbConn, $user_id);
+        if(empty($reset_info) || !isset($reset_info['code'])) {
+            output($arguments, 'An unknown failure occurred... :(');
+            return false;
+        }
+        
+        // Make sure the user's code matches what's in the database.
+        if($reset_info['code'] != $code) {
+            output($arguments, 'An unknown failure occurred... :(');
+            return false;
+        }
+        
+        // Perform the replacement, and delete the old code
+        $status = dbUsersEditPassword($dbConn, $user_id, $password);
+        dbUserPasswordResetDeleteCode($dbConn, $user_id);
+        if($status) {
+            output($arguments, 'Yes');
+        } else {
+            output($arguments, 'An unknown failure occurred... :(');
+        }
+        return $status;
+    }
+    
+    /**
+     * UserLogin
      * 
      * Attempts to log in with the given credentials. This is a small function
      * that acts as a pipe to <c>loginAttempt("email", "password")</c>.
