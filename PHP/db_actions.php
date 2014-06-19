@@ -145,7 +145,7 @@
           :user_id,  :code
         );
     ';
-    $code = getPasswordHash();
+    $code = getPasswordSalt();
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
