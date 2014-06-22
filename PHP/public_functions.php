@@ -122,6 +122,62 @@
     }
     
     /**
+     * Allows keys in $arguments to be aliased by any of their allowed 
+     * aliases in $key_aliases. 
+     * For example, if 'password' is required but forms submit 'j_password',
+     * use $aliases = array('password' => 'j_password').
+     * 
+     * @param {Array} arguments   The typical public function $arguments array.
+     * @param {Array} aliases   An array of "key" => {alias} pairs, where keys
+     *                          are the output keys in $arguments, and {alias}.
+     *                          values are strings or arrays of allowed aliases.
+     * @param {Boolean} override   Whether arguments that already exist may be
+     *                             overriden by matched aliases.
+     * 
+     * @return Array   The parsed $arguments object (also passed by reference).
+     */
+    function allowArgumentAliases($arguments, $key_aliases, $override=false) {
+        foreach($key_aliases as $argument => $aliases) {
+            // If the alias is a string, check if it alone exists
+            if(is_string($aliases)) {
+                $arguments = allowArgumentAlias($arguments, $argument, $aliases, $override);
+            }
+            // If the alias is an array, check on each of its members
+            else if(is_array($aliases)) {
+                foreach($aliases as $alias) {
+                    $arguments = allowArgumentAlias($arguments, $argument, $alias, $override);
+                }
+            }
+        }
+        return $arguments;
+    }
+    
+    /**
+     * A version of allowArgumentAliases that works on a single argument and 
+     * optional alias. If the $arguments object contains the alias, and
+     * (optionally) doesn't contain the argument, it is given the argument as
+     * the value under that alias.
+     * For example, if 'password' is required but forms submit 'j_password', 
+     * use $argument='password' and $alias = 'j_password'.
+     * 
+     * @param {Array} arguments   The typical public function $arguments array.
+     * @param {String} argument   The key from arguments that may need to be
+     *                            filled by what's under the alias.
+     * @param {String} alias   An optional alias to check under $arguments.
+     * @param {Boolean} override   Whether arguments that already exist may be
+     *                             overriden by matched aliases.
+     * @return Array   The parsed $arguments object (also passed by reference).
+     */
+    function allowArgumentAlias($arguments, $argument, $alias, $override=false) {
+        if(isset($arguments[$alias])) {
+            if($override || !isset($arguments[$argument])) {
+                $arguments[$argument] = $arguments[$alias];
+            }
+        }
+        return $arguments;
+    }
+    
+    /**
      * Checks to make sure each required argument is present in an associative
      * array. Any amount of strings or arrays of strings are allowed. If any
      * aren't present, it complains using output.
@@ -575,6 +631,12 @@
      * @param {String} value   The new value for the password.
      */
     function publicUserPerformPasswordReset($arguments) {
+        $arguments = allowArgumentAliases($arguments, array(
+            'email' => 'j_email',
+            'username' => 'j_username',
+            'value' => ['j_value', 'password', 'j_password'],
+            'code' => 'j_code'
+        ));
         if(!requireArguments($arguments, 'code', 'email', 'username', 'value')) {
             return false;
         }
@@ -601,6 +663,7 @@
         
         // Grab reset info from the database, and ensure it exists
         $reset_info = dbUserPasswordResetGetCode($dbConn, $user_id);
+        print_r($reset_info);
         if(empty($reset_info) || !isset($reset_info['code'])) {
             output($arguments, 'An unknown failure occurred... :(');
             return false;

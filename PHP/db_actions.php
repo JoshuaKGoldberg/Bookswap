@@ -212,7 +212,7 @@
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
       
-    return sendVerificationEmail($user_id, $username, $email, $code);
+    return sendPasswordResetEmail($user_id, $username, $email, $code);
   }
   
   // sendPasswordResetEmail(#user_id, "username", "email", "code")
@@ -221,10 +221,10 @@
   function sendPasswordResetEmail($user_id, $username, $email, $code) {
     require_once('templates.inc.php');
     return TemplateEmail($email, 'BookSwap Password Reset', 'Emails/PasswordReset', array(
+        'code' => $code,
         'user_id' => $user_id,
         'username' => $username,
-        'email' => $email,
-        'code' => $code
+        'email' => $email
     ));
   }
   
