@@ -16,13 +16,19 @@ function setPasswordResetStatusText(str) {
     $("#reset_loader").html(str);
 }
 
-function sendPasswordResetForm() {
+function submitPasswordReset() {
     sendRequestForm("publicUserPerformPasswordReset",
         ["j_code", "j_email", "j_username", "j_password", "j_password_confirm"],
-        verifComplete, verifEnsure);
+        verifCompletePerform, verifEnsurePerform);
 }
 
-function verifEnsure(settings) {
+function requestPasswordReset() {
+    sendRequestForm("publicUserRequestPasswordReset",
+        ["j_email", "j_username"],
+        verifCompleteRequest);
+}
+
+function verifEnsurePerform(settings) {
     // If there's no password, nope
     if(!settings.j_password) {
         setPasswordResetStatusText("Please provide a password!");
@@ -63,6 +69,9 @@ function verifEnsure(settings) {
     return true;
 }
 
-function verifComplete(result) {
-    console.log("Got", result);
+function verifCompletePerform(result) {
+    setPasswordResetStatusText(result);
+}
+function verifCompleteRequest(result) {
+    setPasswordResetStatusText(result);
 }
