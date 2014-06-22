@@ -663,7 +663,6 @@
         
         // Grab reset info from the database, and ensure it exists
         $reset_info = dbUserPasswordResetGetCode($dbConn, $user_id);
-        print_r($reset_info);
         if(empty($reset_info) || !isset($reset_info['code'])) {
             output($arguments, 'An unknown failure occurred... :(');
             return false;
