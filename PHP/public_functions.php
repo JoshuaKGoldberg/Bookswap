@@ -593,7 +593,7 @@
      * @param {String} username   The user's username, for security's sake.
      */
     function publicUserRequestPasswordReset($arguments) {
-        allowArgumentAliases($arguments, array(
+        $arguments = allowArgumentAliases($arguments, array(
             'email' => 'j_email',
             'username' => 'j_username'
         ));
