@@ -70,8 +70,16 @@ function verifEnsurePerform(settings) {
 }
 
 function verifCompletePerform(result) {
-    setPasswordResetStatusText(result);
+    if(result === "Yes") {
+        setPasswordResetStatusText("You should be able to log in with that password now.");
+    } else {
+        setPasswordResetStatusText(result);
+    }
 }
 function verifCompleteRequest(result) {
-    setPasswordResetStatusText(result);
+    if(result === "Yes") {
+        setPasswordResetStatusText("Ok, check your email soon.");
+    } else {
+        setPasswordResetStatusText(result);
+    }
 }
