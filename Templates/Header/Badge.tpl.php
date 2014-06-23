@@ -14,7 +14,7 @@
       
       <div id="login_submit_holder">
         <input id="login_submit" class="a-emph" type="submit" value="Log Me In!" />
-        <input id="login_forgot" class="a-emph" type="button" value="Forgot?" onclick="alert('nope')" />
+        <input id="login_forgot" class="a-emph" type="button" value="Forgot?" onclick="window.location = '<?php echo getURL('passwordreset'); ?>';" />
       </div>
       
     </form>

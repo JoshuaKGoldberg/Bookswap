@@ -31,6 +31,7 @@
         'publicTest',
         'publicUserCreate', 'publicUserVerify',
         'publicUserSetVerificationEmail', 'publicUserSendWelcomeEmail', 
+        'publicUserRequestPasswordReset', 'publicUserPerformPasswordReset',
         'publicUserLogin', 'publicUserLoginFacebook', 
         'publicUserEditUsername', 'publicUserEditPassword',
         'publicUserEditEmail', 'publicUserEditEmailEdu',

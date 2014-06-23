@@ -14,6 +14,7 @@
       'Header/Badge', 'Header/Search',
       'Pages/404', 'Pages/account', 'Pages/book', 'Pages/import',
       'Pages/index', 'Pages/logout', 'Pages/search', 'Pages/verification',
+      'Pages/passwordreset',
       'Emails/PasswordReset', 'Emails/Verification', 'Emails/Welcome'
     );
     // If the user doesn't request one of these pages, print 404 instead

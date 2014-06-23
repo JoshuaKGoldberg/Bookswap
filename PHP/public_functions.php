@@ -122,6 +122,62 @@
     }
     
     /**
+     * Allows keys in $arguments to be aliased by any of their allowed 
+     * aliases in $key_aliases. 
+     * For example, if 'password' is required but forms submit 'j_password',
+     * use $aliases = array('password' => 'j_password').
+     * 
+     * @param {Array} arguments   The typical public function $arguments array.
+     * @param {Array} aliases   An array of "key" => {alias} pairs, where keys
+     *                          are the output keys in $arguments, and {alias}.
+     *                          values are strings or arrays of allowed aliases.
+     * @param {Boolean} override   Whether arguments that already exist may be
+     *                             overriden by matched aliases.
+     * 
+     * @return Array   The parsed $arguments object (also passed by reference).
+     */
+    function allowArgumentAliases($arguments, $key_aliases, $override=false) {
+        foreach($key_aliases as $argument => $aliases) {
+            // If the alias is a string, check if it alone exists
+            if(is_string($aliases)) {
+                $arguments = allowArgumentAlias($arguments, $argument, $aliases, $override);
+            }
+            // If the alias is an array, check on each of its members
+            else if(is_array($aliases)) {
+                foreach($aliases as $alias) {
+                    $arguments = allowArgumentAlias($arguments, $argument, $alias, $override);
+                }
+            }
+        }
+        return $arguments;
+    }
+    
+    /**
+     * A version of allowArgumentAliases that works on a single argument and 
+     * optional alias. If the $arguments object contains the alias, and
+     * (optionally) doesn't contain the argument, it is given the argument as
+     * the value under that alias.
+     * For example, if 'password' is required but forms submit 'j_password', 
+     * use $argument='password' and $alias = 'j_password'.
+     * 
+     * @param {Array} arguments   The typical public function $arguments array.
+     * @param {String} argument   The key from arguments that may need to be
+     *                            filled by what's under the alias.
+     * @param {String} alias   An optional alias to check under $arguments.
+     * @param {Boolean} override   Whether arguments that already exist may be
+     *                             overriden by matched aliases.
+     * @return Array   The parsed $arguments object (also passed by reference).
+     */
+    function allowArgumentAlias($arguments, $argument, $alias, $override=false) {
+        if(isset($arguments[$alias])) {
+            if($override || !isset($arguments[$argument])) {
+                $arguments[$argument] = $arguments[$alias];
+            }
+        }
+        return $arguments;
+    }
+    
+    /**
      * Checks to make sure each required argument is present in an associative
      * array. Any amount of strings or arrays of strings are allowed. If any
      * aren't present, it complains using output.
@@ -528,7 +584,114 @@
     }
     
     /**
-     * Login
+     * UserRequestPasswordReset
+     * 
+     * Adds a code in the `password_resets` table that indicates a user should
+     * be able to reset their (likely forgotten) password using that code.
+     * 
+     * @param {String} email   Either of the user's email addresses.
+     * @param {String} username   The user's username, for security's sake.
+     */
+    function publicUserRequestPasswordReset($arguments) {
+        $arguments = allowArgumentAliases($arguments, array(
+            'email' => 'j_email',
+            'username' => 'j_username'
+        ));
+        
+        if(!requireArguments($arguments, 'email', 'username')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $email = $arguments['email'];
+        $username = $arguments['username'];
+        
+        // Grab user info from the database, and ensure it matches
+        $user_info = getUserFromEmail($dbConn, $email);
+        if(empty($user_info) || $username != $user_info['username']) {
+            output($arguments, 'Incorrect user information.');
+            return false;
+        }
+        $user_id = $user_info['user_id'];
+        
+        // With the request verified, create a reset code and send them an email
+        $status = dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email);
+        if($status) {
+            output($arguments, 'Yes');
+        } else {
+            output($arguments, 'An unknown failure occurred... :(');
+        }
+        return $status;
+    }
+    
+    /**
+     * UserPerformPasswordReset
+     * 
+     * Given a password reset code created by RequestPasswordReset, this 
+     * will attempt to set a given password value to the database.
+     * 
+     * @param {String} email   Either of the user's email addresses.
+     * @param {String} username   The user's username, for security's sake.
+     * @param {String} code   The password reset code from `password_resets`.
+     * @param {String} value   The new value for the password.
+     */
+    function publicUserPerformPasswordReset($arguments) {
+        $arguments = allowArgumentAliases($arguments, array(
+            'email' => 'j_email',
+            'username' => 'j_username',
+            'value' => ['j_value', 'password', 'j_password'],
+            'code' => 'j_code'
+        ));
+        if(!requireArguments($arguments, 'code', 'email', 'username', 'value')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $code = $arguments['code'];
+        $email = $arguments['email'];
+        $username = $arguments['username'];
+        $password = $arguments['value'];
+        
+        // The password must be secure
+        if(!isPasswordSecure($password)) {
+            output($arguments, 'The password isn\'t secure enough.');
+            return false;
+        }
+        
+        // Grab user info from the database, and ensure it matches
+        $user_info = getUserFromEmail($dbConn, $email);
+        if(empty($user_info) || $username != $user_info['username']) {
+            output($arguments, 'Incorrect user information.');
+            return false;
+        }
+        $user_id = $user_info['user_id'];
+        
+        // Grab reset info from the database, and ensure it exists
+        $reset_info = dbUserPasswordResetGetCode($dbConn, $user_id);
+        if(empty($reset_info) || !isset($reset_info['code'])) {
+            output($arguments, 'An unknown failure occurred... :(');
+            return false;
+        }
+        
+        // Make sure the user's code matches what's in the database.
+        if($reset_info['code'] != $code) {
+            output($arguments, 'An unknown failure occurred... :(');
+            return false;
+        }
+        
+        // Perform the replacement, and delete the old code
+        $status = dbUsersEditPassword($dbConn, $user_id, $password);
+        dbUserPasswordResetDeleteCode($dbConn, $user_id);
+        if($status) {
+            output($arguments, 'Yes');
+        } else {
+            output($arguments, 'An unknown failure occurred... :(');
+        }
+        return $status;
+    }
+    
+    /**
+     * UserLogin
      * 
      * Attempts to log in with the given credentials. This is a small function
      * that acts as a pipe to <c>loginAttempt("email", "password")</c>.

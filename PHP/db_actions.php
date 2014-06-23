@@ -207,12 +207,12 @@
           :user_id,  :code
         );
     ';
-    $code = getPasswordHash();
+    $code = getPasswordSalt();
     $stmnt = getPDOStatement($dbConn, $query);
     $stmnt->execute(array(':user_id' => $user_id,
                           ':code'    => $code));
       
-    return sendVerificationEmail($user_id, $username, $email, $code);
+    return sendPasswordResetEmail($user_id, $username, $email, $code);
   }
   
   // sendPasswordResetEmail(#user_id, "username", "email", "code")
@@ -221,11 +221,23 @@
   function sendPasswordResetEmail($user_id, $username, $email, $code) {
     require_once('templates.inc.php');
     return TemplateEmail($email, 'BookSwap Password Reset', 'Emails/PasswordReset', array(
+        'code' => $code,
         'user_id' => $user_id,
         'username' => $username,
-        'email' => $email,
-        'code' => $code
+        'email' => $email
     ));
+  }
+  
+  // dbUserPasswordResetGetCode($user_id)
+  // Gets the password reset code for a user, if it doesn't exist
+  function dbUserPasswordResetGetCode($dbConn, $user_id) {
+    $query = '
+      SELECT * FROM `password_resets`
+      WHERE `user_id` LIKE :user_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    $stmnt->execute(array(':user_id' => $user_id));
+    return $stmnt->fetch(PDO::FETCH_ASSOC);
   }
   
   // dbUserPasswordResetDeleteCode($user_id)
@@ -354,7 +366,9 @@
                                  ':identity'  => $identity));
   }
   
-  //
+  // dbUsersEditPassword("identity", "password_raw"[, "type"])
+  // Edits a password from `users` of the given identity (by default, user_id)
+  // Sample usage: dbUsersEditPassword($dbConn, $user_id, $pass_new, "user_id");
   function dbUsersEditPassword($dbConn, $identity, $password_raw, $type='user_id') {
     // Ensure the identity exists in the database
     if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
