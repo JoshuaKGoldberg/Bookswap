@@ -5,7 +5,7 @@
      * <p>These are the functions listed in PHP/requests.php and callable via 
      * PHP/requests.php and api.php. Publically accessible functions have names
      * prepended with "public", while utilities do not.</p>
-     * <p>Be careful dealing with input, as all arguments may be modified by *
+     * <p>Be careful dealing with input, as all arguments may be modified by
      * users: use sanitizations such as the ArgStrict and ArgLoose functions,
      * and PDO execution parameters.</p>
      * 
@@ -84,6 +84,38 @@
         
         // If no given format matched a provided format, use the PHP printer
         outputPHP($message);
+    }
+    
+    /**
+     * Standard output function for success outputs. This is a simple wrapper
+     * around output() that outputs 'status' = 'success', with the message
+     * within 'message'.
+     * 
+     * @param {Array} settings   The same associative array that's typically
+     *                           passed into regular output() calls.
+     * @param {Mixed} message   A message to be printed in any format.
+     */
+    function outputSuccess($settings, $message='Success') {
+        output($settings, array(
+            'status' => 'success',
+            'message' => $message
+        ));
+    }
+    
+    /**
+     * Standard output function for failure outputs. This is a simple wrapper
+     * around output() that outputs 'status' = 'failure', with the message
+     * within 'message'.
+     * 
+     * @param {Array} settings   The same associative array that's typically
+     *                           passed into regular output() calls.
+     * @param {Mixed} message   A message to be printed in any format.
+     */
+    function outputFailure($settings, $message='Failure') {
+        output($settings, array(
+            'status' => 'failure',
+            'message' => $message
+        ));
     }
     
     /**
