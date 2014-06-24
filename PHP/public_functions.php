@@ -594,25 +594,26 @@
      */
     function publicUserRequestPasswordReset($arguments) {
         $arguments = allowArgumentAliases($arguments, array(
-            'email' => 'j_email',
-            'username' => 'j_username'
+            // 'username' => 'j_username',
+            'email' => 'j_email'
         ));
         
-        if(!requireArguments($arguments, 'email', 'username')) {
+        if(!requireArguments($arguments, 'email'/*, 'username'*/)) {
             return false;
         }
         
         $dbConn = getPDOQuick($arguments);
         $email = $arguments['email'];
-        $username = $arguments['username'];
+        // $username = $arguments['username'];
         
         // Grab user info from the database, and ensure it matches
         $user_info = getUserFromEmail($dbConn, $email);
-        if(empty($user_info) || $username != $user_info['username']) {
+        if(empty($user_info)/* || $username != $user_info['username']*/) {
             output($arguments, 'Incorrect user information.');
             return false;
         }
         $user_id = $user_info['user_id'];
+        $username = $user_info['username'];
         
         // With the request verified, create a reset code and send them an email
         $status = dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email);
@@ -638,18 +639,18 @@
     function publicUserPerformPasswordReset($arguments) {
         $arguments = allowArgumentAliases($arguments, array(
             'email' => 'j_email',
-            'username' => 'j_username',
+            // 'username' => 'j_username',
             'value' => ['j_value', 'password', 'j_password'],
             'code' => 'j_code'
         ));
-        if(!requireArguments($arguments, 'code', 'email', 'username', 'value')) {
+        if(!requireArguments($arguments, 'code', 'email',/* 'username',*/ 'value')) {
             return false;
         }
         
         $dbConn = getPDOQuick($arguments);
         $code = $arguments['code'];
         $email = $arguments['email'];
-        $username = $arguments['username'];
+        // $username = $arguments['username'];
         $password = $arguments['value'];
         
         // The password must be secure
@@ -660,7 +661,7 @@
         
         // Grab user info from the database, and ensure it matches
         $user_info = getUserFromEmail($dbConn, $email);
-        if(empty($user_info) || $username != $user_info['username']) {
+        if(empty($user_info)/* || $username != $user_info['username']*/) {
             output($arguments, 'Incorrect user information.');
             return false;
         }

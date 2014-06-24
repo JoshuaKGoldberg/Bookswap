@@ -14,12 +14,12 @@
                 <?php if(!$has_code): ?>
                 That was a great password you had, shame if you happened to forget it!
                 <br />
-                Enter your email and username here, and we'll email you a link to make a new password.
+                Enter your email<!-- and username--> here, and we'll send you a link to make a new password.
                 <br />
                 <br />
                 <?php endif; ?>
                 <input id="j_email" name="email" type="email" placeholder = "your email" />
-                <input id="j_username" name="username" type="text" placeholder = "your username" />
+                <!-- <input id="j_username" name="username" type="text" placeholder = "your username" /> -->
                 <?php if(!$has_code): ?>
                 <br />
                 <br />

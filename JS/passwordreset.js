@@ -18,7 +18,7 @@ function setPasswordResetStatusText(str) {
 
 function submitPasswordReset() {
     sendRequestForm("publicUserPerformPasswordReset",
-        ["j_code", "j_email", "j_username", "j_password", "j_password_confirm"],
+        ["j_code", "j_email",/* "j_username",*/ "j_password", "j_password_confirm"],
         verifCompletePerform, verifEnsurePerform);
 }
 
@@ -59,11 +59,11 @@ function verifEnsurePerform(settings) {
         return false;
     }
     
-    // If there's no username, nope
-    if(!settings.j_username) {
-        setPasswordResetStatusText("Please provide a username, just to be secure.");
-        return false;
-    }
+    // // If there's no username, nope
+    // if(!settings.j_username) {
+        // setPasswordResetStatusText("Please provide a username, just to be secure.");
+        // return false;
+    // }
     
     setPasswordResetStatusText("Thinking...");
     return true;
