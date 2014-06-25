@@ -967,6 +967,29 @@
     }
     
     /**
+     * 
+     */
+    function publicUserEditDescription($arguments) {
+        if(!requireUserLogin($arguments, 'edit your description')) {
+            return false;
+        }
+        if(!requireArguments($arguments, 'value')) {
+            return false;
+        }
+        
+        $user_id = $_SESSION['user_id'];
+        $description = ArgLoose($arguments['value']);
+        $dbConn = getPDOQuick($arguments);
+        
+        $status = dbUsersEditDescription($dbConn, $user_id, $description);
+        if($status) {
+            outputSuccess($arguments);
+        } else {
+            outputFailure($arguments);
+        }
+    }
+    
+    /**
      * Search
      * 
      * Runs a search on the local database based on a given query value. The 

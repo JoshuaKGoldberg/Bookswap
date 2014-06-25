@@ -394,6 +394,27 @@
                                  ':identity'  => $identity));
     
   }
+  
+  // dbUsersEditDescription("user_id", "password_raw")
+  // Edits a description from `users_descriptions` of the user of the `user_id`
+  // Sample usage: dbUsersEditDescriptions($dbConn, $user_id, "Hello world!");
+  function dbUsersEditDescription($dbConn, $user_id, $description) {
+    // Ensure the identity exists in the database
+    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
+        echo 'No such user exists: ' . $user_id;
+        return false;
+    }
+    
+    // Run the change query
+    $query = '
+      UPDATE `user_descriptions`
+      SET `description` = :description
+      WHERE `user_id` = :user_id
+    ';
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':description' => $description,
+                                 ':user_id' => $user_id));
+  }
 
   
   /* Book Functions
