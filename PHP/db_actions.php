@@ -749,13 +749,15 @@
   /* Common SQL Gets (misc)
   */
   
-  // getUserInfo(PDO, #userID)
+  // getUserInfo(PDO, #user_id)
   // Gets all the info about a user from the database  
-  function getUserInfo($dbConn, $userID) {
-    // Grab and return that userID's information from the database
+  function getUserInfo($dbConn, $user_id) {
+    // Grab and return information from `users` joined with `user_descriptions`
     return $dbConn->query('
       SELECT * FROM `users`
-      WHERE `user_id` LIKE ' . filterUserID($userID) . '
+      WHERE `user_id` LIKE ' . filterUserID($user_id) . '
+      INNER JOIN `user_descriptions` 
+        ON `users`.`user_id` = `user_descriptions`.`user_id`
       LIMIT 1
     ')->fetch(PDO::FETCH_ASSOC);
   }
