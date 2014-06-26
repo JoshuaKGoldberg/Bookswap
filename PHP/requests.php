@@ -35,6 +35,7 @@
         'publicUserLogin', 'publicUserLoginFacebook', 
         'publicUserEditUsername', 'publicUserEditPassword',
         'publicUserEditEmail', 'publicUserEditEmailEdu',
+        'publicUserEditDescription',
         'publicSearch', 'publicBookGetEntries', 'publicBookImport',
         'publicBookCreateManual',
         'publicPrintUserBooks', 'publicPrintRecentListings',
