@@ -23,7 +23,7 @@
         include_once('pdo.inc.php');
 
         $user_id = $_GET['user_id'];
-        $user_info = dbUsersGet(getPDOQuick(), $user_id, 'user_id', true);
+        $user_info = dbUsersGet(getPDOQuick(), $user_id, 'user_id', false);
         if(!$user_info) {
           $username = 'No such user exists!';
           $descriptor = false;

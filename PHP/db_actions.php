@@ -19,9 +19,9 @@
     // Prepare the initial query
     $query = '
       SELECT * FROM `users`
-      INNER JOIN `user_descriptions` 
+      LEFT JOIN `user_descriptions` 
         ON `users`.`user_id` = `user_descriptions`.`user_id`
-      WHERE `' . $type . '` = :identity
+      WHERE `users`.`' . $type . '` = :identity
       LIMIT 1
     ';
     
