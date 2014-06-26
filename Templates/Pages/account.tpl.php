@@ -131,8 +131,8 @@
         }
         // Otherwise just print the info all plain-like
         else {
-            printContactInfo(5, $info['email'], 'main email');
-            printContactInfo(5, $info['email_edu'], '.edu email');
+            printContactInfo(5, $user_info['email'], 'main email');
+            printContactInfo(5, $user_info['email_edu'], '.edu email');
         }
         echo PHP_EOL;
     ?>
