@@ -967,7 +967,12 @@
     }
     
     /**
+     * UserEditDescription
      * 
+     * Edits the current user's description. The new value is stripped of tags
+     * and must be shorter than 140 characters.
+     * 
+     * @param {String} value   The requested new description.
      */
     function publicUserEditDescription($arguments) {
         if(!requireUserLogin($arguments, 'edit your description')) {
@@ -981,12 +986,17 @@
         $description = ArgLoose($arguments['value']);
         $dbConn = getPDOQuick($arguments);
         
+        // Attempt to edit the description in the database
         $status = dbUsersEditDescription($dbConn, $user_id, $description);
+        
+        // If it was successful, also edit the user's session
         if($status) {
             outputSuccess($arguments, getUserInfo($dbConn, $user_id));
+            $_SESSION['description'] = $description;
         } else {
             outputFailure($arguments, getUserInfo($dbConn, $user_id));
         }
+        
     }
     
     /**
