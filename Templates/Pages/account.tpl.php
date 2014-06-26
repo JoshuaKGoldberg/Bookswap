@@ -95,7 +95,7 @@
 
     <!-- Description -->
     <p id="user_description" class="standard_main"> <?php 
-        PrintEditable($description, 'publicUserEditDescription', array('callback' => 'alert'));
+        PrintEditable($description, 'publicUserEditDescription'));
     ?></p>
 
     <!-- Psuedo-menu -->
