@@ -20,6 +20,8 @@
     $query = '
       SELECT * FROM `users`
       WHERE `' . $type . '` = :identity
+      INNER JOIN `user_descriptions` 
+        ON `users`.`user_id` = `user_descriptions`.`user_id`
       LIMIT 1
     ';
     
