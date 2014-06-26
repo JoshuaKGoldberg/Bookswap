@@ -983,9 +983,9 @@
         
         $status = dbUsersEditDescription($dbConn, $user_id, $description);
         if($status) {
-            outputSuccess($arguments);
+            outputSuccess($arguments, getUserInfo($dbConn, $user_id));
         } else {
-            outputFailure($arguments);
+            outputFailure($arguments, getUserInfo($dbConn, $user_id));
         }
     }
     

@@ -19,9 +19,9 @@
     // Prepare the initial query
     $query = '
       SELECT * FROM `users`
-      WHERE `' . $type . '` = :identity
       INNER JOIN `user_descriptions` 
         ON `users`.`user_id` = `user_descriptions`.`user_id`
+      WHERE `' . $type . '` = :identity
       LIMIT 1
     ';
     
@@ -778,9 +778,9 @@
     // Grab and return information from `users` joined with `user_descriptions`
     return $dbConn->query('
       SELECT * FROM `users`
-      WHERE `user_id` LIKE ' . filterUserID($user_id) . '
       INNER JOIN `user_descriptions` 
         ON `users`.`user_id` = `user_descriptions`.`user_id`
+      WHERE `users`.`user_id` LIKE ' . filterUserID($user_id) . '
       LIMIT 1
     ')->fetch(PDO::FETCH_ASSOC);
   }
@@ -790,10 +790,12 @@
   function getUserFromEmail($dbConn, $email) {
     $query = '
       SELECT * FROM `users`
+      INNER JOIN `user_descriptions` 
+        ON `users`.`user_id` = `user_descriptions`.`user_id`
       WHERE 
-        `email` LIKE :email
+       `users`.`email` LIKE :email
         OR
-        `email_edu` LIKE :email
+        `users`.`email_edu` LIKE :email
       LIMIT 1
     ';
     $stmnt = getPDOStatement($dbConn, $query);
