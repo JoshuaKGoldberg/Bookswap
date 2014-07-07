@@ -95,7 +95,11 @@
 
     <!-- Description -->
     <p id="user_description" class="standard_main"> <?php 
-        PrintEditable($description, 'publicUserEditDescription');
+        if($using_current) {
+            PrintEditable($description, 'publicUserEditDescription');
+        } else {
+            echo $description;
+        }
     ?></p>
 
     <!-- Psuedo-menu -->
@@ -147,7 +151,7 @@
           <?php 
             PrintRequest("publicPrintUserBooks", array(
               'user_id' => $user_id,
-              'format' => 'Medium',
+              'size' => 'Medium',
               'action' => 'Buy'
             ));
           ?>
@@ -158,7 +162,7 @@
           <?php 
             PrintRequest("publicPrintUserBooks", array(
               'user_id' => $user_id,
-              'format' => 'Medium',
+              'size' => 'Medium',
               'action' => 'Sell'
             ));
           ?>

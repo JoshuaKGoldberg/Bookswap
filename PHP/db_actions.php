@@ -564,15 +564,64 @@
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
   }
   
-  // dbBookEntriesGet(#isbn)
-  // Gets all the entires related to an isbn (rather than user_id)
-  function dbBookEntriesGet($dbConn, $isbn) {
+    // dbEntriesGetISBNs(#user_id, "action")
+    // Gets all the unique ISBNs the user_id has entries for
+    function dbEntriesGetISBNs($dbConn, $user_id, $action='') {
+        // Ensure the user_id exists in the database
+        if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
+            return false;
+        }
+        
+        // Prepare the initial query and the initial arguments
+        $query = '
+            SELECT DISTINCT `isbn` FROM `entries`
+            WHERE `user_id` = :user_id
+        ';
+        // Add in the extra filter, if needed
+        if($action != '') {
+            $query .= ' AND `action` = :action';
+            $args = array(':user_id' => $user_id,
+                          ':action'  => $action);
+        }
+        else $args = array(':user_id' => $user_id);
+    
+        // Run the query
+        $stmnt = getPDOStatement($dbConn, $query);
+        $stmnt->execute($args);
+        
+        return $stmnt->fetchAll(PDO::FETCH_ASSOC);
+    }
+  
+  // dbBookEntriesGet(#isbn, "action")
+  // Gets all the entires related to an isbn
+  function dbBookEntriesGet($dbConn, $isbn, $user_id, $action='') {
+    // Ensure the isbn exists in the database
+    if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
+        return false;
+    }
+    
+    // Prepare the initial query and the initial arguments
     $query = '
       SELECT * FROM `entries`
-      WHERE `isbn` = :isbn
+      INNER JOIN `users`
+      ON `entries`.`user_id` = `users`.`user_id`
+      WHERE `entries`.`isbn` = :isbn
+        AND `entries`.`user_id` = :user_id
     ';
+    // Add in the extra filter, if needed
+    if($action != '') {
+        $query .= ' AND `action` = :action';
+        $args = array(':isbn' => $isbn,
+                      ':user_id' => $user_id,
+                      ':action'  => $action);
+    }
+    else {
+        $args = array(':isbn' => $isbn,
+                      ':user_id' => $user_id);
+    }
+    
     $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn' => $isbn));
+    $stmnt->execute($args);
     
     return $stmnt->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -591,26 +640,6 @@
       echo 'No such user exists: ' . $user_id;
       return false;
     }
-    
-    // Make sure an entry doesn't already exist of this type
-    $query = '
-      SELECT * FROM `entries`
-      WHERE `isbn` LIKE :isbn
-      AND `user_id` LIKE :user_id
-      AND `action` LIKE :action
-    ';
-    $stmnt = getPDOStatement($dbConn, $query);
-    $stmnt->execute(array(':isbn'    => $isbn,
-                          ':user_id' => $user_id,
-                          'action'   => $action));
-    $results = $stmnt->fetch(PDO::FETCH_ASSOC);
-    if(!empty($results)) {
-      echo 'You already have an entry to ' . $action . ' this book!';
-      return false;
-    }
-    
-    // Query more information on the book (really just the title)
-    $book_title = getRowValue($dbConn, 'books', 'title', 'isbn', $isbn);
     
     // Run the insertion query
     $query = '
@@ -634,63 +663,62 @@
     }
   }
   
-  // dbEntriesEditPrice(#isbn, #user_id, "action", #price)
-  // Edits a pre-existing entry's price in `entries`, selected by isbn, user_id, and action
-  // Sample usage: dbEntriesEditPrice($dbConn, $isbn, $user_id, 'buy', 14);
-  function dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price) {
-    // Ensure the isbn and user_id both exist in the database
-    if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-      echo 'No such ISBN exists: ' . $isbn;
-      return false;
-    }
-    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
-      echo 'No such user exists: ' . $user_id;
+  // dbEntriesEditPrice(#isbn, #entry_id, #price)
+  // Edits a pre-existing entry's price in `entries`
+  // Sample usage: dbEntriesEditPrice($dbConn, $entry_id, 14);
+  function dbEntriesEditPrice($dbConn, $entry_id, $price) {
+    // Ensure the entry_id exists in the database
+    if(!checkKeyExists($dbConn, 'entries', 'entry_id', $entry_id)) {
       return false;
     }
     
-    echo "Price is " . $price;
-    
-    // Run the edit query
     $query = '
       UPDATE `entries`
       SET `price` = :price
-      WHERE
-        `isbn` = :isbn 
-          AND
-        `action` = :action
+      WHERE `entry_id` = :entry_id
     ';
     
     $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':isbn'   => $isbn,
-                                 ':action' => $action,
+    return $stmnt->execute(array(':entry_id'   => $entry_id,
                                  ':price'  => $price));
   }
   
-  // dbEntriesRemove(#isbn, #user_id)
-  // Removes an entry from `entries`
-  // Sample usage: dbEntriesRemove($dbConn, $isbn, $user_id);
-  function dbEntriesRemove($dbConn, $isbn, $user_id) {
-    // Ensure the isbn and user_id both exist in the database
-    if(!checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-      echo 'No such ISBN exists: ' . $isbn;
+  // dbEntriesEditPrice(#isbn, #entry_id, "state")
+  // Edits a pre-existing entry's price in `entries`
+  // Sample usage: dbEntriesEditPrice($dbConn, $entry_id, 14);
+  function dbEntriesEditState($dbConn, $entry_id, $state) {
+    // Ensure the entry_id exists in the database
+    if(!checkKeyExists($dbConn, 'entries', 'entry_id', $entry_id)) {
       return false;
     }
-    if(!checkKeyExists($dbConn, 'users', 'user_id', $user_id)) {
-      echo 'No such user exists: ' . $user_id;
+    
+    $query = '
+      UPDATE `entries`
+      SET `state` = :state
+      WHERE `entry_id` = :entry_id
+    ';
+    
+    $stmnt = getPDOStatement($dbConn, $query);
+    return $stmnt->execute(array(':entry_id'   => $entry_id,
+                                 ':state'  => $state));
+  }
+  
+  // dbEntriesRemove(#entry_id)
+  // Removes an entry from `entries`
+  // Sample usage: dbEntriesRemove($dbConn, $entry_id);
+  function dbEntriesRemove($dbConn, $entry_id) {
+    // Ensure the isbn and user_id both exist in the database
+    if(!checkKeyExists($dbConn, 'entries', 'entry_id', $entry_id)) {
       return false;
     }
     
     // Run the deletion query
     $query = '
       DELETE FROM `entries`
-      WHERE
-        `isbn` = :isbn
-        AND
-        `user_id` = :user_id
+      WHERE `entry_id` = :entry_id
     ';
     $stmnt = getPDOStatement($dbConn, $query);
-    return $stmnt->execute(array(':isbn'    => $isbn,
-                                 ':user_id' => $user_id));
+    return $stmnt->execute(array(':entry_id' => $entry_id));
   }
   
   

@@ -51,95 +51,101 @@ h1, h2, h3, h4 {
 }
 
 
-/* Entries
+/* Books
 */
 
-.book .book_entry {
-  float: right;
-  padding-top: 0;
-  margin-right: .14em;
-  color: #969696;
-  font-style: italic;
+.book.book-medium  h3 {
+  text-shadow: none;
+  font-size: 1.75em;
 }
-.book .book_entry.changes {
-  clear: right;
+
+.book.book-medium .book-extra-info {
+  padding-top: 7px;
 }
-.book .entry_changes {
-  margin-left: 11px;
-  margin-right: -3px;
-  float: right;
-  width: 21px;
-  height: 21px;
-  cursor: pointer;
-  opacity: .49;
-}
-.book_entry.price {
-  height: 42px;
-  width: 203px;
-  text-align: right;
-}
-.book .entry_changes:hover {
-  opacity: 1;
-}
-.book .entry_edit {
-  background-image: url('../Images/Edit.gif');
-}
-.book .entry_edit.active {
-  background-image: url('../Images/EditActive.gif');
-}
-.book .entry_delete {
-  background-image: url('../Images/Delete.gif');
-}
-.book.book-medium {
-  /* Removed because of overflow glitches :( */
-  /* height: 98px;
-  transition: 350ms height; */
-}
-.book.book-medium .holder {
+
+.book.book-medium .book-holder {
   overflow: hidden;
 }
+
 .book.book-medium .clearer {
   clear: both;
 }
-.book_entry.price input[type=button] {
-  width: 63px;
-  cursor: pointer;
-  font-size: 21px;
-}
-.book_entry.price input.go_delete {
-  padding-left: 7px;
-  padding-right: 67px;
-}
-/* Deletes
+
+
+/* Entries
 */
-.book_entry.price input.go_edit {
-  width: 42px;
+
+.book .book-entry {
+  display: inline-block;
+  padding-top: 0;
+  color: #969696;
+  font-style: italic;
 }
-.book_entry.price select {
-  margin-right: -.14em;
+
+.book .entry {
+  font-size: 1.4em;
 }
-.book.book-medium.deleted {
-  height: 21px;
-  font-size: 21px;
-  text-align: center;
+
+.entry-table {
+  margin-bottom: 1.4em;
 }
-/* Edits
-*/
-.book .book_entry input {
-  max-width: 49px;
-  text-align: center;
-  display: inline;
+
+.entry-table tr {
+  box-shadow: none;
 }
-.book .book_entry select {
-  width: 56px;
-  font-size: 17.5px;
+
+.entry-table .editing {
+  background: #dfd;
+  border: 1px solid #ada;
 }
-.book_entry.price .dollas {
-  margin-right: 3px;
+
+.entry-table tr td:first-of-type {
+  text-align: right;
 }
-.book_entry.price .go_edit {
+.entry-table tr td:nth-of-type(2) {
+  text-align: left;
+}
+
+.entry-table .entry-changes {
+  display: inline-block;
+  margin-top: 3px;
   margin-left: 7px;
+  margin-right: -3px;
+  width: 21px;
+  height: 21px;
+  opacity: .49;
+  cursor: pointer;
 }
+
+.entry-table .editing .entry-changes-cell {
+  margin-top: 7px;
+}
+
+.entry-table .entry-changes:hover {
+  opacity: 1;
+}
+
+.entry-table .editing .edit-dollas {
+  max-width: 49px;
+  text-align: right;
+}
+
+.entry-table .entry-edit {
+  background-image: url('../Images/Edit.gif');
+}
+
+.entry-table .editing .entry-edit {
+  background-image: url('../Images/CheckActive.gif');
+}
+
+.entry-table .entry-delete {
+  background-image: url('../Images/Delete.gif');
+}
+
+.entry-table .editing .entry-delete {
+  visibility: hidden;
+}
+
 
 /* Notifications
 */

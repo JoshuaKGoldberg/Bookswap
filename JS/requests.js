@@ -106,8 +106,8 @@ function loadPrintedRequests() {
 function loadPrintedRequest(i, div) {
   var request = div.getAttribute("request"),
       num_args = Number(div.getAttribute("num_args")),
-      args = [],
       timeout = div.getAttribute("timeout") || 0,
+      args = {},
       argtext, commaloc, i;
   
   // Each argument i is in the form 'argi="argname,argument"'
@@ -117,6 +117,11 @@ function loadPrintedRequest(i, div) {
     args[argtext.substr(0, commaloc)] = argtext.substr(commaloc + 1);
   }
   
+  // If args doesn't contain a format, default to JSON
+  if(!args.hasOwnProperty("format")) {
+    args['format'] = 'json';
+  }
+  
   // With all the arguments parsed, send the request as scheduled
   setTimeout(function() { 
     sendRequest(request, args, function(result) {
@@ -124,9 +129,15 @@ function loadPrintedRequest(i, div) {
     );
   }, timeout);
 }
-// Puts the result from loadPrintedRequest in a div
+// Puts the result from loadPrintedRequest in a div. Because it may need to load
+// its own requests, loadPrintedRequests is called after this.
 function loadPrintedRequestResults(result, div) {
-  div.outerHTML = result;
+  if(div.parentElement) {
+    div.outerHTML = result;
+  } else {
+    div.innerHTML = result;
+  }
+  loadPrintedRequests();
 }
 
 

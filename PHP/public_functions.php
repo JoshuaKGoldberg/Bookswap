@@ -100,6 +100,7 @@
             'status' => 'success',
             'message' => $message
         ));
+        return true;
     }
     
     /**
@@ -116,6 +117,7 @@
             'status' => 'failure',
             'message' => $message
         ));
+        return false;
     }
     
     /**
@@ -252,12 +254,12 @@
         
         // If any failures were detected, oh no!
         if(isset($failures)) {
-            output($arguments, array(
-                'error' => count($failures) . ' required arguments missing.',
+            return outputFailure($arguments, array(
+                'error' => 'Required arguments missing.',
                 'failures' => $failures
             ));
-            return false;
         }
+        
         return true;
     }
     
@@ -991,10 +993,10 @@
         
         // If it was successful, also edit the user's session
         if($status) {
-            outputSuccess($arguments, getUserInfo($dbConn, $user_id));
             $_SESSION['description'] = $description;
+            return outputSuccess($arguments, getUserInfo($dbConn, $user_id));
         } else {
-            outputFailure($arguments, getUserInfo($dbConn, $user_id));
+            return outputFailure($arguments, getUserInfo($dbConn, $user_id));
         }
         
     }
@@ -1009,8 +1011,6 @@
      * <format> is an optional argument that defaults to "Medium".
      * The weighted search uses weights from defaults.php::getSearchWeights().
      * 
-     * @todo Allow format=JSON, format=XML, etc.
-     * @todo Don't hardcode the HTML echo calls (use a "Books" template)
      * @param {String} value   A query term to search the database for.
      * @param {String} [format]   What format to print the items in (defaults to
      *                            "Medium").
@@ -1023,6 +1023,9 @@
      *                           separate query to find the number. However,
      *                           enabling total as an argument enables it to be 
      *                           cached for successive searches.
+     * @todo Allow format=JSON, format=XML, etc.
+     * @todo Don't hardcode the HTML echo calls (use a "Books" template)
+     * @todo Use 'size' instead of 'format'.
      */
     function publicSearch($arguments) {
         if(!requireArguments($arguments, 'value')) {
@@ -1205,7 +1208,9 @@
         $num_shown = 0;
         foreach($results as $result) {
             $result['is_search'] = true;
-            TemplatePrint('Books/' . $format, 0, $result);
+            TemplatePrint('Books/' . $format, 0, array_merge($result, array(
+                'from_search' => true
+            )));
             $num_shown += 1;
         }
 
@@ -1478,10 +1483,8 @@
      *                        with 0) of the book.
      * @param {String} action   The entry action to be listed (either "buy" or
      *                          "sell").
-     * @param {String} dollars   The dollar portion of the price the user wants 
-     *                           to {action} the book for (as a String, for 0s).
-     * @param {String} cents   The cents portion of the price the user wants to
-     *                         {action} the book for (as a String, for 0s).
+     * @param {String} price   The the price the user wants to {action} the book
+     *                         for (as a String, for 0s).
      * @todo In the future, a user should be able to have multiple entries. The
      *       backend function checks for that currently.
      */
@@ -1489,7 +1492,8 @@
         if(!requireUserVerification($arguments, 'add an entry')) {
             return false;
         }
-        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
+        
+        if(!requireArguments($arguments, 'isbn', 'action', 'price', 'state')) {
             return false;
         }
         
@@ -1500,60 +1504,96 @@
         // Fetch the necessary arguments
         $isbn = ArgStrict($arguments['isbn']);
         $action = ArgStrict($arguments['action']);
-        $dollars = ArgStrict($arguments['dollars']);
-        $cents = ArgStrict($arguments['cents']);
+        $price = ArgLoose($arguments['price']);
         $state = ArgStrict($arguments['state']);
-        // (price is dollars + cents)
-        $price = $dollars . '.' . $cents;
 
         // Send the query
         $entry_id = dbEntriesAdd($dbConn, $isbn, $user_id, $action, $price, $state);
         if($entry_id !== false) {
             sendAllEntryNotifications($dbConn, $entry_id);
-            output($arguments, 'Entry added successfully!');
+            return outputSuccess($arguments, 'Entry added successfully!');
+        } else {
+            return outputFailure($arguments, 'Could not add entry. Please try again!');
         }
     }
   
     /**
-     * EntryEditPrice
+     * EntryEdit
      * 
-     * Edits the price of the current user's entry for a particular book, if 
-     * that entry already exists.
+     * Edits the price and/or state of the current user's entry for a particular 
+     * book, given the entry_id. 
      *
-     * @param {String} isbn   The ISBN number (as a String, in case it starts
-     *                        with 0) of the book.
+     * @param {String} entry_id   The ID of the entry from the database.
      * @param {String} action   The entry action to filter on (one of "buy" or
      *                          "sell").
-     * @param {String} dollars   The dollar portion of the price the user wants 
-     *                           to {action} the book for (as a String, for 0s).
-     * @param {String} cents   The cents portion of the price the user wants to
-     *                         {action} the book for (as a String, for 0s).
-     * 
-     * @todo In the future, a user should be able to have multiple entries, so 
-     *       this should key on entry_id.
+     * @param {String} price   The the price the user wants to {action} the book
+     *                         for (as a String, for 0s).
+     * @param {String} [state]   The requested new state for the book to be in,
+     *                           which must be one of the predeclared strings in
+     *                           defaults.php::getBookStates().
      */
-    function publicEntryEditPrice($arguments) {
+    function publicEntryEdit($arguments) {
         if(!requireUserVerification($arguments, 'edit an entry price')) {
             return false;
         }
-        if(!requireArguments($arguments, 'isbn', 'action', 'dollars', 'cents')) {
+        
+        if(!requireArguments($arguments, 'entry_id')) {
             return false;
         }
-        
-        $user_id = $_SESSION['user_id'];
-        $dbConn = getPDOQuick($arguments);
 
         // Fetch the necessary arguments
-        $isbn = ArgStrict($arguments['isbn']);
-        $action = ArgStrict($arguments['action']);
-        $dollars = ArgStrict($arguments['dollars']);
-        $cents = ArgStrict($arguments['cents']);
-        // (price is dollars + cents)
-        $price = $dollars . '.' . $cents;
-
-        // Send the query
-        if(dbEntriesEditPrice($dbConn, $isbn, $user_id, $action, $price)) {
-            output($arguments, 'Entry edited successfully!');
+        $entry_id = ArgStrict($arguments['entry_id']);
+        $user_id = $_SESSION['user_id'];
+        $dbConn = getPDOQuick($arguments);
+        
+        // Ensure the entry is the user's
+        if(getRowValue($dbConn, 'entries', 'user_id', 'entry_id', $entry_id) != $user_id) {
+            return outputFailure($arguments, 'Could not edit entry of entry_id ' . $entry_id);
+        }
+        
+        // Collect which edits to make
+        $doEditPrice = isset($arguments['price']);
+        $doEditState = isset($arguments['state']);
+        if(!$doEditPrice && !$doEditState) {
+            return outputFailure($arguments, 'Neither price nor state edits were requested.');
+        }
+        
+        // Collect the edit values
+        if($doEditPrice) {
+            $price = ArgLoose($arguments['price']);
+        }
+        if($doEditState) {
+            $state = ArgStrict($arguments['state']);
+        }
+        
+        // If the state is given, make sure it's one of the allowed values
+        if($doEditState && array_search($state, getBookStates()) === false) {
+            return outputFailure($arguments, $state . ' is not allowed as a book state.');
+        }
+        
+        // Attempt the one or two required edits
+        if($doEditPrice) {
+            $statusPrice = dbEntriesEditPrice($dbConn, $entry_id, $price);
+        } else {
+            $statusPrice = true;
+        }
+        if($doEditState) {
+            $statusState = dbEntriesEditState($dbConn, $entry_id, $state);
+        } else {
+            $statusState = true;
+        }
+        
+        if($statusPrice && $statusState) {
+            return outputSuccess($arguments);
+        } else {
+            $failures = '';
+            if($statusState) {
+                $failures .= 'edit state';
+            }
+            if(!$statusPrice) {
+                $failures .= 'edit price';
+            }
+            return outputFailure($arguments, 'Could not ' . implode(' or ', $failures) . '.');
         }
     }
   
@@ -1563,35 +1603,26 @@
      * Removes an entry regarding a particular book for the current user, if it
      * already exists.
      * 
-     * @param {String} isbn   The ISBN number (as a String, in case it starts
-     *                        with 0) of the book.
-     * @param {String} action   The entry action to filter on (one of "buy" or
-     *                          "sell")
-     * @todo In the future, a user should be able to have multiple entries, so 
-     *       this should key on entry_id.
+     * @param {String} entry_id   The ID of the entry from the database.
      */
     function publicEntryDelete($arguments) {
         if(!requireUserVerification($arguments, 'delete an entry')) {
             return false;
         }
-        if(!requireArguments($arguments, 'isbn', 'action')) {
+        if(!requireArguments($arguments, 'entry_id')) {
             return false;
         }
         
         $username = $_SESSION['username'];
         $user_id = $_SESSION['user_id'];
+        $entry_id = ArgStrict($arguments['entry_id']);
         $dbConn = getPDOQuick($arguments);
 
-        // Fetch the necessary argument
-        $isbn = ArgStrict($arguments['isbn']);
-        $action = ArgStrict($arguments['action']);
-
         // Send the query and print the results
-        $link = getLinkHTML('book', $isbn, array('isbn'=>$isbn));
-        if(dbEntriesRemove($dbConn, $isbn, $user_id)) {
-            output($arguments, $link . ' removed successfully!');
+        if(dbEntriesRemove($dbConn, $entry_id)) {
+            return outputSuccess($arguments, 'Entry removed successfully!');
         } else {
-            output($arguments, $link . ' removal failed. Try again?');
+            return outputFailure($arguments, 'Entry removal failed. Try again?');
         }
     }
   
@@ -1659,7 +1690,7 @@
         // If there are any, for each of those entries, print them out
         if(count($entries)) {
             foreach($entries as $entry) {
-                TemplatePrint("Entry", 0, $entry);
+                TemplatePrint("Entries/Medium", 0, $entry);
             }
         } else {
             output($arguments, "Nothing going!");
@@ -1673,39 +1704,85 @@
      * a user.
      * 
      * @param {Number} user_id   The unique numeric ID of the user.
-     * @param {String} format   The Book format to print the book listings in
-     *                          ("small", "medium", or "large").
+     * @param {String} size   The Book size to print the book listings, in
+     *                        ("small", "medium", or "large").
      * @param {String} action   The entry action to filter on ("buy" or "sell").
      */
     function publicPrintUserBooks($arguments) {
-        if(!requireArguments($arguments, 'user_id', 'format', 'action')) {
+        if(!requireArguments($arguments, 'user_id', 'size', 'action')) {
             return false;
         }
         
         $user_id = ArgStrict($arguments['user_id']);
-        $format = ArgStrict($arguments['format']);
+        $size = ArgStrict($arguments['size']);
         $action = ArgStrict($arguments['action']);
         $dbConn = getPDOQuick($arguments);
         
-        // Get each of the entries of that type
-        $entries = dbEntriesGet($dbConn, $user_id, $action);
+        // Get each of the ISBNs of that type
+        $isbns = dbEntriesGetISBNs($dbConn, $user_id, $action);
         
         // If there were none, stop immediately
-        if(!$entries) {
-            output($arguments, '<aside class="nothing">Nothing going!</aside>'
-                    . '<p>Perhaps you\'d like to ' 
-                    . getLinkHTML('search', 'add more')
-                    . '?</p>' 
-                    . PHP_EOL
-            );
-            return;
+        if(!$isbns) {
+            return outputSuccess($arguments, 'Nothing going!');
         }
         
         // For each one, query the book information, and print it out
-        foreach($entries as $key=>$entry) {
-            $results[$key] = dbBooksGet($dbConn, $entry['isbn']);
-            TemplatePrint('Books/' . $format, 0, array_merge($entry, $results[$key]));
+        foreach($isbns as $key=>$entry) {
+            $entry = array_merge($entry, array(
+                'action' => $action
+            ));
+            $book = dbBooksGet($dbConn, $entry['isbn']);
+            TemplatePrint('Books/' . $size, 0, array_merge($entry, $book));
         }
+        return true;
+    }
+    
+    /**
+     * PrintBookEntries
+     * 
+     * Prints all the entries that a particular user (user_id) has on a single
+     * book (isbn).
+     * 
+     * @todo Allow for other formats, such as HTML or XML
+     * @param {Number} user_id   The unique numeric ID of the user.
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported.
+     * @param {String} action   The entry action to be listed (either "buy" or
+     *                          "sell").
+     * @param {String} size   The Book size to print the book listings in, from
+     *                        ("small" or "medium").
+     * @param 
+     */
+    function publicPrintBookEntries($arguments) {
+        if(!requireArguments($arguments, 'user_id', 'isbn', 'action', 'size')) {
+            return false;
+        }
+        
+        $user_id = ArgStrict($arguments['user_id']);
+        $isbn = ArgStrict($arguments['isbn']);
+        $action = ArgStrict($arguments['action']);
+        $size = ArgStrict($arguments['size']);
+        $dbConn = getPDOQuick($arguments);
+        
+        $entries = dbBookEntriesGet($dbConn, $isbn, $user_id, $action);
+        
+        if($entries === false) {
+            return outputFailure($arguments, 'Could not fetch entries for ' . $isbn);
+        }
+        
+        // If there were none, stop immediately
+        if(!$entries) {
+            return outputSuccess($arguments, 'Nothing going!');
+        }
+        
+        // For each one, query the book information, and print it out
+        echo '<table class="entry-table">';
+        foreach($entries as $key=>$entry) {
+            $result = dbBooksGet($dbConn, $entry['isbn']);
+            TemplatePrint('Entries/' . $size, 0, array_merge($entry, $result));
+        }
+        echo '</table>';
+        return true;
     }
     
     /**
@@ -1729,7 +1806,7 @@
         // http://stackoverflow.com/questions/16490120/select-from-same-table-where-two-columns-match-and-third-doesnt
         $query = '
           SELECT * FROM (
-            SELECT a.* FROM
+            SELECT DISTINCT a.* FROM
             `entries` a
             # matching rows in entries against themselves
             INNER JOIN `entries` b
@@ -1738,6 +1815,7 @@
             AND a.isbn = b.isbn
             AND b.user_id = :user_id
             AND a.action <> b.action
+            AND a.entry_id <> b.entry_id
           ) AS matchingEntries
           # while the above alias is not used, MySQL requires all derived tables to
           # have an alias
@@ -1751,11 +1829,11 @@
         // Get the results to print them out
         $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
         if(empty($results)) {
-            output($arguments, 'Nothing going!');
+            return outputSuccess($arguments, 'Nothing going!');
         } 
         else {
             foreach($results as $result) {
-                TemplatePrint("Entry", 0, $result);
+                TemplatePrint("Entries/Medium", 0, $result);
             }
         }
     }
@@ -1808,7 +1886,7 @@
         } 
         else {
             foreach($results as $result) {
-                TemplatePrint("Entry", 0, $result);
+                TemplatePrint("Entries/Medium", 0, $result);
             }
         }
     }
@@ -1826,7 +1904,7 @@
         $dbConn = getPDOQuick($arguments);
         $result = dbNotificationsGet($dbConn, $_SESSION['user_id']);
         if(empty($result)) {
-            output($arguments, 'Nothing going!');
+            outputSuccess($arguments, 'Nothing going!');
         } else {
             foreach($result as $notification) {
                 TemplatePrint('Notification', 0, $notification);

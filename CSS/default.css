@@ -395,6 +395,7 @@ section:nth-of-type(2n) a {
   text-shadow: 0 0 35px white,
                0 0 14px #fafafa,
                0 0 3px white;
+  text-align: center;
 }
 .loading hr {
   margin: 0 0 -.84em 0;
@@ -403,6 +404,7 @@ section:nth-of-type(2n) a {
   display: inline;
   background: #fafafa;
   box-shadow: 0 0 14px rgba(252,252,252,.7);
+  text-align: center;
 }
 section:nth-of-type(2n) .loading {
   text-shadow: 0 0 35px black,
@@ -481,22 +483,49 @@ section:nth-of-type(2n) .loading .loader {
   padding: 1px 7px;
 }
 
-/* Entry adder forms
+/* Entries & entry adder forms
 */
+.entries-small {
+    font-size: .84em;
+}
+
 .entry {
-  padding: 7px 0;
-  font-size: 1.75em;
+    padding: 11px 0 7px 0;
+    font-size: 1.75em;
 }
+
 .entry hr {
-  position: absolute;
+    position: absolute;
 }
+
+.entry .entry-price {
+    display: inline-block;
+    min-width: 70px;
+}
+
+.entry .entry-date {
+    font-style: italic;
+    font-size: 70%;
+    color: #777;
+}
+
+.entry .changes {
+    margin-top: 7px;
+}
+
+.entry-table {
+    width: 100%;
+}
+
 .entry select {
-  font-size: 1em;
-  margin: 0 .14em 0 .21em;
+    font-size: 1em;
+    margin: 0 .14em 0 .21em;
 }
+
 .entry select.cents {
-  font-size: .7em;
+    font-size: .7em;
 }
+
 /* Money
 */
 .money {

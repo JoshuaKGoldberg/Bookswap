@@ -14,16 +14,15 @@ $(document).ready(function() {
 // Gathers information about a submit-entry request, then submits it
 // Can't use automated sendRequestForm because IDs might be duplicate
 function entryAddSubmit(event, isbn) {
-    var form = event.target,
+    var form = $(event.target),
+        price = form.find(".num_dollars")[0].value + '.' + form.find(".num_cents")[0].value,
         settings = {
-            isbn: isbn,
-            title: form.getElementsByClassName("entry_title")[0].innerText,
-            state: form.getElementsByClassName("entry_state")[0].value,
-            action: form.getElementsByClassName("entry_action")[0].value,
-            dollars: form.getElementsByClassName("num_dollars")[0].value,
-            cents: form.getElementsByClassName("num_cents")[0].value
+            "isbn": isbn,
+            "price": price,
+            "state": form.find(".entry_state").val(),
+            "action": form.find(".entry_action").val()
         };
-    sendRequest("publicEntryAdd", settings, function(result) {
+    sendRequest("publicEntryAdd", settings, function (result) {
         entryAddFinish(result, event.target, settings);
     });
 
