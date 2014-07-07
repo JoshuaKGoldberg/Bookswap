@@ -61,7 +61,6 @@
                     }
                     
                     $result['title'] = getRowValue($dbConn, 'books', 'title', 'isbn', $isbn);
-                    
                     array_push($results, $result);
                 }
             }

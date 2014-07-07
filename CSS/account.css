@@ -146,14 +146,6 @@ h1, h2, h3, h4 {
   visibility: hidden;
 }
 
-/* Listings
-*/
-
-.listings .entry {
-  padding: 0;
-  line-height: 117%;
-}
-
 /* Notifications
 */
 

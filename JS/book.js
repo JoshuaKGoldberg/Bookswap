@@ -22,22 +22,23 @@ function entryAddSubmit(event, isbn) {
             "state": form.find(".entry_state").val(),
             "action": form.find(".entry_action").val()
         };
-    sendRequest("publicEntryAdd", settings, function (result) {
-        entryAddFinish(result, event.target, settings);
+    sendRequest("publicEntryAdd", settings, function (resultsRaw) {
+        entryAddFinish(resultsRaw, event.target, settings);
     });
 
     // Mention it's working
     $(form).find("input[type=submit]").val("thinking...");
 }
 
-function entryAddFinish(result, form, settings) {
-    // Display the result in the HTML
-    var displayer = form.getElementsByClassName("entry_results");
-    displayer[0].innerHTML = result;
+function entryAddFinish(resultsRaw, form, settings) {
+    var result = JSON.parse(resultsRaw),
+        displayer = form.getElementsByClassName("entry_results");
+    
+    displayer[0].innerHTML = result.message;
     $(form).find("input[type=submit]").val("Go!");
 
-    // If it's a success, check for FB integration, then reload the page
-    if(result == "Entry added successfully!") {
+    // If it's a success, check for FB integration
+    if(result.status === "success") {
         FB.getLoginStatus(function(status) {
             // If logged in, try to post to Facebook, *then* reload
             if(status.status.trim().toLowerCase() === "connected") {
@@ -47,9 +48,7 @@ function entryAddFinish(result, form, settings) {
                         + '$' + settings.dollars + '.' + settings.cents + ". "
                         + "Any takers?\n\n "
                         + window.location.href,
-                    function() {
-                        window.location.reload();
-                    }
+                    location.reload.bind(location)
                 );
             }
             // Otherwise just reload immediately

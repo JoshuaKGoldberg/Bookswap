@@ -419,6 +419,11 @@ section:nth-of-type(2n) .loading .loader {
   padding-bottom: 28px;
 }
 
+.listings .entry {
+  padding: 0;
+  line-height: 117%;
+}
+
 /* Books
 */
 .book {
