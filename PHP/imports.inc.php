@@ -6,26 +6,22 @@
     // * $data
     // Optional arguments:
     // * $term
-    function bookImportFromJSON($arguments, $noverbose=false) {
+    function bookImportFromJSON($arguments) {
         $data = $arguments['data'];
         // If $data is a string, and not (JSON) an object/array, convert it
         if(is_string($data)) {
-          $data = json_decode($data);
+            $data = json_decode($data);
         }
         
         // Get the array of book items, if found
         $term = isset($arguments['term']) ? $arguments['term'] : false;
         $items = followPath($data, ['items']);
         if(!$items) {
-          if($noverbose) {
-            if($term) {
-              echo 'Nothing found for ' . $term . '!';
-            } else {
-              echo 'Nothing found!';
-            }
-          }
-          return false;
+            return false;
         }
+        
+        // The book informations are stored in this array to be returned later
+        $results = array();
         
         // Get enough info from each one to add it to the database
         $dbConn = getPDOQuick($arguments);
@@ -42,23 +38,36 @@
             foreach($identifiers as $identity) {
                 if($identity->type == "ISBN_13" || $identity->type == "ISBN") {
                     $isbn = $arguments['isbn'] = $identity->identifier;
+                    
+                    $result = array(
+                        'isbn' => $isbn,
+                        'added' => false
+                    );
+                    
       
                     // Make sure the book doesn't already exist
                     if(doesBookAlreadyExist($dbConn, $isbn)) {
-                       return;
+                        $result['status'] = 'already exists';
+                    } else {
+                        // If adding it was successful, add it to the ISBNs
+                        if(bookProcessObject($arguments, true)) {
+                            $result['status'] = 'added';
+                            $result['added'] = true;
+                        }
+                        // Otherwise complain
+                        else {
+                            $result['status'] = 'failed';
+                        }
                     }
-      
-                    // If adding it was successful, display a link to it
-                    if(bookProcessObject($arguments, true)) {
-                        echo '<aside class="success">' . getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn)) . ' added</aside>';
-                    }
-                    // Otherwise complain
-                    else {
-                        echo '<aside class="failure">' . $isbn . ' not added</aside>';
-                    }
+                    
+                    $result['title'] = getRowValue($dbConn, 'books', 'title', 'isbn', $isbn);
+                    
+                    array_push($results, $result);
                 }
             }
         }
+        
+        return $results;
     }
     
     // bookProcessObject({...})
@@ -107,13 +116,7 @@
     
     // Mention a book already exists
     function doesBookAlreadyExist($dbConn, $isbn) {
-      if(checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-        echo '<aside>ISBN ' . $isbn . ' is already in our database as ';
-        echo getLinkHTML('book', getRowValue($dbConn, 'books', 'title', 'isbn', $isbn), array('isbn'=>$isbn));
-        echo '</aside>';
-        return true;
-      }
-      return false;
+      return checkKeyExists($dbConn, 'books', 'isbn', $isbn);
     }
     
     // Navigate through the STD->pointers

@@ -1383,13 +1383,8 @@
         }
         
         $value = urlencode($arguments['value']);
-        outputSuccess($arguments, '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL);
-        
-        // Start the Google query
         $query = 'https://www.googleapis.com/books/v1/volumes?';
-        // Add the search term
         $query .= 'q=' . $value;
-        // Finish the query with the Google key
         $query .= '&key=' . getGoogleKey();
         
         // Run the query and get the results
@@ -1398,7 +1393,8 @@
         
         // Use the private function to add the JSON book to the database
         require_once('imports.inc.php');
-        return bookImportFromJSON($arguments, $arguments['verbose']);
+        $results = bookImportFromJSON($arguments);
+        return outputSuccess($arguments, $results);
     }
   
     /**
