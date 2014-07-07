@@ -16,13 +16,16 @@ $(document).ready(function() {
 function entryAddSubmit(event, isbn, title) {
     var form = $(event.target),
         price = form.find(".num_dollars")[0].value + '.' + form.find(".num_cents")[0].value,
+        do_facebook = form.find("#do_facebook").prop("checked"),
         settings = {
+            "do_facebook": do_facebook,
             "title": title,
             "isbn": isbn,
             "price": price,
             "state": form.find(".entry_state").val(),
             "action": form.find(".entry_action").val()
         };
+    
     sendRequest("publicEntryAdd", settings, function (resultsRaw) {
         entryAddFinish(resultsRaw, event.target, settings);
     });
@@ -39,8 +42,7 @@ function entryAddFinish(resultsRaw, form, settings) {
     $(form).find("input[type=submit]").val("Go!");
 
     // If it's a success, check for FB integration
-    if(result.status === "success") {
-        debugger;
+    if(result.status === "success" && settings["do_facebook"]) {
         FB.getLoginStatus(function(status) {
             // If logged in, try to post to Facebook, *then* reload
             if(status.status.trim().toLowerCase() === "connected") {
@@ -58,6 +60,8 @@ function entryAddFinish(resultsRaw, form, settings) {
                 window.location.reload();
             }
         });
+    } else {
+        window.location.reload();
     }
 }
 
