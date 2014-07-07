@@ -7,18 +7,8 @@
     $publisher = $_TARGS['publisher'];
     $year = $_TARGS['year'];
     $pages = $_TARGS['pages'];
-    $user_id = $_TARGS['user_id'];
-    
+    $user_id = isset($_TARGS['user_id']) ? $_TARGS['user_id'] : false;
     $action = isset($_TARGS['action']) ? $_TARGS['action'] : false;
-
-    // if(UserLoggedIn()) {
-        // if(isset($_TARGS['user_id'])) {
-            // $user_id = $_TARGS['user_id'];
-            // $current_user = $user_id == $_SESSION['user_id'];
-        // } else {
-            // $user_id = $current_user = false;
-        // }
-    // }
 ?>
 <div class="book book-medium">
     <?php
