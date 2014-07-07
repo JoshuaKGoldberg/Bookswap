@@ -4,6 +4,7 @@ function loginSubmit() {
 }
 
 function loginComplete(resultRaw) {
+    var result = JSON.parse(resultRaw);
     if (result.status === "success") {
         var message = "You've successfully logged in! ";
         message += "You should be redirected to ";
