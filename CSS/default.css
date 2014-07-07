@@ -183,6 +183,7 @@ header {
   margin: 1px 0;
 }
 #login_submit {
+  margin-top: 0;
   width: 140px;
   float: left;
 }

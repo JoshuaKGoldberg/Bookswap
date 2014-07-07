@@ -13,10 +13,11 @@ $(document).ready(function() {
 
 // Gathers information about a submit-entry request, then submits it
 // Can't use automated sendRequestForm because IDs might be duplicate
-function entryAddSubmit(event, isbn) {
+function entryAddSubmit(event, isbn, title) {
     var form = $(event.target),
         price = form.find(".num_dollars")[0].value + '.' + form.find(".num_cents")[0].value,
         settings = {
+            "title": title,
             "isbn": isbn,
             "price": price,
             "state": form.find(".entry_state").val(),
@@ -39,13 +40,14 @@ function entryAddFinish(resultsRaw, form, settings) {
 
     // If it's a success, check for FB integration
     if(result.status === "success") {
+        debugger;
         FB.getLoginStatus(function(status) {
             // If logged in, try to post to Facebook, *then* reload
             if(status.status.trim().toLowerCase() === "connected") {
                 facebookPost("Hey I want to " 
                         + settings.action.toLowerCase() + " a copy of a " 
                         + settings.title + " for "
-                        + '$' + settings.dollars + '.' + settings.cents + ". "
+                        + '$' + settings.price + ". "
                         + "Any takers?\n\n "
                         + window.location.href,
                     location.reload.bind(location)
