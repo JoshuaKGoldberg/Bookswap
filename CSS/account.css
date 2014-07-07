@@ -16,7 +16,7 @@ h1, h2, h3, h4 {
 
 #user_description:empty:before,
 #user_description span.editable:empty:before {
-  content: "It's best to use one of my emails below.";
+  content: "To contact me, it's best to use one of my emails below.";
 }
 
 #links_menu {
@@ -94,6 +94,10 @@ h1, h2, h3, h4 {
   box-shadow: none;
 }
 
+.entry-table:not(.editing) td {
+  padding: 7px 0;
+}
+
 .entry-table .editing {
   background: #dfd;
   border: 1px solid #ada;
@@ -135,6 +139,7 @@ h1, h2, h3, h4 {
 }
 
 .entry-table .editing .entry-edit {
+  margin-bottom: 7px;
   background-image: url('../Images/CheckActive.gif');
 }
 
@@ -145,7 +150,6 @@ h1, h2, h3, h4 {
 .entry-table .editing .entry-delete {
   visibility: hidden;
 }
-
 
 /* Notifications
 */

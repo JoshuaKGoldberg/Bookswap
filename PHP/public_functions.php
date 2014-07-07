@@ -274,7 +274,7 @@
      */
     function requireUserLogin($arguments, $action='do this') {
         if(!UserLoggedIn()) {
-            output($arguments, 'You must be logged in to ' . $action . '.');
+            outputFailure($arguments, 'You must be logged in to ' . $action . '.');
             return false;
         }
         return true;
@@ -295,8 +295,7 @@
             return false;
         }
         if(!UserVerified()) {
-            output($arguments, 'You must be verified to ' . $action . '.');
-            return false;
+            return outputFailure($arguments, 'You must be verified to ' . $action . '.');
         }
         return true;
     }
@@ -317,8 +316,7 @@
             return false;
         }
         if(!UserAdministrator()) {
-            output($arguments, 'You must be an administrator to ' . $action . '.');
-            return false;
+            return outputFailure($arguments, 'You must be an administrator to ' . $action . '.');
         }
         return true;
     }
@@ -339,7 +337,7 @@
             'session' => $_SESSION,
             'timestamp' => time()
         );
-        output($arguments, $output);
+        return outputSuccess($arguments, $output);
     }
     
     /**
@@ -381,27 +379,23 @@
         
         // The password must be secure
         if(!isPasswordSecure($password)) {
-            output($arguments, 'The password isn\'t secure enough.');
-            return false;
+            return outputFailure($arguments, 'The password isn\'t secure enough.');
         }
         
         // The email must be an academic email
         if(!isStringEmail($email)) {
-            output($arguments, 'That email isn\'t an actual email!');
-            return false;
+            return outputFailure($arguments, 'That email isn\'t an actual email!');
         }
         if(!isEmailAcademic($email)) {
-            output($arguments, 'Sorry, right now we\'re only allowing school '
+            return outputFailure($arguments, 'Sorry, right now we\'re only allowing school '
                 . 'emails. Please use a .edu email address.');
-            return false;
         }
         
         // Also make sure that email isn't taken
         $dbConn = getPDOQuick($arguments);
         if(checkKeyExists($dbConn, 'users', 'email', $email)
           || checkKeyExists($dbConn, 'users', 'email_edu', $email)) {
-            output($arguments, 'The email \'' . $email . '\' is taken.');
-            return false;
+            return outputFailure($arguments, 'The email \'' . $email . '\' is taken.');
         }
 
         // If successful, log the user in
@@ -409,7 +403,8 @@
             publicUserLogin($arguments, true);
             return true;
         }
-        return false;
+        
+        return outputFailure($arguments);
     }
   
     /**
@@ -430,12 +425,10 @@
         ));
         
         if($status) {
-            output($arguments, 'Yes');
+            return outputSuccess($arguments);
         } else {
-            output($arguments, 'Couldn\'t send an email! Please try again.');
+            return outputFailure($arguments, 'Couldn\'t send an email! Please try again.');
         }
-        
-        return $status;
     }
   
     /**
@@ -462,8 +455,7 @@
 
         // For security's sake, make sure the given user_id matches $_SESSION
         if($_SESSION['user_id'] != $user_id) {
-            output($arguments, 'The given user ID doesn\'t match the current user\'s');
-            return false;
+            return outputFailure($arguments, 'The given user ID doesn\'t match the current user\'s');
         }
 
         // Get the corresponding user's code from the database
@@ -472,8 +464,7 @@
 
         // If it doesn't match, complain
         if($code != $code_actual) {
-            output($arguments, 'Invalid code provided! Please try again.');
-            return false;
+            return outputFailure($arguments, 'Invalid code provided! Please try again.');
         }
 
         // Otherwise, clear the verification and set the user role to normal
@@ -481,8 +472,7 @@
         $_SESSION['role'] = 'User';
         dbUserVerificationDeleteCode($dbConn, $user_id, true);
 
-        output($arguments, 'Yes');
-        return true;
+        return outputSuccess($arguments);
     }
     
     /**
@@ -526,18 +516,15 @@
 
          // The password must be secure
         if($has_pass && !isPasswordSecure($password)) {
-            output($arguments, 'Your password isn\'t secure enough.');
-            return false;
+            return outputFailure($arguments, 'Your password isn\'t secure enough.');
         }
 
         // The email must be an academic email
         if(!isStringEmail($email)) {
-            output($arguments, 'That email isn\'t a real email, silly!');
-            return false;
+            return outputFailure($arguments, 'That email isn\'t a real email, silly!');
         }
         if(!isEmailAcademic($email)) {
-            output($arguments, 'Sorry, right now we only allow school emails. Please use a .edu email address.');
-            return false;
+            return outputFailure($arguments, 'Sorry, right now we only allow school emails. Please use a .edu email address.');
         }
 
         // If that email is being used already, try to log into it 
@@ -572,24 +559,20 @@
                 
                 // Log in with the new user
                 loginAttempt($dbConn, $email, $password);
-                output($arguments, 'Yes');
-                return true;
+                return outputSuccess($arguments);
             }
             
-            // That failed 
-            output($arguments, 'That email is already being used.<br>'
+           return outputFailure($arguments, 'That email is already being used.<br>'
                 . '<small>If you have an account under ' . $email . ', '
                 . 'you can log in here with your password to unify the two '
                 . 'accounts.</small>');
-            return false;
         }
 
         // If a password is given, check that for validity too
         if($has_pass) {
             // The password must be secure
             if(!isPasswordSecure($password)) {
-                output($arguments, 'Your password isn\'t secure enough.');
-                return false;
+                return outputFailure($arguments, 'Your password isn\'t secure enough.');
             }
             
             // Since the password is secure, give it to the user
@@ -614,7 +597,7 @@
         // Give the user's session the user information
         copyUserToSession(getUserInfo($dbConn, $user_id));
 
-        output($arguments, 'Yes');
+        outputSuccess($arguments);
     }
     
     /**
@@ -643,8 +626,7 @@
         // Grab user info from the database, and ensure it matches
         $user_info = getUserFromEmail($dbConn, $email);
         if(empty($user_info)/* || $username != $user_info['username']*/) {
-            output($arguments, 'Incorrect user information.');
-            return false;
+            return outputFailure($arguments, 'Incorrect user information.');
         }
         $user_id = $user_info['user_id'];
         $username = $user_info['username'];
@@ -652,11 +634,10 @@
         // With the request verified, create a reset code and send them an email
         $status = dbUserPasswordResetAddCode($dbConn, $user_id, $username, $email);
         if($status) {
-            output($arguments, 'Yes');
+            return outputSuccess($arguments);
         } else {
-            output($arguments, 'An unknown failure occurred... :(');
+            return outputFailure($arguments, 'An unknown failure occurred... :(');
         }
-        return $status;
     }
     
     /**
@@ -689,40 +670,35 @@
         
         // The password must be secure
         if(!isPasswordSecure($password)) {
-            output($arguments, 'The password isn\'t secure enough.');
-            return false;
+            return outputFailure($arguments, 'The password isn\'t secure enough.');
         }
         
         // Grab user info from the database, and ensure it matches
         $user_info = getUserFromEmail($dbConn, $email);
         if(empty($user_info)/* || $username != $user_info['username']*/) {
-            output($arguments, 'Incorrect user information.');
-            return false;
+            return outputFailure($arguments, 'Incorrect user information.');
         }
         $user_id = $user_info['user_id'];
         
         // Grab reset info from the database, and ensure it exists
         $reset_info = dbUserPasswordResetGetCode($dbConn, $user_id);
         if(empty($reset_info) || !isset($reset_info['code'])) {
-            output($arguments, 'An unknown failure occurred... :(');
-            return false;
+            return outputFailure($arguments, 'An unknown failure occurred... :(');
         }
         
         // Make sure the user's code matches what's in the database.
         if($reset_info['code'] != $code) {
-            output($arguments, 'An unknown failure occurred... :(');
-            return false;
+            return outputFailure($arguments, 'An unknown failure occurred... :(');
         }
         
         // Perform the replacement, and delete the old code
         $status = dbUsersEditPassword($dbConn, $user_id, $password);
         dbUserPasswordResetDeleteCode($dbConn, $user_id);
         if($status) {
-            output($arguments, 'Yes');
+            return outputSuccess($arguments);
         } else {
-            output($arguments, 'An unknown failure occurred... :(');
+            return outputFailure($arguments, 'An unknown failure occurred... :(');
         }
-        return $status;
     }
     
     /**
@@ -743,11 +719,9 @@
         $email = $arguments['email'];
         $password = $arguments['password'];
         if(loginAttempt($dbConn, $email, $password)) {
-            output($arguments, 'Yes');
-            return true;
+            return outputSuccess($arguments);
         } else {
-            output($arguments, 'No');
-            return false;
+            return outputFailure($arguments);
         }
     }
   
@@ -782,13 +756,11 @@
 
         // If it did, congratulate the user
         if($user_info) {
-            output($arguments, 'Yes');
-            return true;
+            return outputSuccess($arguments);
         }
         // If it didn't work (couldn't login or register), complain
         else {
-            output($arguments, 'No');
-            return false;
+            return outputFailure($arguments);
         }
     }
     
@@ -814,14 +786,12 @@
         
         // Don't do anything if it's an invalid value
         if(!$username_new || strlen($username_new) <= 1) {
-            output($arguments, 'Invalid username given... :(\n');
-            return false;
+            return outputFailure($arguments, 'Invalid username given... :(');
         }
         
         // Don't do anything if it's the same as before
         if($username_new == $username_old) {
-            output($arguments, 'Same username as before... :(\n');
-            return false;
+            return outputFailure($arguments, 'Same username as before... :(');
         }
         
         // Replace the user's actual username
@@ -854,14 +824,12 @@
         
         // Don't do anything if it's an invalid value
         if(!$email_new || !filter_var($email_new, FILTER_VALIDATE_EMAIL)) {
-            output($arguments, 'Invalid email given... :(\n');
-            return false;
+            return outputFailure($arguments, 'Invalid email given... :(');
         }
         
         // Don't do anything if it's the same as before
         if($email_new == $email_old) {
-            output($arguments, 'Same email as before... :(\n');
-            return false;
+            return outputFailure($arguments, 'Same email as before... :(');
         }
         
         $dbConn = getPDOQuick($arguments);
@@ -869,8 +837,7 @@
         // Don't do anything if the email is taken
         if(checkKeyExists($dbConn, 'users', 'email', $email_new)
                 || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
-            output($arguments, 'The email \'' . $email_new . '\' is already taken :(');
-            return false;
+            return outputFailure($arguments, 'The email \'' . $email_new . '\' is already taken :(');
         }
         
         // Replace the user's actual email
@@ -878,6 +845,8 @@
         
         // Reset the $_SESSION email to be that of the database's
         $_SESSION['email'] = getRowValue($dbConn, 'users', 'email', 'user_id', $user_id);
+        
+        return outputSuccess($arguments);
     }
   
     /**
@@ -903,20 +872,17 @@
         
         // Don't do anything if it's an invalid value
         if(!$email_new || !filter_var($email_new, FILTER_VALIDATE_EMAIL)) {
-            output($arguments, 'Invalid email given... :(\n');
-            return false;
+            return outputFailure($arguments, 'Invalid email given... :(');
         }
         
         // Don't do anything if it's the same as before
         if($email_new == $email_old) {
-            output($arguments, 'Same email as before... :(\n');
-            return false;
+            return outputFailure($arguments, 'Same email as before... :(');
         }
         
         // Don't do anything if it's not an .edu email
         if(!endsWith($email_new, '.edu')) {
-            output($arguments, 'Not an .edu address... :(\n');
-            return false;
+            return outputFailure($arguments, 'Not an .edu address... :(');
         }
         
         $dbConn = getPDOQuick($arguments);
@@ -924,14 +890,15 @@
         // Don't do anything if the email is taken
         if(checkKeyExists($dbConn, 'users', 'email', $email_new)
                 || checkKeyExists($dbConn, 'users', 'email_edu', $email_new)) {
-            output($arguments, 'The email \'' . $email_new . '\' is already taken :(');
-            return false;
+            return outputFailure($arguments, 'The email \'' . $email_new . '\' is already taken :(');
         }
         
         dbUsersEditEmailEdu($dbConn, $user_id, $email_new, 'user_id');
         
         // Reset the $_SESSION email to be that of the database's
         $_SESSION['email_edu'] = getRowValue($dbConn, 'users', 'email_edu', 'user_id', $user_id);
+        
+        return outputSuccess($arguments);
     }
     
     /**
@@ -956,8 +923,7 @@
         
         // The password must be secure
         if(!isPasswordSecure($password)) {
-            output($arguments, 'The password isn\'t secure enough.');
-            return false;
+            return outputFailure($arguments, 'The password isn\'t secure enough.');
         }
         
         // Replace the user's actual password, and make a new salt
@@ -966,6 +932,8 @@
         
         // Reset the user's session, including password and salt
         copyUserToSession(getUserInfo($dbConn, $user_id));
+        
+        return outputSuccess();
     }
     
     /**
@@ -1296,7 +1264,7 @@
         
         // Return a JSON encoding of the results
         $result = $stmnt->fetchAll(PDO::FETCH_ASSOC);
-        output($arguments, $result);
+        outputSuccess($arguments, $result);
         return $result;
     }
     
@@ -1351,15 +1319,13 @@
         
         // Make sure the ISBN is valid
         if(!(strlen($isbn) == 10 || strlen($isbn) == 13) || !is_numeric($isbn)) {
-            output($arguments, 'Invalid ISBN given.');
-            return;
+            return outputFailure($arguments, 'Invalid ISBN given.');
         }
         
         // Make sure the ISBN doesn't already exist
         $dbConn = getPDOQuick($arguments);
         if(checkKeyExists($dbConn, 'books', 'isbn', $isbn)) {
-            output($arguments, 'ISBN ' . $isbn . ' already exists!');
-            return;
+            return outputFailure($arguments, 'ISBN ' . $isbn . ' already exists!');
         }
         
         // Get the actual JSON contents and decode them
@@ -1369,21 +1335,19 @@
         
         // If there was an error, oh no!
         if(isset($result->error)) {
-            output($arguments, $result->error->message);
-            return;
+            return outputFailure($arguments, $result->error->message);
         }
         
         // Attempt to get the first item in the list (which will be the book)
         if(!isset($result->items) || !isset($result->items[0])) {
-            output($arguments, 'No results for ' . $isbn);
-            return false;
+            return outputFailure($arguments, 'No results for ' . $isbn);
         }
         $book = $result->items[0];
         
         // Call the backend bookProcessObject to add the book to the database
+        require_once('imports.inc.php');
         $arguments['dbConn'] = $dbConn;
         $arguments['book'] = $book;
-        require_once('imports.inc.php');
         $added = bookProcessObject($arguments);
         
         // If that was successful, hooray!
@@ -1396,6 +1360,8 @@
         else {
             echo '<aside class="failure">ISBN ' . $isbn . ' returned no results.</aside>';
         }
+        
+        return outputSuccess();
     }
   
     /**
@@ -1417,13 +1383,8 @@
         }
         
         $value = urlencode($arguments['value']);
-        output($arguments, '<aside class="small">Results for ' . $value . '</aside>' . PHP_EOL);
-        
-        // Start the Google query
         $query = 'https://www.googleapis.com/books/v1/volumes?';
-        // Add the search term
         $query .= 'q=' . $value;
-        // Finish the query with the Google key
         $query .= '&key=' . getGoogleKey();
         
         // Run the query and get the results
@@ -1432,7 +1393,8 @@
         
         // Use the private function to add the JSON book to the database
         require_once('imports.inc.php');
-        return bookImportFromJSON($arguments, $arguments['verbose']);
+        $results = bookImportFromJSON($arguments);
+        return outputSuccess($arguments, $results);
     }
   
     /**
@@ -1468,8 +1430,7 @@
         
         
         if($good) {
-            output($arguments, 'ISBN ' . $isbn . ' added successfully!');
-            return true;
+            return outputSuccess($arguments, 'ISBN ' . $isbn . ' added successfully!');
         }
     }
     
@@ -1690,10 +1651,10 @@
         // If there are any, for each of those entries, print them out
         if(count($entries)) {
             foreach($entries as $entry) {
-                TemplatePrint("Entries/Medium", 0, $entry);
+                TemplatePrint('Entries/Medium', 0, $entry);
             }
         } else {
-            output($arguments, "Nothing going!");
+            outputSuccess($arguments, 'Nothing going!');
         }
     }
     
@@ -1729,7 +1690,8 @@
         // For each one, query the book information, and print it out
         foreach($isbns as $key=>$entry) {
             $entry = array_merge($entry, array(
-                'action' => $action
+                'action' => $action,
+                'user_id' => $user_id
             ));
             $book = dbBooksGet($dbConn, $entry['isbn']);
             TemplatePrint('Books/' . $size, 0, array_merge($entry, $book));
@@ -1779,7 +1741,7 @@
         echo '<table class="entry-table">';
         foreach($entries as $key=>$entry) {
             $result = dbBooksGet($dbConn, $entry['isbn']);
-            TemplatePrint('Entries/' . $size, 0, array_merge($entry, $result));
+            TemplatePrint('Entries/' . $size, 0, array_merge($result, $entry));
         }
         echo '</table>';
         return true;
@@ -1882,7 +1844,7 @@
         // Get the results to print them out
         $results = $stmnt->fetchAll(PDO::FETCH_ASSOC);
         if(empty($results)) {
-            output($arguments, 'Nothing going!');
+            outputSuccess($arguments, 'Nothing going!');
         } 
         else {
             foreach($results as $result) {

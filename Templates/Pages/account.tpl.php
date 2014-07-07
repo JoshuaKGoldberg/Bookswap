@@ -79,17 +79,17 @@
     } else {
         echo $username . ' - ' . getSiteName();
     }
-    ?></title>
+?></title>
 
 <section id="account">
     <!-- Title / Username -->
     <?php if($using_current) echo '<section class="notice"><div class="standard_main">This is your account page. Click your info to change it.</div></section>' . PHP_EOL; ?>
     <h1 id="username" class="standard_main standard_vert giant"><?php
-    if($using_current) {
-        PrintEditable($username, 'publicUserEditUsername', array('callback' => 'updateSearchUsername'));
-    } else {
-        echo $username;
-    }
+        if($using_current) {
+            PrintEditable($username, 'publicUserEditUsername', array('callback' => 'updateSearchUsername'));
+        } else {
+            echo $username;
+        }
     ?></h1>
     <?php if($descriptor): ?>
 
@@ -103,8 +103,7 @@
     ?></p>
 
     <!-- Psuedo-menu -->
-    <div id="links_menu" class="standard_main">
-    <?php
+    <div id="links_menu" class="standard_main"><?php
         $out = '';
         $items = array(
             'top' => 'account',
@@ -119,14 +118,12 @@
         }
         $out = substr($out, 0, -7);
         echo $out;
-    ?>
-    </div>
+    ?></div>
 
     <!-- Contact info -->
     <?php if($show_contact_info): ?>
 
-    <div id="contact_info" class="standard_main standard_vert">
-    <?php 
+    <div id="contact_info" class="standard_main standard_vert"><?php 
         echo PHP_EOL;
         // If on the current user, print callbacks to edit the info
         if($using_current) {
@@ -139,8 +136,7 @@
             printContactInfo(5, $user_info['email_edu'], '.edu email');
         }
         echo PHP_EOL;
-    ?>
-    </div>
+    ?></div>
     <?php endif; ?>
 
     <!-- Lists of books the user wants -->
@@ -181,11 +177,9 @@
 <!-- Notifications -->
 <section id="notifications">
     <h1 class="standard_main standard_vert giant">notifications</h1>
-    <div class="standard_main standard_vert">
-    <?php
-      PrintRequest('publicPrintNotifications');
-    ?>
-    </div>
+    <div class="standard_main standard_vert"><?php
+        PrintRequest('publicPrintNotifications');
+    ?></div>
 </section>
 <?php endif; ?>
 
@@ -193,22 +187,23 @@
 <section id="recommendations">
     <h1 class="standard_main standard_vert giant">
     <?php
-      echo 'all recommendations for you';
-      if(!$using_current) echo ' and ' . $username;
+        echo 'all recommendations for you';
+        if(!$using_current) {
+            echo ' and ' . $username;
+        }
     ?>
     </h1>
-    <div class="standard_main standard_vert">
-    <?php
-      // If you're the current user, find all matching entries in the entire database
-      if($using_current)
-        PrintRequest('publicPrintRecommendationsDatabase', array('user_id' => $user_id));
-      // Otherwise you're another user, find the matches between the two of you
-      else PrintRequest('publicPrintRecommendationsUser', array(
-        'user_id_a' => $_SESSION['user_id'],
-        'user_id_b' => $user_id
-      ));
-    ?>
-    </div>
+    <div class="standard_main standard_vert"><?php
+        // If you're the current user, find all matching entries in the entire database
+        if($using_current) {
+            PrintRequest('publicPrintRecommendationsDatabase', array('user_id' => $user_id));
+        }
+        // Otherwise you're another user, find the matches between the two of you
+        else PrintRequest('publicPrintRecommendationsUser', array(
+            'user_id_a' => $_SESSION['user_id'],
+            'user_id_b' => $user_id
+        ));
+    ?></div>
 </section>
 
 <?php endif; ?>
@@ -217,8 +212,8 @@
 <?php if($using_current): ?>
 <section id="recent_activity">
     <h1 class="standard_main standard_vert giant">recent <?php echo getSchoolName(); ?> listings</h1>
-    <div class="standard_main listings">
-    <?php PrintRequest("publicPrintRecentListings", array("verbose" => true)); ?>
-    </div>
+    <div class="standard_main listings"><?php 
+        PrintRequest("publicPrintRecentListings", array("verbose" => true)); 
+    ?></div>
 </section>
 <?php endif; ?>

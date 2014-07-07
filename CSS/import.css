@@ -15,3 +15,7 @@ input.import {
 .thinker.thinking {
   height: 1.4em;
 }
+
+.import.import-failed {
+  opacity: .7;
+}
