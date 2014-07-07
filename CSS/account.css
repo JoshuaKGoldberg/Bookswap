@@ -94,6 +94,10 @@ h1, h2, h3, h4 {
   box-shadow: none;
 }
 
+.entry-table:not(.editing) td {
+  padding: 7px 0;
+}
+
 .entry-table .editing {
   background: #dfd;
   border: 1px solid #ada;
@@ -135,6 +139,7 @@ h1, h2, h3, h4 {
 }
 
 .entry-table .editing .entry-edit {
+  margin-bottom: 7px;
   background-image: url('../Images/CheckActive.gif');
 }
 

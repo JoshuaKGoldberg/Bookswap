@@ -25,6 +25,7 @@
         echo date('M jS \'y', strtotime($_TARGS['timestamp']));
     ?></td>
 
+    <?php if($using_current): ?>
     <td class="entry book-entry entry-changes-cell">
         <?php
             $action = $_TARGS['action'];
@@ -35,4 +36,5 @@
         <div class="entry-changes entry-delete" onclick='<?php echo $func_del; ?>'></div>
         <div class="entry-changes entry-edit" onclick='<?php echo $func_edit; ?>'></div>
     </td>
+    <?php endif; ?>
 </tr>

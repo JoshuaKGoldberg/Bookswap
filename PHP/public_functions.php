@@ -1690,7 +1690,8 @@
         // For each one, query the book information, and print it out
         foreach($isbns as $key=>$entry) {
             $entry = array_merge($entry, array(
-                'action' => $action
+                'action' => $action,
+                'user_id' => $user_id
             ));
             $book = dbBooksGet($dbConn, $entry['isbn']);
             TemplatePrint('Books/' . $size, 0, array_merge($entry, $book));
@@ -1740,7 +1741,7 @@
         echo '<table class="entry-table">';
         foreach($entries as $key=>$entry) {
             $result = dbBooksGet($dbConn, $entry['isbn']);
-            TemplatePrint('Entries/' . $size, 0, array_merge($entry, $result));
+            TemplatePrint('Entries/' . $size, 0, array_merge($result, $entry));
         }
         echo '</table>';
         return true;

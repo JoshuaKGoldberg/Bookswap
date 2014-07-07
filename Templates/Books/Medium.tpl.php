@@ -7,8 +7,8 @@
     $publisher = $_TARGS['publisher'];
     $year = $_TARGS['year'];
     $pages = $_TARGS['pages'];
+    $user_id = $_TARGS['user_id'];
     
-    $user_id = 1;
     $action = isset($_TARGS['action']) ? $_TARGS['action'] : false;
 
     // if(UserLoggedIn()) {
