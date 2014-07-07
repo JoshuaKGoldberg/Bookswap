@@ -194,7 +194,9 @@
     <h1 class="standard_main standard_vert giant">
     <?php
       echo 'all recommendations for you';
-      if(!$using_current) echo ' and ' . $username;
+      if(!$using_current) {
+        echo ' and ' . $username;
+      }
     ?>
     </h1>
     <div class="standard_main standard_vert">

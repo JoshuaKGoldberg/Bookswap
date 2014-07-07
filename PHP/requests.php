@@ -49,8 +49,7 @@
 
     // If the user doesn't request one of these functions, quit
     if(!in_array($function_name, $allowed_functions)) {
-        output($_GET, $function_name . ' is not allowed.');
-        return false;
+        return outputFailure($_GET, $function_name . ' is not allowed.');
     }
 
     // If it is, run the function
