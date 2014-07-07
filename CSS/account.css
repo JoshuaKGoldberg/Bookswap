@@ -16,7 +16,7 @@ h1, h2, h3, h4 {
 
 #user_description:empty:before,
 #user_description span.editable:empty:before {
-  content: "It's best to use one of my emails below.";
+  content: "To contact me, it's best to use one of my emails below.";
 }
 
 #links_menu {
@@ -146,6 +146,13 @@ h1, h2, h3, h4 {
   visibility: hidden;
 }
 
+/* Listings
+*/
+
+.listings .entry {
+  padding: 0;
+  line-height: 117%;
+}
 
 /* Notifications
 */

@@ -566,6 +566,7 @@ footer small {
 */
 .editable {
   text-align: center;
+  border: 1px solid transparent;
 }
 .editable .requesting input {
   background: #eee;
