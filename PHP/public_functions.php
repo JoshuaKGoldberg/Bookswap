@@ -341,7 +341,7 @@
     }
     
     /**
-     * CreateUser
+     * UserCreate
      * 
      * Creates a user of the given username, password, and email. This will call
      * dbUsersAdd on success, which sets the user's verification status to 
@@ -1224,9 +1224,34 @@
     }
     
     /**
-     * GetBookEntries
+     * BookGetInfo
      * 
-     * Retrieves all entries for an book of a given ISBN. An action ("Buy" or 
+     * Retrieves a simple table of information for a book of a given ISBN.
+     * 
+     * @param {String} isbn   An ISBN number (as a string, in case it starts
+     *                        with 0) of a book to be imported.
+     */
+    function publicBookGetInfo($arguments) {
+        if(!requireArguments($arguments, 'isbn')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $isbn = ArgStrict($arguments['isbn']);
+        
+        $info = dbBooksGet($dbConn, $isbn);
+        
+        if(!$info) {
+            return outputFailure($arguments, 'ISBN not found');
+        } else {
+            return outputSuccess($arguments, $info);
+        }
+    }
+    
+    /**
+     * BookGetEntries
+     * 
+     * Retrieves all entries for a book of a given ISBN. An action ("Buy" or 
      * "Sell") may be given optionally.
      * 
      * @todo Allow for other formats, such as HTML or XML
@@ -1241,7 +1266,7 @@
         }
         
         $dbConn = getPDOQuick($arguments);
-        $isbn = $arguments['isbn'];
+        $isbn = ArgStrict($arguments['isbn']);
         
         // If an action isn't given, default to '%' (anything)
         if(!isset($arguments['action']) || !$arguments['action']) {
@@ -1444,10 +1469,11 @@
      *                        with 0) of the book.
      * @param {String} action   The entry action to be listed (either "buy" or
      *                          "sell").
-     * @param {String} price   The the price the user wants to {action} the book
+     * @param {String} price   The price the user wants to {action} the book
      *                         for (as a String, for 0s).
-     * @todo In the future, a user should be able to have multiple entries. The
-     *       backend function checks for that currently.
+     * @param {String} state   The requested state for the book to be in,
+     *                         which must be one of the predeclared strings in
+     *                         defaults.php::getBookStates().
      */
     function publicEntryAdd($arguments) {
         if(!requireUserVerification($arguments, 'add an entry')) {
@@ -1484,11 +1510,11 @@
      * Edits the price and/or state of the current user's entry for a particular 
      * book, given the entry_id. 
      *
-     * @param {String} entry_id   The ID of the entry from the database.
+     * @param {Number} entry_id   The ID of the entry from the database.
      * @param {String} action   The entry action to filter on (one of "buy" or
      *                          "sell").
-     * @param {String} price   The the price the user wants to {action} the book
-     *                         for (as a String, for 0s).
+     * @param {String} price   The price the user wants to {action} the book for
+     *                         (as a String, for 0s).
      * @param {String} [state]   The requested new state for the book to be in,
      *                           which must be one of the predeclared strings in
      *                           defaults.php::getBookStates().
@@ -1564,7 +1590,7 @@
      * Removes an entry regarding a particular book for the current user, if it
      * already exists.
      * 
-     * @param {String} entry_id   The ID of the entry from the database.
+     * @param {Number} entry_id   The ID of the entry from the database.
      */
     function publicEntryDelete($arguments) {
         if(!requireUserVerification($arguments, 'delete an entry')) {
