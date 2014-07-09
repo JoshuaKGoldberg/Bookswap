@@ -341,6 +341,55 @@
     }
     
     /**
+     * UserGetInfo
+     * 
+     * Retrieves all publically available information for a user of the given
+     * identity. Opt
+     * 
+     * @param {String} identity
+     * @param {String} [type]
+     * @param {Boolean} [full]
+     */
+    function publicUserGetInfo($arguments) {
+        if(!requireArguments($arguments, 'identity')) {
+            return false;
+        }
+        if(!requireUserLogin($arguments, 'get user information')) {
+            return false;
+        }
+        
+        $dbConn = getPDOQuick($arguments);
+        $identity = ArgLoose($arguments['identity']);
+        
+        $type = isset($arguments['type']) ? ArgStrict($arguments['type']) : 'username';
+        $full = isset($arguments['full']) ? boolify($arguments['full']) : false;
+        
+        $infoRaw = dbUsersGet($dbConn, $identity, $type);
+        $user_id = $infoRaw['user_id'];
+        $info = array();
+        
+        foreach($infoRaw as $key=>$value) {
+            if(!is_numeric($key) && stripos($key, 'password') === false && $key != 'salt') {
+                $info[$key] = $value;
+            }
+        }
+        
+        if(!$info) {
+            return outputFailure($arguments, 'Could not find user.');
+        }
+        
+        if($full) {
+            $info['entries'] = dbEntriesGet($dbConn, $user_id);
+            
+            if($_SESSION['user_id'] == $user_id) {
+                $info['notifications'] = dbNotificationsGet($dbConn, $user_id);
+            }
+        }
+        
+        return outputSuccess($arguments, $info);
+    }
+    
+    /**
      * UserCreate
      * 
      * Creates a user of the given username, password, and email. This will call

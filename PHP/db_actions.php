@@ -8,11 +8,9 @@
   // dbUsersGet("identity"[, "type"])
   // Gets the user of the given identity type (by default, username)
   // Sample usage: dbUsersGet($dbConn, $username, "username");
-  function dbUsersGet($dbConn, $identity, $type='username', $noverbose=false) {
+  function dbUsersGet($dbConn, $identity, $type='username') {
     // Ensure the identity exists in the database
     if(!checkKeyExists($dbConn, 'users', $type, $identity)) {
-      if(!$noverbose)
-        echo 'No such ' . $type . ' exists: ' . $identity;
       return false;
     }
     
@@ -860,4 +858,12 @@
     return getRowValue($dbConn, 'users', 'email', 'email', $email)
         && getRowValue($dbConn, 'users', 'email_edu', 'email_edu', $email);
   }
+  
+    function boolify($str) {
+        if(is_bool($str)) {
+            return $str;
+        }
+        
+        return strtolower($str[0]) === 't';
+    }
 ?>

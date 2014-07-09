@@ -29,7 +29,7 @@
     // Functions the user may call via JS
     $allowed_functions = array(
         'publicTest',
-        'publicUserCreate', 'publicUserVerify',
+        'publicUserGetInfo', 'publicUserCreate', 'publicUserVerify',
         'publicUserSetVerificationEmail', 'publicUserSendWelcomeEmail', 
         'publicUserRequestPasswordReset', 'publicUserPerformPasswordReset',
         'publicUserLogin', 'publicUserLoginFacebook', 
