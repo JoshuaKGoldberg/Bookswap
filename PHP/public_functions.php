@@ -344,11 +344,15 @@
      * UserGetInfo
      * 
      * Retrieves all publically available information for a user of the given
-     * identity. Opt
+     * identity. Optionally, information on entries may be included, along with
+     * notifications for your own account.
      * 
-     * @param {String} identity
-     * @param {String} [type]
-     * @param {Boolean} [full]
+     * @param {String} identity   An identity to find the user by.
+     * @param {String} [type]   The type of identity to find the user by (by 
+     *                          default, "username")
+     * @param {Boolean} [full]   Whether information on entries (and, for your
+     *                           own lookups, notifications) should be included
+     *                           (by default, false).
      */
     function publicUserGetInfo($arguments) {
         if(!requireArguments($arguments, 'identity')) {
@@ -361,7 +365,7 @@
         $dbConn = getPDOQuick($arguments);
         $identity = ArgLoose($arguments['identity']);
         
-        $type = isset($arguments['type']) ? ArgStrict($arguments['type']) : 'username';
+        $type = isset($arguments['type']) ? ArgLoose($arguments['type']) : 'username';
         $full = isset($arguments['full']) ? boolify($arguments['full']) : false;
         
         $infoRaw = dbUsersGet($dbConn, $identity, $type);
