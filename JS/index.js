@@ -100,10 +100,14 @@ function hasNumber(str) { return (/[0-9]/.test(str)); }
 function hasSymbol(str) { return (/[^a-zA-Z0-9]/.test(str)); }
 
 function joinComplete(result) {
-  // If the login attempt was successful, refresh
-  if(result == '"Yes"') {
-    location.reload();
-  }
-  // Otherwise complain
-  $("#user_login_text").text(result);
+    if (typeof result === "string") {
+        result = JSON.parse(result);
+    }
+    
+    if (result.status === "success") {
+        location.reload();
+        $("#user_login_text").text("Success - if your page doesn't refresh, you may do so now.");
+    } else {
+        $("#user_login_text").text(result.message);
+    }
 }
